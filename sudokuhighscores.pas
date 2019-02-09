@@ -1,13 +1,13 @@
-unit sudokuHighscores;
+UNIT sudokuHighscores;
 
 {$mode objfpc}{$H+}
 
-interface
+INTERFACE
 
-uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs;
+USES
+  Classes, sysutils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs;
 
-type
+TYPE
   TForm2 = class(TForm)
   private
 
@@ -15,12 +15,12 @@ type
 
   end;
 
-var
+VAR
   Form2: TForm2;
 
-implementation
+IMPLEMENTATION
 
-initialization
+INITIALIZATION
   {$I sudokuHighscores.lrs}
 
 end.

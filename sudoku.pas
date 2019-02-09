@@ -1,6 +1,6 @@
 UNIT sudoku;
 INTERFACE
-USES bufFiles;
+USES serializationUtil;
 CONST
   C_sudokuStructure:array [0..6] of record
                                       size     :byte;
@@ -28,7 +28,9 @@ TYPE
 
   FT_output=PROCEDURE(txt:string);
 
-  T_sudoku=object(serializable)
+  { T_sudoku }
+
+  T_sudoku=object(T_serializable)
     private
       el:array of word;
       fieldSize,structIdx:byte;
@@ -43,9 +45,9 @@ TYPE
       PROCEDURE   solve;
       PROCEDURE   writeTxtForm  (writeOut,writelnOut:FT_output);
       PROCEDURE   writeLaTeXForm(writeOut,writelnOut:FT_output; enumString:string; small:boolean);
-      FUNCTION  loadFromFile(VAR F:bufferedFile):boolean; virtual; overload; //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-      PROCEDURE saveToFile(VAR F:bufferedFile);           virtual; overload; //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-      FUNCTION  defaultFilesize:longint;                  virtual;           //gibt die Puffergröße (=übliche Dateigröße) an
+      FUNCTION getSerialVersion:dword; virtual;
+      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
+      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
   end;
 
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
@@ -56,7 +58,7 @@ PROCEDURE writeLatexHeader(writelnOut:FT_output);
   VAR i:byte;
   begin for i:=0 to 5 do writelnOut(C_Latex_fileHeader[i]); end;
 
-FUNCTION T_sudoku.fullSolve(fillRandom:boolean):T_sudokuState;
+FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
   VAR i0,j0,i1,j1:byte;
       k,excludor:word;
       done:array of boolean;
@@ -189,7 +191,7 @@ FUNCTION T_sudoku.fullSolve(fillRandom:boolean):T_sudokuState;
     setLength(done,0);
   end; //fullSolve
 
-CONSTRUCTOR T_sudoku.createUnfilled(size:byte);
+CONSTRUCTOR T_sudoku.createUnfilled(size: byte);
   VAR k:word;
   begin
     //correct size
@@ -208,12 +210,13 @@ CONSTRUCTOR T_sudoku.createUnfilled(size:byte);
     for k:=0 to length(el)-1 do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
-CONSTRUCTOR T_sudoku.createFull(size:byte);
+CONSTRUCTOR T_sudoku.createFull(size: byte);
   begin
     repeat createUnfilled(size); until fullSolve(true)=solved;
   end;
 
-CONSTRUCTOR T_sudoku.create(size:byte; symm_x,symm_y,symm_center:boolean; difficulty:word);
+CONSTRUCTOR T_sudoku.create(size: byte; symm_x, symm_y, symm_center: boolean;
+  difficulty: word);
   VAR copy:array of word;
       k:word;
       undefTries,outerUndefTries:word;
@@ -277,7 +280,7 @@ CONSTRUCTOR T_sudoku.create(size:byte; symm_x,symm_y,symm_center:boolean; diffic
     setLength(copy,0);
   end;
 
-FUNCTION T_sudoku.getSquare(x,y:byte):byte;
+FUNCTION T_sudoku.getSquare(x, y: byte): byte;
   begin
     if (x>=0) and (x<fieldsize) and
        (y>=0) and (y<fieldsize) then begin
@@ -289,7 +292,7 @@ FUNCTION T_sudoku.getSquare(x,y:byte):byte;
     end else result:=255;
   end;
 
-FUNCTION T_sudoku.given:word;
+FUNCTION T_sudoku.given: word;
   VAR i,j:word;
   begin
     result:=0;
@@ -303,7 +306,7 @@ DESTRUCTOR T_sudoku.destroy;
 PROCEDURE T_sudoku.solve;
   begin fullSolve(false); end;
 
-PROCEDURE T_sudoku.writeTxtForm  (writeOut,writelnOut:FT_output);
+PROCEDURE T_sudoku.writeTxtForm(writeOut, writelnOut: FT_output);
   FUNCTION numString(w:word):string;
     VAR i:byte;
     begin
@@ -366,7 +369,8 @@ PROCEDURE T_sudoku.writeTxtForm  (writeOut,writelnOut:FT_output);
     writelnOut(' '); //abschließende Leerzeile
   end;
 
-PROCEDURE T_sudoku.writeLaTeXForm(writeOut,writelnOut:FT_output; enumString:string; small:boolean);
+PROCEDURE T_sudoku.writeLaTeXForm(writeOut, writelnOut: FT_output;
+  enumString: string; small: boolean);
   FUNCTION numString(w:word):string;
     VAR i:byte;
     begin
@@ -425,35 +429,34 @@ PROCEDURE T_sudoku.writeLaTeXForm(writeOut,writelnOut:FT_output; enumString:stri
     if small then writelnOut('}');
   end;
 
-FUNCTION  T_sudoku.loadFromFile(VAR F:bufferedFile):boolean;
+FUNCTION T_sudoku.getSerialVersion: dword;
+  begin
+    result:=1;
+  end;
+
+FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
   //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   VAR i:longint;
   begin
-    fieldSize:=f.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
-    structIdx:=f.readByte; result:=result and
+    fieldSize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
+    structIdx:=stream.readByte; result:=result and
                                   (structIdx in [0..6]) and
                                   (C_sudokuStructure[structIdx].size=fieldSize);
     if result then begin
       setLength(el,sqr(fieldSize));
       for i:=0 to length(el)-1 do begin
-        el[i]:=f.readWord; result:=result and (el[i]>=0) and (el[i]<=C_sudokuStructure[structIdx].any);
+        el[i]:=stream.readWord; result:=result and (el[i]>=0) and (el[i]<=C_sudokuStructure[structIdx].any);
       end;
     end;
   end;
 
-PROCEDURE T_sudoku.saveToFile(VAR F:bufferedFile);
+PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
   //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
   VAR i:longint;
   begin
-    f.writeByte(fieldSize);
-    f.writeByte(structIdx);
-    for i:=0 to length(el)-1 do f.writeWord(el[i]);
+    stream.writeByte(fieldSize);
+    stream.writeByte(structIdx);
+    for i:=0 to length(el)-1 do stream.writeWord(el[i]);
   end;
-
-FUNCTION  T_sudoku.defaultFilesize:longint;
-  //gibt die Puffergröße (=übliche Dateigröße) an
-  begin result:=514; end;
-
-begin
 
 end.

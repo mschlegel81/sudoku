@@ -1,13 +1,13 @@
-unit sudokuSettings;
+UNIT sudokuSettings;
 
 {$mode objfpc}{$H+}
 
-interface
+INTERFACE
 
-uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs;
+USES
+  Classes, sysutils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs;
 
-type
+TYPE
   TForm1 = class(TForm)
   private
 
@@ -15,12 +15,12 @@ type
 
   end;
 
-var
+VAR
   Form1: TForm1;
 
-implementation
+IMPLEMENTATION
 
-initialization
+INITIALIZATION
   {$I sudokuSettings.lrs}
 
 end.

@@ -5,18 +5,20 @@ INTERFACE
 
 USES
   Classes, sysutils, LResources, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  bufFiles,sudoku,mySimpleStrings,Menus, StdCtrls, Buttons, ComCtrls, Grids,dos;
+  sudoku,Menus, StdCtrls, Buttons, ComCtrls, Grids,dos,serializationUtil;
 
 TYPE
 
   hallOfFameEntry=record
     name :string;
-    time :longint;
+    time :double;
     given:word;
     markErrors:boolean;
   end;
 
-  T_sudokuRiddle=object(serializable)
+  { T_sudokuRiddle }
+
+  T_sudokuRiddle=object(T_serializable)
     private
       fieldSize:byte;
       modeIdx  :byte;
@@ -24,7 +26,7 @@ TYPE
                                     given,conflicting:boolean;
                                     value:byte;
                                   end;
-      startTime :longint;
+      startTime :double;
       paused    :boolean;
       PROCEDURE checkConflicts;
     public
@@ -39,12 +41,14 @@ TYPE
       PROCEDURE   clearState(x,y:byte);
       FUNCTION    givenState(x,y:byte):boolean;
       PROCEDURE   renderRiddle;
-      FUNCTION  loadFromFile(VAR F:bufferedFile):boolean; virtual;  overload; //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-      PROCEDURE saveToFile(VAR F:bufferedFile);           virtual;  overload; //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-      FUNCTION  defaultFilesize:longint;                  virtual;            //gibt die Puffergröße (=übliche Dateigröße) an
+      FUNCTION getSerialVersion:dword; virtual;
+      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
+      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
   end;
 
-  T_config=object(serializable)
+  { T_config }
+
+  T_config=object(T_serializable)
     view:record
            bgColTop,
            bgColBottom,
@@ -66,9 +70,9 @@ TYPE
     gameIsDone:boolean;
     CONSTRUCTOR create;
     DESTRUCTOR  destroy;
-    FUNCTION  loadFromFile(VAR F:bufferedFile):boolean; virtual; overload; //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-    PROCEDURE saveToFile(VAR F:bufferedFile);           virtual; overload; //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-    FUNCTION  defaultFilesize:longint;                  virtual;           //gibt die Puffergröße (=übliche Dateigröße) an
+    FUNCTION getSerialVersion:dword; virtual;
+    FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
+    PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
     FUNCTION  isGoodEnough(modeIdx:byte; newEntry:hallOfFameEntry):boolean;
     PROCEDURE addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
   end;
@@ -309,10 +313,10 @@ PROCEDURE T_sudokuRiddle.switchPause;
     renderRiddle;
   end;
 
-FUNCTION T_sudokuRiddle.isPaused:boolean;
+FUNCTION T_sudokuRiddle.isPaused: boolean;
   begin result:=paused; end;
 
-FUNCTION T_sudokuRiddle.isSolved:boolean;
+FUNCTION T_sudokuRiddle.isSolved: boolean;
   VAR x,y:byte;
   begin
     result:=true;
@@ -321,7 +325,7 @@ FUNCTION T_sudokuRiddle.isSolved:boolean;
       (state[x,y].value<255) and not(state[x,y].conflicting);
   end;
 
-FUNCTION T_sudokuRiddle.makeHOFEntry:hallOfFameEntry;
+FUNCTION T_sudokuRiddle.makeHOFEntry: hallOfFameEntry;
   VAR x,y:byte;
   begin
     result.time:=intTime-startTime;
@@ -332,7 +336,7 @@ FUNCTION T_sudokuRiddle.makeHOFEntry:hallOfFameEntry;
     result.markErrors:=config.difficulty.markErrors;
   end;
 
-CONSTRUCTOR T_sudokuRiddle.create(size:byte);
+CONSTRUCTOR T_sudokuRiddle.create(size: byte);
   VAR aid:T_sudoku;
       i,j:byte;
   begin
@@ -379,7 +383,7 @@ PROCEDURE T_sudokuRiddle.checkConflicts;
     end;
   end;
 
-PROCEDURE T_sudokuRiddle.setState(x,y,value:byte; append:boolean);
+PROCEDURE T_sudokuRiddle.setState(x, y, value: byte; append: boolean);
   begin
     if (x    >=0) and (x<fieldSize)     and
        (y    >=0) and (y<fieldSize)     and
@@ -401,7 +405,7 @@ PROCEDURE T_sudokuRiddle.setState(x,y,value:byte; append:boolean);
     end;
   end;
 
-PROCEDURE T_sudokuRiddle.clearState(x,y:byte);
+PROCEDURE T_sudokuRiddle.clearState(x, y: byte);
   begin
     if (x    >=0) and (x<fieldSize)     and
        (y    >=0) and (y<fieldSize)     and
@@ -411,7 +415,7 @@ PROCEDURE T_sudokuRiddle.clearState(x,y:byte);
     checkConflicts;
   end;
 
-FUNCTION T_sudokuRiddle.givenState(x,y:byte):boolean;
+FUNCTION T_sudokuRiddle.givenState(x, y: byte): boolean;
   begin
     result:=(x    >=0) and (x<fieldSize) and
             (y    >=0) and (y<fieldSize) and (state[x,y].given);
@@ -534,47 +538,48 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
       else if state[x,y].conflicting and config.difficulty.markErrors
         then SudokuMainForm.MainImage.Canvas.Font.color:=config.view.confCol
         else SudokuMainForm.MainImage.Canvas.Font.color:=config.view.neutralCol;
-      txt:=intToString(state[x,y].value);
+      txt:=intToStr(state[x,y].value);
       SudokuMainForm.MainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end;
   end;
 
-FUNCTION T_sudokuRiddle.loadFromFile(VAR F:bufferedFile):boolean;
+FUNCTION T_sudokuRiddle.getSerialVersion: dword;
+begin
+  result:=12325862;
+end;
+
+FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
+  ): boolean;
 //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   VAR i,j:byte;
   begin
-    fieldsize:=f.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
-    modeIdx  :=f.readByte; result:=result and
+    fieldsize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
+    modeIdx  :=stream.readByte; result:=result and
                                   (modeIdx  in [0..6]) and
                                   (C_sudokuStructure[modeIdx].size=fieldSize);
-    startTime:=intTime-f.readLongint;
+    startTime:=intTime-stream.readLongint;
     for i:=0 to fieldSize-1 do
     for j:=0 to fieldSize-1 do with state[i,j] do begin
-      given:=f.readBoolean;
-      value:=f.readByte;
+      given:=stream.readBoolean;
+      value:=stream.readByte;
     end;
     checkConflicts;
   end;
 
-PROCEDURE T_sudokuRiddle.saveToFile(VAR F:bufferedFile);
+PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper
+  );
 //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
   VAR i,j:byte;
   begin
-    f.writeByte(fieldsize);
-    f.writeByte(modeIdx);
-    f.writeLongint(intTime-startTime);
+    stream.writeByte(fieldsize);
+    stream.writeByte(modeIdx);
+    stream.writeDouble(intTime-startTime);
     for i:=0 to fieldSize-1 do
     for j:=0 to fieldSize-1 do with state[i,j] do begin
-      f.writeBoolean(given);
-      f.writeByte   (value);
+      stream.writeBoolean(given);
+      stream.writeByte   (value);
     end;
-  end;
-
-FUNCTION T_sudokuRiddle.defaultFilesize:longint;
-//gibt die Puffergröße (=übliche Dateigröße) an
-  begin
-    result:=512;
   end;
 
 //-----------------------------------------------------------------------------:T_sudokuRiddle
@@ -622,94 +627,95 @@ CONSTRUCTOR T_config.create;
     end;
   end;
 
-DESTRUCTOR  T_config.destroy;
+DESTRUCTOR T_config.destroy;
   begin
     saveToFile('sudoku3.cfg');
   end;
 
-FUNCTION  T_config.loadFromFile(VAR F:bufferedFile):boolean;
+FUNCTION T_config.getSerialVersion: dword;
+begin
+  result:=34562387;
+end;
+
+FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
+  ): boolean;
   VAR i,j:byte;
 //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   begin
     with view do begin
-      bgColTop   :=f.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
-      bgColBottom:=f.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
-      gridCol    :=f.readLongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
-      givenCol   :=f.readLongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
-      neutralCol :=f.readLongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
-      confCol    :=f.readLongint; result:=result and (confCol    >=0) and (confCol    <16777216);
+      bgColTop   :=stream.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
+      bgColBottom:=stream.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
+      gridCol    :=stream.readLongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
+      givenCol   :=stream.readLongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
+      neutralCol :=stream.readLongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
+      confCol    :=stream.readLongint; result:=result and (confCol    >=0) and (confCol    <16777216);
     end;
     with Font do begin
-      name  :=f.readString;
-      bold  :=f.readBoolean;
-      italic:=f.readBoolean;
+      name  :=stream.readAnsiString;
+      bold  :=stream.readBoolean;
+      italic:=stream.readBoolean;
     end;
     with difficulty do begin
-      markErrors:=f.readBoolean;
-      xSymm     :=f.readBoolean;
-      ySymm     :=f.readBoolean;
-      ptSymm    :=f.readBoolean;
-      diff      :=f.readByte;
+      markErrors:=stream.readBoolean;
+      xSymm     :=stream.readBoolean;
+      ySymm     :=stream.readBoolean;
+      ptSymm    :=stream.readBoolean;
+      diff      :=stream.readByte;
     end;
     for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
-      name:=f.readString;
-      time:=f.readLongint; result:=result and (time>0);
-      given:=f.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
-      markErrors:=f.readBoolean;
+      name:=stream.readAnsiString;
+      time:=stream.readLongint; result:=result and (time>0);
+      given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
+      markErrors:=stream.readBoolean;
     end;
     riddle.create(4);
-    result:=result and riddle.loadFromFile(f);
-    gameIsDone:=f.readBoolean;
+    result:=result and riddle.loadFromStream(stream);
+    gameIsDone:=stream.readBoolean;
   end;
 
-PROCEDURE T_config.saveToFile(VAR F:bufferedFile);
+PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
   VAR i,j:byte;
 //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
   begin
     with view do begin
-      f.writeLongint(bgColTop   );
-      f.writeLongint(bgColBottom);
-      f.writeLongint(gridCol    );
-      f.writeLongint(givenCol   );
-      f.writeLongint(neutralCol );
-      f.writeLongint(confCol    );
+      stream.writeLongint(bgColTop   );
+      stream.writeLongint(bgColBottom);
+      stream.writeLongint(gridCol    );
+      stream.writeLongint(givenCol   );
+      stream.writeLongint(neutralCol );
+      stream.writeLongint(confCol    );
     end;
     with Font do begin
-      f.writeString(name);
-      f.writeBoolean(bold);
-      f.writeBoolean(italic);
+      stream.writeAnsiString(name);
+      stream.writeBoolean(bold);
+      stream.writeBoolean(italic);
     end;
     with difficulty do begin
-      f.writeBoolean(markErrors);
-      f.writeBoolean(xSymm     );
-      f.writeBoolean(ySymm     );
-      f.writeBoolean(ptSymm    );
-      f.writeByte   (diff      );
+      stream.writeBoolean(markErrors);
+      stream.writeBoolean(xSymm     );
+      stream.writeBoolean(ySymm     );
+      stream.writeBoolean(ptSymm    );
+      stream.writeByte   (diff      );
     end;
     for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
-      f.writeString (name);
-      f.writeLongint(time);
-      f.writeWord   (given);
-      f.writeBoolean(markErrors);
+      stream.writeAnsiString (name);
+      stream.writeDouble (time);
+      stream.writeWord   (given);
+      stream.writeBoolean(markErrors);
     end;
-    riddle.saveToFile(f);
-    f.writeBoolean(gameIsDone);
+    riddle.saveToStream(stream);
+    stream.writeBoolean(gameIsDone);
   end;
 
-FUNCTION  T_config.defaultFilesize:longint;
-//gibt die Puffergröße (=übliche Dateigröße) an
-  begin
-    result:=2048;
-  end;
-
-FUNCTION  T_config.isGoodEnough(modeIdx:byte; newEntry:hallOfFameEntry):boolean;
+FUNCTION T_config.isGoodEnough(modeIdx: byte; newEntry: hallOfFameEntry
+  ): boolean;
   begin
     result:=isBetterThan(C_sudokuStructure[modeIdx].size,
                          newEntry,
                          hallOfFame[modeIdx,19]);
   end;
 
-PROCEDURE T_config.addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
+PROCEDURE T_config.addHOFEntry(modeIdx: byte; newEntry: hallOfFameEntry);
   VAR tmp:hallOfFameEntry;
       i  :byte;
   begin
@@ -859,7 +865,7 @@ end;
 
 PROCEDURE TSudokuMainForm.NumButtonClick(Sender: TObject);
 begin
-  config.riddle.setState(selectX,selectY,stringToInt(TButton(Sender).caption),false);
+  config.riddle.setState(selectX,selectY,strToInt(TButton(Sender).caption),false);
   config.riddle.renderRiddle;
   NumPanel.visible:=false;
 end;
@@ -1055,7 +1061,7 @@ begin
       6: riddleSize:=16;
     end;
     diffic:=((75-5*DiffListBox.ItemIndex)*sqr(riddlesize)) div 100;
-    numberOfRiddles:=stringToInt(ExportNumberEdit.text);
+    numberOfRiddles:=strToInt(ExportNumberEdit.text);
     setLength(solutions,2);
     if txtOut then solutions[0]:='LOESUNGEN:'
               else solutions[0]:='\newpage \begin{Large} L\"osungen \end{Large}';
@@ -1103,9 +1109,9 @@ end;
 PROCEDURE TSudokuMainForm.ExportNumberEditEditingDone(Sender: TObject);
 VAR num:longint;
 begin
-  num:=StringToInt(ExportNumberEdit.text);
+  num:=strToInt(ExportNumberEdit.text);
   if num<1 then num:=1 else if num>200 then num:=200;
-  ExportNumberEdit.text:=intToString(num);
+  ExportNumberEdit.text:=intToStr(num);
 end;
 
 PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
@@ -1130,20 +1136,16 @@ end;
 
 PROCEDURE TSudokuMainForm.showHOF(modeIdx:byte);
   VAR i:byte;
-      h,m,s,d:longint;
+      h:longint;
   begin
     configuring:=true;
     config.riddle.pauseGame;
-    HOFGroupBox.caption:='Bestenliste '+intToString(C_sudokuStructure[modeIdx].size)+'x'
-                                       +intToString(C_sudokuStructure[modeIdx].size);
+    HOFGroupBox.caption:='Bestenliste '+intToStr(C_sudokuStructure[modeIdx].size)+'x'
+                                       +intToStr(C_sudokuStructure[modeIdx].size);
     for i:=0 to 19 do begin
       HOFStringGrid.Cells[1,i+1]:=config.hallOfFame[modeIdx,i].name;
-      HOFStringGrid.Cells[2,i+1]:=intToString(config.hallOfFame[modeIdx,i].given);
-      h:=config.hallOfFame[modeIdx,i].time;
-      d:=h mod 100; h:=h div 100;
-      s:=h mod  60; h:=h div  60;
-      m:=h mod  60; h:=h div  60;
-      HOFStringGrid.Cells[3,i+1]:=timeToString(h,m,s,d,2);
+      HOFStringGrid.Cells[2,i+1]:=intToStr(config.hallOfFame[modeIdx,i].given);
+      HOFStringGrid.Cells[3,i+1]:=FormatDateTime('hh:mm:ss',config.hallOfFame[modeIdx,i].time);
       if config.hallOfFame[modeIdx,i].markErrors
         then HOFStringGrid.Cells[4,i+1]:='X'
         else HOFStringGrid.Cells[4,i+1]:='';
