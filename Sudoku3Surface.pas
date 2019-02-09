@@ -995,14 +995,14 @@ VAR solutionOut:boolean;
     solutions:array of string;
     outFile:textFile;
 
-PROCEDURE writeOut(txt:shortstring);
+PROCEDURE writeOut(txt:string);
   begin
     if solutionOut
       then solutions[length(solutions)-1]:=solutions[length(solutions)-1]+txt
       else write(outFile,txt);
    end;
 
-PROCEDURE writelnOut(txt:shortstring);
+PROCEDURE writelnOut(txt:string);
   begin
     if solutionOut
       then begin
