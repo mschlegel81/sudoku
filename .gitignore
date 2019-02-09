@@ -2,3 +2,7 @@
 *.obj
 *.res
 *.compiled
+/backup/*
+*.o
+*.ppu
+*.exe
