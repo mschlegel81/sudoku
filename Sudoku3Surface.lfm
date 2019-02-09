@@ -6,7 +6,8 @@ object SudokuMainForm: TSudokuMainForm
   HorzScrollBar.Page = 349
   VertScrollBar.Page = 479
   ActiveControl = Button1
-  Caption = 'Sudoku 3'
+  BorderStyle = bsNone
+  Caption = 'Sudoku'
   ClientHeight = 780
   ClientWidth = 856
   Constraints.MinHeight = 500
@@ -18,7 +19,9 @@ object SudokuMainForm: TSudokuMainForm
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
+  Position = poScreenCenter
   LCLVersion = '1.8.4.0'
+  Scaled = False
   WindowState = wsMaximized
   object MainImage: TImage
     Left = 0

@@ -3,13 +3,13 @@ INTERFACE
 USES Classes;
 TYPE stringArray=array of string;
 
-FUNCTION natToString(x:QWord):string;
+FUNCTION natToString(x:qword):string;
 FUNCTION intToString(x:longint):string;
-FUNCTION fltToString(x:Extended; decals:byte):string;
+FUNCTION fltToString(x:extended; decals:byte):string;
 FUNCTION dateToString(year,month,day:word; format:byte):string;
 FUNCTION timeToString(hour,minute,second,decals:word; format:byte):string;
 
-FUNCTION stringToNat(s:string):QWord;
+FUNCTION stringToNat(s:string):qword;
 FUNCTION stringToInt(s:string):longint;
 FUNCTION stringToFlt(s:string):extended;
 
@@ -19,23 +19,23 @@ FUNCTION fillLeft(s:string; filler:char; resLength:byte):string;
 FUNCTION fillRight(s:string; filler:char; resLength:byte):string;
 FUNCTION removeSign(s:string; idx:byte):string;
 
-FUNCTION smartSizeString(byteSize:QWord):string;
+FUNCTION smartSizeString(byteSize:qword):string;
 
 FUNCTION concatStringArrays(s1,s2:stringArray):stringArray;
-PROCEDURE saveAsPlainText(filename:string; sa:stringArray);
+PROCEDURE saveAsPlainText(fileName:string; sa:stringArray);
 
 FUNCTION filenameWithoutPath(x:string):string;
 
 IMPLEMENTATION
-FUNCTION natToString(x:QWord):string;
+FUNCTION natToString(x:qword):string;
   VAR res:string; begin str(x,res); natToString:=res; end;
 
 FUNCTION intToString(x:longint):string;
   VAR res:string; begin str(x,res); intToString:=res; end;
 
-FUNCTION fltToString(x:Extended; decals:byte):string;
+FUNCTION fltToString(x:extended; decals:byte):string;
   VAR res:string; begin str(x:0:decals,res); fltToString:=res; end;
-  
+
 FUNCTION dateToString(year,month,day:word; format:byte):string;
   CONST monthnames:array[0..1,1..12] of string=
         (('Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'),
@@ -71,8 +71,8 @@ FUNCTION timeToString(hour,minute,second,decals:word; format:byte):string;
     end;
   end;
 
-FUNCTION stringToNat(s:string):QWord;
-  VAR res:QWord;
+FUNCTION stringToNat(s:string):qword;
+  VAR res:qword;
       err:byte;
   begin
     val(s,res,err);
@@ -123,14 +123,14 @@ FUNCTION fillRight(s:string; filler:char; resLength:byte):string;
     while length(s)<resLength do s:=s+filler;
     fillRight:=s;
   end;
-  
+
 FUNCTION removeSign(s:string; idx:byte):string;
   begin
     if (idx>0) and (idx<=length(s)) then
       removeSign:=copy(s,1,idx-1)+copy(s,idx+1,length(s)-idx-2);
   end;
 
-FUNCTION smartSizeString(byteSize:QWord):string;
+FUNCTION smartSizeString(byteSize:qword):string;
   VAR res:string;
   begin
     if      byteSize<      2048 then res:=natToString(byteSize)+'bytes'
@@ -150,11 +150,11 @@ FUNCTION concatStringArrays(s1,s2:stringArray):stringArray;
     concatStringArrays:=res;
   end;
 
-PROCEDURE saveAsPlainText(filename:string; sa:stringArray);
+PROCEDURE saveAsPlainText(fileName:string; sa:stringArray);
   VAR f:textFile;
       i:longint;
   begin
-    assign(f,filename);
+    assign(f,fileName);
     rewrite(f);
     if length(sa)>0 then for i:=0 to length(sa)-1 do
       writeln(f,sa[i]);
@@ -169,5 +169,4 @@ FUNCTION filenameWithoutPath(x:string):string;
   end;
 
 end.
-
 

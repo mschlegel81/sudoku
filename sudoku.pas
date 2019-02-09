@@ -23,7 +23,6 @@ CONST
                                             '\begin{document} \begin{center}');
   C_LaTeX_fileFooter:string='\end{center}\end{document}';
 
-
 TYPE
   T_sudokuState=(solved,unknown,unsolveable);
 
@@ -48,7 +47,7 @@ TYPE
       PROCEDURE saveToFile(VAR F:bufferedFile);           virtual; overload; //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
       FUNCTION  defaultFilesize:longint;                  virtual;           //gibt die Puffergröße (=übliche Dateigröße) an
   end;
-  
+
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
 IMPLEMENTATION
 CONST C_bit:array[0..15] of word=(1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768);
@@ -56,7 +55,6 @@ CONST C_bit:array[0..15] of word=(1,2,4,8,16,32,64,128,256,512,1024,2048,4096,81
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
   VAR i:byte;
   begin for i:=0 to 5 do writelnOut(C_Latex_fileHeader[i]); end;
-
 
 FUNCTION T_sudoku.fullSolve(fillRandom:boolean):T_sudokuState;
   VAR i0,j0,i1,j1:byte;
@@ -191,7 +189,6 @@ FUNCTION T_sudoku.fullSolve(fillRandom:boolean):T_sudokuState;
     setLength(done,0);
   end; //fullSolve
 
-
 CONSTRUCTOR T_sudoku.createUnfilled(size:byte);
   VAR k:word;
   begin
@@ -279,7 +276,7 @@ CONSTRUCTOR T_sudoku.create(size:byte; symm_x,symm_y,symm_center:boolean; diffic
     setLength(undefList,0);
     setLength(copy,0);
   end;
-  
+
 FUNCTION T_sudoku.getSquare(x,y:byte):byte;
   begin
     if (x>=0) and (x<fieldsize) and
@@ -291,7 +288,7 @@ FUNCTION T_sudoku.getSquare(x,y:byte):byte;
                            else inc(result);
     end else result:=255;
   end;
-  
+
 FUNCTION T_sudoku.given:word;
   VAR i,j:word;
   begin
@@ -305,7 +302,6 @@ DESTRUCTOR T_sudoku.destroy;
 
 PROCEDURE T_sudoku.solve;
   begin fullSolve(false); end;
-
 
 PROCEDURE T_sudoku.writeTxtForm  (writeOut,writelnOut:FT_output);
   FUNCTION numString(w:word):string;
@@ -369,7 +365,6 @@ PROCEDURE T_sudoku.writeTxtForm  (writeOut,writelnOut:FT_output);
     end;
     writelnOut(' '); //abschließende Leerzeile
   end;
-
 
 PROCEDURE T_sudoku.writeLaTeXForm(writeOut,writelnOut:FT_output; enumString:string; small:boolean);
   FUNCTION numString(w:word):string;
@@ -445,7 +440,7 @@ FUNCTION  T_sudoku.loadFromFile(VAR F:bufferedFile):boolean;
       end;
     end;
   end;
-  
+
 PROCEDURE T_sudoku.saveToFile(VAR F:bufferedFile);
   //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
   VAR i:longint;
@@ -458,8 +453,6 @@ PROCEDURE T_sudoku.saveToFile(VAR F:bufferedFile);
 FUNCTION  T_sudoku.defaultFilesize:longint;
   //gibt die Puffergröße (=übliche Dateigröße) an
   begin result:=514; end;
-
-
 
 begin
 

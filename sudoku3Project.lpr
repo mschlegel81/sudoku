@@ -1,19 +1,19 @@
-program sudoku3Project;
+PROGRAM sudoku3Project;
 
 {$mode objfpc}{$H+}
 
-uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
+USES
+  {$ifdef UNIX}{$IFDEF UseCThreads}
   cthreads,
-  {$ENDIF}{$ENDIF}
+  {$endif}{$endif}
   Interfaces, // this includes the LCL widgetset
   Forms
   { add your units here }, Sudoku3Surface;
 
 begin
-  Application.Title:='Sudoku 3';
-  Application.Initialize;
+  Application.title:='Sudoku 3';
+  Application.initialize;
   Application.CreateForm(TSudokuMainForm, SudokuMainForm);
-  Application.Run;
+  Application.run;
 end.
 

@@ -1,14 +1,13 @@
-unit Sudoku3Surface;
+UNIT Sudoku3Surface;
 
 {$mode objfpc}{$H+}
-//{$define debugmode}
-interface
+INTERFACE
 
-uses
-  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+USES
+  Classes, sysutils, LResources, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   bufFiles,sudoku,mySimpleStrings,Menus, StdCtrls, Buttons, ComCtrls, Grids,dos;
 
-type
+TYPE
 
   hallOfFameEntry=record
     name :string;
@@ -45,7 +44,6 @@ type
       FUNCTION  defaultFilesize:longint;                  virtual;            //gibt die Puffergröße (=übliche Dateigröße) an
   end;
 
-
   T_config=object(serializable)
     view:record
            bgColTop,
@@ -55,7 +53,7 @@ type
            neutralCol,
            confCol:longint;
          end;
-    font:record
+    Font:record
            name:string;
            bold,italic:boolean;
          end;
@@ -140,7 +138,7 @@ type
     SetCol2Button: TButton;
     Label12: TLabel;
     LoserGroupBox: TGroupBox;
-    NameEdit: TEdit;
+    nameEdit: TEdit;
     ExportGroupBox: TGroupBox;
     EnterNameGroupBox: TGroupBox;
     HOFGroupBox: TGroupBox;
@@ -188,67 +186,67 @@ type
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
-    procedure Button9Click(Sender: TObject);
-    procedure ExportNumberEditEditingDone(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormResize(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure MainImageMouseDown(Sender: TOBject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure MenuItem2Click(Sender: TObject);
-    procedure MenuItem4Click(Sender: TObject);
-    procedure MenuItem5Click(Sender: TObject);
-    procedure MenuItem8Click(Sender: TObject);
-    procedure MenuItem9Click(Sender: TObject);
-    procedure MenuItemHOF04Click(Sender: TObject);
-    procedure MenuItemHOF06Click(Sender: TObject);
-    procedure MenuItemHOF08Click(Sender: TObject);
-    procedure MenuItemHOF09Click(Sender: TObject);
-    procedure MenuItemHOF12Click(Sender: TObject);
-    procedure MenuItemHOF15Click(Sender: TObject);
-    procedure MenuItemHOF16Click(Sender: TObject);
-    procedure MenuItemNG04Click(Sender: TObject);
-    procedure MenuItemNG06Click(Sender: TObject);
-    procedure MenuItemNG08Click(Sender: TObject);
-    procedure MenuItemNG09Click(Sender: TObject);
-    procedure MenuItemNG12Click(Sender: TObject);
-    procedure MenuItemNG15Click(Sender: TObject);
-    procedure MenuItemNG16Click(Sender: TObject);
-    procedure NameEditEditingDone(Sender: TObject);
-    procedure NumButtonClick(Sender: TObject);
-    procedure SetCol1ButtonClick(Sender: TObject);
-    procedure SetCol2ButtonClick(Sender: TObject);
-    procedure SetCol3ButtonClick(Sender: TObject);
-    procedure SetCol4ButtonClick(Sender: TObject);
-    procedure SetCol5ButtonClick(Sender: TObject);
-    procedure SetCol6ButtonClick(Sender: TObject);
+    PROCEDURE Button1Click(Sender: TObject);
+    PROCEDURE Button2Click(Sender: TObject);
+    PROCEDURE Button3Click(Sender: TObject);
+    PROCEDURE Button4Click(Sender: TObject);
+    PROCEDURE Button5Click(Sender: TObject);
+    PROCEDURE Button6Click(Sender: TObject);
+    PROCEDURE Button7Click(Sender: TObject);
+    PROCEDURE Button8Click(Sender: TObject);
+    PROCEDURE Button9Click(Sender: TObject);
+    PROCEDURE ExportNumberEditEditingDone(Sender: TObject);
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE FormKeyDown(Sender: TObject; VAR key: word; Shift: TShiftState);
+    PROCEDURE FormResize(Sender: TObject);
+    PROCEDURE FormShow(Sender: TObject);
+    PROCEDURE MainImageMouseDown(Sender: TObject; button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
+    PROCEDURE MenuItem2Click(Sender: TObject);
+    PROCEDURE MenuItem4Click(Sender: TObject);
+    PROCEDURE MenuItem5Click(Sender: TObject);
+    PROCEDURE MenuItem8Click(Sender: TObject);
+    PROCEDURE MenuItem9Click(Sender: TObject);
+    PROCEDURE MenuItemHOF04Click(Sender: TObject);
+    PROCEDURE MenuItemHOF06Click(Sender: TObject);
+    PROCEDURE MenuItemHOF08Click(Sender: TObject);
+    PROCEDURE MenuItemHOF09Click(Sender: TObject);
+    PROCEDURE MenuItemHOF12Click(Sender: TObject);
+    PROCEDURE MenuItemHOF15Click(Sender: TObject);
+    PROCEDURE MenuItemHOF16Click(Sender: TObject);
+    PROCEDURE MenuItemNG04Click(Sender: TObject);
+    PROCEDURE MenuItemNG06Click(Sender: TObject);
+    PROCEDURE MenuItemNG08Click(Sender: TObject);
+    PROCEDURE MenuItemNG09Click(Sender: TObject);
+    PROCEDURE MenuItemNG12Click(Sender: TObject);
+    PROCEDURE MenuItemNG15Click(Sender: TObject);
+    PROCEDURE MenuItemNG16Click(Sender: TObject);
+    PROCEDURE NameEditEditingDone(Sender: TObject);
+    PROCEDURE NumButtonClick(Sender: TObject);
+    PROCEDURE SetCol1ButtonClick(Sender: TObject);
+    PROCEDURE SetCol2ButtonClick(Sender: TObject);
+    PROCEDURE SetCol3ButtonClick(Sender: TObject);
+    PROCEDURE SetCol4ButtonClick(Sender: TObject);
+    PROCEDURE SetCol5ButtonClick(Sender: TObject);
+    PROCEDURE SetCol6ButtonClick(Sender: TObject);
   private
     { private declarations }
   public
     PROCEDURE showHOF(modeIdx:byte);
     PROCEDURE initButtonPanel(size:byte);
     { public declarations }
-  end; 
+  end;
 
-var
+VAR
   SudokuMainForm: TSudokuMainForm;
   config        : T_config;
   quadSize,x0,y0,selectX,selectY:longint;
   keyboardMode  : boolean;
   configuring   : boolean;
   winnerEntry   : hallOfFameEntry;
-  
-implementation
-{$ifdef debugmode}
+
+IMPLEMENTATION
+{$ifdef debugMode}
 PROCEDURE writeMyState;
   begin
     writeln('quadSize              =',quadSize              );
@@ -266,7 +264,6 @@ PROCEDURE writeMyState;
     writeln;
   end;
 {$endif}
-
 
 FUNCTION intTime:longint;
   VAR day,hour,minute,second,deca:word;
@@ -314,7 +311,7 @@ PROCEDURE T_sudokuRiddle.switchPause;
 
 FUNCTION T_sudokuRiddle.isPaused:boolean;
   begin result:=paused; end;
-  
+
 FUNCTION T_sudokuRiddle.isSolved:boolean;
   VAR x,y:byte;
   begin
@@ -334,7 +331,7 @@ FUNCTION T_sudokuRiddle.makeHOFEntry:hallOfFameEntry;
     if state[x,y].given then inc(result.given);
     result.markErrors:=config.difficulty.markErrors;
   end;
-  
+
 CONSTRUCTOR T_sudokuRiddle.create(size:byte);
   VAR aid:T_sudoku;
       i,j:byte;
@@ -364,7 +361,7 @@ PROCEDURE T_sudokuRiddle.checkConflicts;
   begin
     for x1:=0 to fieldsize-1 do
     for y1:=0 to fieldsize-1 do state[x1,y1].conflicting:=false;
-    
+
     for x1:=0 to fieldsize-1 do
     for y1:=0 to fieldsize-1 do if state[x1,y1].value<>255 then
     for x2:=0 to fieldsize-1 do
@@ -387,7 +384,7 @@ PROCEDURE T_sudokuRiddle.setState(x,y,value:byte; append:boolean);
     if (x    >=0) and (x<fieldSize)     and
        (y    >=0) and (y<fieldSize)     and
        not(state[x,y].given)            then begin
-       
+
       if append and (state[x,y].value*10+value<=fieldSize)
         then value:=state[x,y].value*10+value;
       if (value>0) and (value<=fieldSize) then state[x,y].value:=value
@@ -398,9 +395,9 @@ PROCEDURE T_sudokuRiddle.setState(x,y,value:byte; append:boolean);
       configuring:=true;
       winnerEntry:=makeHOFEntry;
       if config.isGoodEnough(modeIdx,winnerEntry) then begin
-        SudokuMainForm.EnterNameGroupBox.Visible:=true;
-        {$ifdef debugmode} writeMyState; {$endif}
-      end else SudokuMainForm.LoserGroupBox.Visible:=true;
+        SudokuMainForm.EnterNameGroupBox.visible:=true;
+        {$ifdef debugMode} writeMyState; {$endif}
+      end else SudokuMainForm.LoserGroupBox.visible:=true;
     end;
   end;
 
@@ -413,13 +410,13 @@ PROCEDURE T_sudokuRiddle.clearState(x,y:byte);
     end;
     checkConflicts;
   end;
-  
+
 FUNCTION T_sudokuRiddle.givenState(x,y:byte):boolean;
   begin
     result:=(x    >=0) and (x<fieldSize) and
             (y    >=0) and (y<fieldSize) and (state[x,y].given);
   end;
-  
+
 PROCEDURE T_sudokuRiddle.renderRiddle;
   VAR gridTop,gridBottom:longint;
 
@@ -427,7 +424,7 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     VAR r,g,b:byte;
         int1,int2:word;
     begin
-      int1:=(4096*y) div (SudokuMainForm.Height-19);
+      int1:=(4096*y) div (SudokuMainForm.height-19);
       int2:=4096-int1;
       r:=(int1*((config.view.bgColBottom       ) and 255)
          +int2*((config.view.bgColTop          ) and 255)) shr 12;
@@ -437,12 +434,12 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
          +int2*((config.view.bgColTop    shr 16) and 255)) shr 12;
       interpolateColor:=r or g shl 8 or b shl 16;
     end;
-    
+
   FUNCTION interpolateColor2(y:longint):longint;
     VAR r,g,b:byte;
         int1,int2:word;
     begin
-      int1:=(4096*y) div (SudokuMainForm.Height-19);
+      int1:=(4096*y) div (SudokuMainForm.height-19);
       int2:=4096-int1;
       r:=(int1*((gridBottom       ) and 255)
          +int2*((gridTop          ) and 255)) shr 12;
@@ -452,7 +449,7 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
          +int2*((gridTop    shr 16) and 255)) shr 12;
       interpolateColor2:=r or g shl 8 or b shl 16;
     end;
-    
+
   PROCEDURE vLine(x,y0,y1:longint);
     VAR y:longint;
     begin
@@ -471,17 +468,15 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
                 (((((config.view.bgColBottom shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
                 (((((config.view.bgColBottom shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
 
-  
     quadSize:=10;
-    while  (quadSize*fieldSize*1.1<SudokuMainForm.Width    )
-       and (quadSize*fieldSize*1.1<SudokuMainForm.Height-19) do inc(quadSize);
-    y0:=(SudokuMainForm.Height-19-fieldSize*quadSize) shr 1;
-    x0:=(SudokuMainForm.Width    -fieldSize*quadSize) shr 1;
-    for y:=0 to SudokuMainForm.Height-19 do begin
-      SudokuMainForm.MainImage.Canvas.Pen.Color:=interpolateColor(y);
-      SudokuMainForm.MainImage.Canvas.Line(0,y,SudokuMainForm.Width,y);
+    while  (quadSize*fieldSize*1.1<SudokuMainForm.width    )
+       and (quadSize*fieldSize*1.1<SudokuMainForm.height-19) do inc(quadSize);
+    y0:=(SudokuMainForm.height-19-fieldSize*quadSize) shr 1;
+    x0:=(SudokuMainForm.width    -fieldSize*quadSize) shr 1;
+    for y:=0 to SudokuMainForm.height-19 do begin
+      SudokuMainForm.MainImage.Canvas.Pen.color:=interpolateColor(y);
+      SudokuMainForm.MainImage.Canvas.line(0,y,SudokuMainForm.width,y);
     end;
-
 
     for x:=0 to fieldSize do begin
       if x mod C_sudokuStructure[modeIdx].blocksize[0]<>0 then begin
@@ -489,20 +484,20 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
 //        SudokuMainForm.MainImage.Canvas.Line(x0+x*quadSize  ,y0-1,x0+x*quadSize  ,y0+fieldSize*quadSize+1);
       end;
       if x mod C_sudokuStructure[modeIdx].blocksize[1]<>0 then begin
-        SudokuMainForm.MainImage.Canvas.Pen.Color:=interpolateColor2(y0+x*quadSize);
-        SudokuMainForm.MainImage.Canvas.Line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
+        SudokuMainForm.MainImage.Canvas.Pen.color:=interpolateColor2(y0+x*quadSize);
+        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
       end;
     end;
 
-    SudokuMainForm.MainImage.Canvas.Pen.Color:=config.view.gridCol;
+    SudokuMainForm.MainImage.Canvas.Pen.color:=config.view.gridCol;
     for x:=0 to fieldSize do begin
       if x mod C_sudokuStructure[modeIdx].blocksize[0]=0 then begin
-        SudokuMainForm.MainImage.Canvas.Line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
-        SudokuMainForm.MainImage.Canvas.Line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
+        SudokuMainForm.MainImage.Canvas.line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
+        SudokuMainForm.MainImage.Canvas.line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
       end;
       if x mod C_sudokuStructure[modeIdx].blocksize[1]=0 then begin
-        SudokuMainForm.MainImage.Canvas.Line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
-        SudokuMainForm.MainImage.Canvas.Line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
+        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
+        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
       end;
     end;
     if keyboardMode then begin
@@ -518,33 +513,33 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
                                              y0+selecty*quadSize+3);
     end;
 
-    SudokuMainForm.MainImage.Canvas.Brush.Style:=bsClear;
-    SudokuMainForm.MainImage.Canvas.Font.Size:=round(quadSize*0.9);
-    SudokuMainForm.MainImage.Canvas.Font.Height:=round(quadSize*0.9);
-    SudokuMainForm.MainImage.Canvas.Font.Name  :=config.font.name;
-    SudokuMainForm.MainImage.Canvas.Font.Color:=config.view.givenCol;
-    if config.font.bold and config.font.italic then SudokuMainForm.MainImage.Canvas.Font.Style:=[fsBold,fsItalic]
-    else if config.font.bold                   then SudokuMainForm.MainImage.Canvas.Font.Style:=[fsBold]
-    else if config.font.italic                 then SudokuMainForm.MainImage.Canvas.Font.Style:=[fsItalic]
-                                               else SudokuMainForm.MainImage.Canvas.Font.Style:=[];
+    SudokuMainForm.MainImage.Canvas.Brush.style:=bsClear;
+    SudokuMainForm.MainImage.Canvas.Font.size:=round(quadSize*0.9);
+    SudokuMainForm.MainImage.Canvas.Font.height:=round(quadSize*0.9);
+    SudokuMainForm.MainImage.Canvas.Font.name  :=config.Font.name;
+    SudokuMainForm.MainImage.Canvas.Font.color:=config.view.givenCol;
+    if config.Font.bold and config.Font.italic then SudokuMainForm.MainImage.Canvas.Font.style:=[fsBold,fsItalic]
+    else if config.Font.bold                   then SudokuMainForm.MainImage.Canvas.Font.style:=[fsBold]
+    else if config.Font.italic                 then SudokuMainForm.MainImage.Canvas.Font.style:=[fsItalic]
+                                               else SudokuMainForm.MainImage.Canvas.Font.style:=[];
     if paused then for x:=0 to fieldSize-1 do
     for y:=0 to fieldSize-1 do begin
       txt:=sudokuChar[(x+y*fieldSize) mod 7];
-      SudokuMainForm.MainImage.Canvas.TextOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.TextWidth(txt) shr 1),
+      SudokuMainForm.MainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end else for x:=0 to fieldSize-1 do
     for y:=0 to fieldSize-1 do if (state[x,y].value<255) then  begin
       if state[x,y].given
-        then SudokuMainForm.MainImage.Canvas.Font.Color:=config.view.givenCol
+        then SudokuMainForm.MainImage.Canvas.Font.color:=config.view.givenCol
       else if state[x,y].conflicting and config.difficulty.markErrors
-        then SudokuMainForm.MainImage.Canvas.Font.Color:=config.view.confCol
-        else SudokuMainForm.MainImage.Canvas.Font.Color:=config.view.neutralCol;
+        then SudokuMainForm.MainImage.Canvas.Font.color:=config.view.confCol
+        else SudokuMainForm.MainImage.Canvas.Font.color:=config.view.neutralCol;
       txt:=intToString(state[x,y].value);
-      SudokuMainForm.MainImage.Canvas.TextOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.TextWidth(txt) shr 1),
+      SudokuMainForm.MainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end;
   end;
-  
+
 FUNCTION T_sudokuRiddle.loadFromFile(VAR F:bufferedFile):boolean;
 //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   VAR i,j:byte;
@@ -596,7 +591,7 @@ CONSTRUCTOR T_config.create;
         neutralCol :=13158600;
         confCol    :=255;
       end;
-      with font do begin
+      with Font do begin
         name:='default';
         bold:=false;
         italic:=false;
@@ -611,7 +606,7 @@ CONSTRUCTOR T_config.create;
       for i:=0 to 6 do begin
         for j:=0 to 19 do with hallOfFame[i,j] do begin
           name:='';
-          time:=maxlongint-7019+j;
+          time:=maxLongint-7019+j;
           given:=sqr(C_sudokuStructure[i].size);
           markErrors:=true;
         end;
@@ -631,20 +626,20 @@ DESTRUCTOR  T_config.destroy;
   begin
     saveToFile('sudoku3.cfg');
   end;
-  
+
 FUNCTION  T_config.loadFromFile(VAR F:bufferedFile):boolean;
   VAR i,j:byte;
 //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   begin
     with view do begin
-      bgColTop   :=f.readlongint; result:=(bgColTop>=0) and (bgColTop<16777216);
-      bgColBottom:=f.readlongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
-      gridCol    :=f.readlongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
-      givenCol   :=f.readlongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
-      neutralCol :=f.readlongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
-      confCol    :=f.readlongint; result:=result and (confCol    >=0) and (confCol    <16777216);
+      bgColTop   :=f.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
+      bgColBottom:=f.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
+      gridCol    :=f.readLongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
+      givenCol   :=f.readLongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
+      neutralCol :=f.readLongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
+      confCol    :=f.readLongint; result:=result and (confCol    >=0) and (confCol    <16777216);
     end;
-    with font do begin
+    with Font do begin
       name  :=f.readString;
       bold  :=f.readBoolean;
       italic:=f.readBoolean;
@@ -679,7 +674,7 @@ PROCEDURE T_config.saveToFile(VAR F:bufferedFile);
       f.writeLongint(neutralCol );
       f.writeLongint(confCol    );
     end;
-    with font do begin
+    with Font do begin
       f.writeString(name);
       f.writeBoolean(bold);
       f.writeBoolean(italic);
@@ -733,15 +728,15 @@ PROCEDURE T_config.addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
 
 { TSudokuMainForm }
 
-procedure TSudokuMainForm.FormShow(Sender: TObject);
+PROCEDURE TSudokuMainForm.FormShow(Sender: TObject);
 begin
   DoubleBuffered:=true;
   configuring:=false;
   initButtonPanel(config.riddle.fieldSize);
 end;
 
-procedure TSudokuMainForm.MainImageMouseDown(Sender: TOBject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+PROCEDURE TSudokuMainForm.MainImageMouseDown(Sender: TObject;
+  button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   if not(configuring) and not(config.riddle.isPaused) then begin
     keyboardMode:=false;
@@ -749,112 +744,112 @@ begin
     and (y>y0) and (y<y0+config.riddle.fieldSize*quadSize) then begin
       selectX:=(x-x0) div quadSize;
       selectY:=(y-y0) div quadSize;
-      if (Button=mbRight) then begin
+      if (button=mbRight) then begin
         config.riddle.clearState(selectX,selectY);
         config.riddle.renderRiddle;
-        NumPanel.Visible:=false;
+        NumPanel.visible:=false;
       end else if (SelectX<0) or (selectX>=config.riddle.fieldSize)
-               or (SelectY<0) or (selectY>=config.riddle.fieldSize) then NumPanel.Visible:=false
+               or (SelectY<0) or (selectY>=config.riddle.fieldSize) then NumPanel.visible:=false
       else if (config.riddle.givenState(selectX,selectY)) then config.riddle.renderRiddle
       else begin
-        NumPanel.Left:=x0+selectX*quadSize+(quadSize-NumPanel.Width) shr 1;
+        NumPanel.Left:=x0+selectX*quadSize+(quadSize-NumPanel.width) shr 1;
         if NumPanel.Left<0                    then NumPanel.Left:=0;
-        if NumPanel.Left>Width-NumPanel.Width then NumPanel.Left:=Width-NumPanel.Width;
-        NumPanel.Top :=y0+selectY*quadSize+(quadSize-NumPanel.Height) shr 1;
-        if NumPanel.Top<0                      then NumPanel.Top:=0;
-        if NumPanel.Top>Height-NumPanel.Height then NumPanel.Top:=Height-NumPanel.Height;
-        NumPanel.Visible:=true;
+        if NumPanel.Left>width-NumPanel.width then NumPanel.Left:=width-NumPanel.width;
+        NumPanel.top :=y0+selectY*quadSize+(quadSize-NumPanel.height) shr 1;
+        if NumPanel.top<0                      then NumPanel.top:=0;
+        if NumPanel.top>height-NumPanel.height then NumPanel.top:=height-NumPanel.height;
+        NumPanel.visible:=true;
       end;
     end;
   end;
 end;
 
-procedure TSudokuMainForm.MenuItem2Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem2Click(Sender: TObject);
 begin
   if not(configuring) then config.riddle.switchPause;
 end;
 
-procedure TSudokuMainForm.MenuItem4Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem4Click(Sender: TObject);
 begin
   config.riddle.pauseGame;
   configuring:=true;
-  FontLabel.Font.Name    :=config.font.name;
-  if config.font.bold and config.font.italic then FontLabel.Font.Style:=[fsBold,fsItalic]
-  else if config.font.bold                   then FontLabel.Font.Style:=[fsBold]
-  else if config.font.italic                 then FontLabel.Font.Style:=[fsItalic];
-  BG1Shape .Brush.Color   :=config.view.bgColTop   ;
-  BG2Shape .Brush.Color   :=config.view.bgColBottom;
-  GridShape.Brush.Color   :=config.view.gridCol    ;
-  GivenShape  .Brush.Color:=config.view.givenCol   ;
-  NeutralShape.Brush.Color:=config.view.neutralCol ;
-  ConfShape   .Brush.Color:=config.view.confCol    ;
-  ViewGroupBox.Visible:=true;
+  FontLabel.Font.name    :=config.Font.name;
+  if config.Font.bold and config.Font.italic then FontLabel.Font.style:=[fsBold,fsItalic]
+  else if config.Font.bold                   then FontLabel.Font.style:=[fsBold]
+  else if config.Font.italic                 then FontLabel.Font.style:=[fsItalic];
+  BG1Shape .Brush.color   :=config.view.bgColTop   ;
+  BG2Shape .Brush.color   :=config.view.bgColBottom;
+  GridShape.Brush.color   :=config.view.gridCol    ;
+  GivenShape  .Brush.color:=config.view.givenCol   ;
+  NeutralShape.Brush.color:=config.view.neutralCol ;
+  ConfShape   .Brush.color:=config.view.confCol    ;
+  ViewGroupBox.visible:=true;
 end;
 
-procedure TSudokuMainForm.MenuItem5Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem5Click(Sender: TObject);
 begin
   config.riddle.pauseGame;
   configuring:=true;
-  MarkErrorsCB.Checked  :=config.difficulty.markErrors;
-  XSymmCB     .Checked  :=config.difficulty.xSymm;
-  ySymmCB     .Checked  :=config.difficulty.ySymm;
-  pSymmCB     .Checked  :=config.difficulty.ptSymm;
+  MarkErrorsCB.checked  :=config.difficulty.markErrors;
+  XSymmCB     .checked  :=config.difficulty.xSymm;
+  ySymmCB     .checked  :=config.difficulty.ySymm;
+  pSymmCB     .checked  :=config.difficulty.ptSymm;
   DiffListBox .ItemIndex:=config.difficulty.diff;
-  DiffGroupBox1.Visible:=true;
+  DiffGroupBox1.visible:=true;
 end;
 
-procedure TSudokuMainForm.MenuItem8Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem8Click(Sender: TObject);
 begin
   config.riddle.pauseGame;
   configuring:=true;
-  ExportGroupBox.Visible:=true;
+  ExportGroupBox.visible:=true;
 end;
 
-procedure TSudokuMainForm.MenuItem9Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem9Click(Sender: TObject);
 begin
-  Close;
+  close;
 end;
 
-procedure TSudokuMainForm.MenuItemHOF04Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF04Click(Sender: TObject);
 begin showHOF(0); end;
-procedure TSudokuMainForm.MenuItemHOF06Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF06Click(Sender: TObject);
 begin showHOF(1); end;
-procedure TSudokuMainForm.MenuItemHOF08Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF08Click(Sender: TObject);
 begin showHOF(2); end;
-procedure TSudokuMainForm.MenuItemHOF09Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF09Click(Sender: TObject);
 begin showHOF(3); end;
-procedure TSudokuMainForm.MenuItemHOF12Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF12Click(Sender: TObject);
 begin showHOF(4); end;
-procedure TSudokuMainForm.MenuItemHOF15Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF15Click(Sender: TObject);
 begin showHOF(5); end;
-procedure TSudokuMainForm.MenuItemHOF16Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemHOF16Click(Sender: TObject);
 begin showHOF(6); end;
-procedure TSudokuMainForm.MenuItemNG04Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG04Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(4); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(4); end;
-procedure TSudokuMainForm.MenuItemNG06Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG06Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(6); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(6); end;
-procedure TSudokuMainForm.MenuItemNG08Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG08Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(8); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(8); end;
-procedure TSudokuMainForm.MenuItemNG09Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG09Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(9); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(9); end;
-procedure TSudokuMainForm.MenuItemNG12Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG12Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(12); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(12); end;
-procedure TSudokuMainForm.MenuItemNG15Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG15Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(15); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(15); end;
-procedure TSudokuMainForm.MenuItemNG16Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItemNG16Click(Sender: TObject);
 begin config.riddle.destroy; config.riddle.create(16); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(16); end;
 
-procedure TSudokuMainForm.NameEditEditingDone(Sender: TObject);
+PROCEDURE TSudokuMainForm.NameEditEditingDone(Sender: TObject);
 begin
-  {$ifdef debugmode} writeMyState; {$endif}
+  {$ifdef debugMode} writeMyState; {$endif}
   if (winnerEntry.time>0) and not(config.gameIsDone) then begin
     config.gameIsDone:=true;
-    winnerEntry.name:=NameEdit.Text;
+    winnerEntry.name:=nameEdit.text;
     config.addHOFEntry(config.riddle.modeIdx,winnerEntry);
-    EnterNameGroupBox.Visible:=false;
+    EnterNameGroupBox.visible:=false;
     showHOF(config.riddle.modeIdx);
   end else begin
-    EnterNameGroupBox.Visible:=false;
+    EnterNameGroupBox.visible:=false;
     showHOF(config.riddle.modeIdx);
   end;
   config.riddle.create(C_sudokuStructure[config.riddle.modeIdx].size);
@@ -862,72 +857,72 @@ begin
   config.riddle.pauseGame;
 end;
 
-procedure TSudokuMainForm.NumButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.NumButtonClick(Sender: TObject);
 begin
-  config.riddle.setState(selectX,selectY,stringToInt(TButton(Sender).Caption),false);
+  config.riddle.setState(selectX,selectY,stringToInt(TButton(Sender).caption),false);
   config.riddle.renderRiddle;
-  NumPanel.Visible:=false;
+  NumPanel.visible:=false;
 end;
 
-procedure TSudokuMainForm.SetCol1ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol1ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         BG1Shape.Brush.Color;
-  if ColorDialog1.Execute then BG1Shape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         BG1Shape.Brush.color;
+  if ColorDialog1.execute then BG1Shape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.SetCol2ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol2ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         BG2Shape.Brush.Color;
-  if ColorDialog1.Execute then BG2Shape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         BG2Shape.Brush.color;
+  if ColorDialog1.execute then BG2Shape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.SetCol3ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol3ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         GridShape.Brush.Color;
-  if ColorDialog1.Execute then GridShape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         GridShape.Brush.color;
+  if ColorDialog1.execute then GridShape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.SetCol4ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol4ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         GivenShape.Brush.Color;
-  if ColorDialog1.Execute then GivenShape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         GivenShape.Brush.color;
+  if ColorDialog1.execute then GivenShape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.SetCol5ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol5ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         NeutralShape.Brush.Color;
-  if ColorDialog1.Execute then NeutralShape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         NeutralShape.Brush.color;
+  if ColorDialog1.execute then NeutralShape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.SetCol6ButtonClick(Sender: TObject);
+PROCEDURE TSudokuMainForm.SetCol6ButtonClick(Sender: TObject);
 begin
-  ColorDialog1.Color:=         ConfShape.Brush.Color;
-  if ColorDialog1.Execute then ConfShape.Brush.Color:=ColorDialog1.Color;
+  ColorDialog1.color:=         ConfShape.Brush.color;
+  if ColorDialog1.execute then ConfShape.Brush.color:=ColorDialog1.color;
 end;
 
-procedure TSudokuMainForm.FormResize(Sender: TObject);
+PROCEDURE TSudokuMainForm.FormResize(Sender: TObject);
 begin
   config.riddle.renderRiddle;
-  LoserGroupBox    .Left:=(Width -LoserGroupBox    .Width ) shr 1;
-  LoserGroupBox    .Top :=(Height-LoserGroupBox    .Height) shr 1;
-  EnterNameGroupBox.Left:=(Width -EnterNameGroupBox.Width ) shr 1;
-  EnterNameGroupBox.Top :=(Height-EnterNameGroupBox.Height) shr 1;
-  HOFGroupBox      .Left:=(Width -HOFGroupBox      .Width ) shr 1;
-  HOFGroupBox      .Top :=(Height-HOFGroupBox      .Height) shr 1;
+  LoserGroupBox    .Left:=(width -LoserGroupBox    .width ) shr 1;
+  LoserGroupBox    .top :=(height-LoserGroupBox    .height) shr 1;
+  EnterNameGroupBox.Left:=(width -EnterNameGroupBox.width ) shr 1;
+  EnterNameGroupBox.top :=(height-EnterNameGroupBox.height) shr 1;
+  HOFGroupBox      .Left:=(width -HOFGroupBox      .width ) shr 1;
+  HOFGroupBox      .top :=(height-HOFGroupBox      .height) shr 1;
 end;
 
-procedure TSudokuMainForm.FormKeyDown(Sender: TObject; var Key: Word;
+PROCEDURE TSudokuMainForm.FormKeyDown(Sender: TObject; VAR key: word;
   Shift: TShiftState);
   VAR bKey:byte;
 begin
-  NumPanel.Visible:=false;
+  NumPanel.visible:=false;
   if not(configuring) then begin
     bKey:=key;
-    if config.riddle.isPaused and (shift=[]) and (key=80) then begin
+    if config.riddle.isPaused and (Shift=[]) and (key=80) then begin
       config.riddle.switchPause;
       config.riddle.renderRiddle;
     end else if not(config.riddle.isPaused) and
-       (shift=[]) and
+       (Shift=[]) and
        (key<=105) and
        (bKey in [8,37..40,46,48..57,80,96..105]) then begin
       keyboardMode:=true;
@@ -954,43 +949,43 @@ begin
   end;
 end;
 
-procedure TSudokuMainForm.Button2Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button2Click(Sender: TObject);
 begin
-  ViewGroupBox.Visible:=false;
+  ViewGroupBox.visible:=false;
   configuring:=false;
 end;
 
-procedure TSudokuMainForm.Button3Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button3Click(Sender: TObject);
 begin
   FontDialog1.Font:=FontLabel.Font;
-  if FontDialog1.Execute then FontLabel.Font:=FontDialog1.Font;
+  if FontDialog1.execute then FontLabel.Font:=FontDialog1.Font;
 end;
 
-procedure TSudokuMainForm.Button4Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button4Click(Sender: TObject);
 begin
-  config.difficulty.markErrors:=MarkErrorsCB.Checked ;
-  config.difficulty.xSymm     :=XSymmCB     .Checked ;
-  config.difficulty.ySymm     :=ySymmCB     .Checked ;
-  config.difficulty.ptSymm    :=pSymmCB     .Checked ;
+  config.difficulty.markErrors:=MarkErrorsCB.checked ;
+  config.difficulty.xSymm     :=XSymmCB     .checked ;
+  config.difficulty.ySymm     :=ySymmCB     .checked ;
+  config.difficulty.ptSymm    :=pSymmCB     .checked ;
   config.difficulty.diff      :=DiffListBox .ItemIndex;
 end;
 
-procedure TSudokuMainForm.Button5Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button5Click(Sender: TObject);
 begin
-  DiffGroupBox1.Visible:=false;
+  DiffGroupBox1.visible:=false;
   configuring:=false;
 end;
 
-procedure TSudokuMainForm.Button6Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button6Click(Sender: TObject);
 begin
   configuring:=false;
-  HOFGroupBox.Visible:=false;
+  HOFGroupBox.visible:=false;
 end;
 
-procedure TSudokuMainForm.Button7Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button7Click(Sender: TObject);
 begin
   configuring:=false;
-  LoserGroupBox.Visible:=false;
+  LoserGroupBox.visible:=false;
   config.riddle.create(C_sudokuStructure[config.riddle.modeIdx].size);
   config.gameIsDone:=false;
   config.riddle.pauseGame;
@@ -998,8 +993,8 @@ end;
 
 VAR solutionOut:boolean;
     solutions:array of string;
-    outFile:textfile;
-    
+    outFile:textFile;
+
 PROCEDURE writeOut(txt:shortstring);
   begin
     if solutionOut
@@ -1018,7 +1013,7 @@ PROCEDURE writelnOut(txt:shortstring);
       else writeln(outFile,txt);
   end;
 
-procedure TSudokuMainForm.Button8Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button8Click(Sender: TObject);
 VAR s:T_sudoku;
     x:word;
     txtOut,sx,sy,sc:boolean;
@@ -1028,27 +1023,27 @@ VAR s:T_sudoku;
 
 FUNCTION enumString(x:word):string;
   begin
-    if ExportSolutions_CB.Checked then begin
+    if ExportSolutions_CB.checked then begin
       str(x,result);
       result:='\#'+result;
     end else result:='';
   end;
 
-FUNCTION correctedExtension(filename:string; ext:string):string;
+FUNCTION correctedExtension(fileName:string; ext:string):string;
   VAR a,b,c:shortstring;
   begin
-    FSplit(filename,a,b,c);
+    FSplit(fileName,a,b,c);
     if c<>ext then result:=a+b+ext
-              else result:=filename;
+              else result:=fileName;
   end;
 
 begin
-  if SaveDialog1.Execute then begin
+  if SaveDialog1.execute then begin
     randomize;
-    txtOut:=ExportFT1_RB.Checked;
-    if txtOut then SaveDialog1.FileName:=correctedExtension(SaveDialog1.FileName,'.txt')
-              else SaveDialog1.FileName:=correctedExtension(SaveDialog1.FileName,'.tex');
-    assignFile(outFile,SaveDialog1.FileName);
+    txtOut:=ExportFT1_RB.checked;
+    if txtOut then SaveDialog1.fileName:=correctedExtension(SaveDialog1.fileName,'.txt')
+              else SaveDialog1.fileName:=correctedExtension(SaveDialog1.fileName,'.tex');
+    assignFile(outFile,SaveDialog1.fileName);
     rewrite(outFile);
     case byte(ExportSizeListBox.ItemIndex) of
       0: riddleSize:= 4;
@@ -1060,24 +1055,24 @@ begin
       6: riddleSize:=16;
     end;
     diffic:=((75-5*DiffListBox.ItemIndex)*sqr(riddlesize)) div 100;
-    numberOfRiddles:=stringToInt(ExportNumberEdit.Text);
+    numberOfRiddles:=stringToInt(ExportNumberEdit.text);
     setLength(solutions,2);
     if txtOut then solutions[0]:='LOESUNGEN:'
               else solutions[0]:='\newpage \begin{Large} L\"osungen \end{Large}';
     solutions[1]:='';
     solutionOut:=false;
     if not(txtOut) then writeLatexHeader(@writelnOut);
-    ExportProgressBar.Max:=numberOfRiddles;
+    ExportProgressBar.max:=numberOfRiddles;
     for x:=1 to numberOfRiddles do begin
-      ExportProgressBar.Position:=x;
-      if ExportSX_RB3.Checked then sx:=(random(3)=0) else sx:=ExportSX_RB1.Checked;
-      if ExportSY_RB3.Checked then sy:=(random(3)=0) else sy:=ExportSY_RB1.Checked;
-      if ExportSP_RB3.Checked then sc:=(random(3)=0) else sc:=ExportSP_RB1.Checked;
+      ExportProgressBar.position:=x;
+      if ExportSX_RB3.checked then sx:=(random(3)=0) else sx:=ExportSX_RB1.checked;
+      if ExportSY_RB3.checked then sy:=(random(3)=0) else sy:=ExportSY_RB1.checked;
+      if ExportSP_RB3.checked then sc:=(random(3)=0) else sc:=ExportSP_RB1.checked;
       s.create(riddleSize,sx,sy,sc,diffic);
       solutionOut:=false;
       if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
                 else s.writeLaTexForm(@writeOut,@writelnOut,enumString(x),false);
-      if ExportSolutions_CB.Checked then begin
+      if ExportSolutions_CB.checked then begin
         solutionOut:=true;
         s.solve;
         if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
@@ -1085,51 +1080,51 @@ begin
       end;
       s.destroy;
     end;
-    if ExportSolutions_CB.Checked then begin
+    if ExportSolutions_CB.checked then begin
       solutionOut:=false;
       for x:=0 to length(solutions)-1 do writelnOut(solutions[x]);
     end;
     setLength(solutions,0);
     if not(txtOut) then writelnOut(C_LaTeX_fileFooter);
     closeFile(outFile);
-    if ExportFT3_RB.Checked then begin
-      exec('cmd','/C pdflatex '+SaveDialog1.FileName);
-      exec('cmd','/C start '+correctedExtension(SaveDialog1.FileName,'.pdf'));
-    end else exec('cmd','/C start '+SaveDialog1.FileName);
+    if ExportFT3_RB.checked then begin
+      Exec('cmd','/C pdflatex '+SaveDialog1.fileName);
+      Exec('cmd','/C start '+correctedExtension(SaveDialog1.fileName,'.pdf'));
+    end else Exec('cmd','/C start '+SaveDialog1.fileName);
   end;
 end;
 
-procedure TSudokuMainForm.Button9Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button9Click(Sender: TObject);
 begin
-  ExportGroupBox.Visible:=false;
+  ExportGroupBox.visible:=false;
   configuring:=false;
 end;
 
-procedure TSudokuMainForm.ExportNumberEditEditingDone(Sender: TObject);
+PROCEDURE TSudokuMainForm.ExportNumberEditEditingDone(Sender: TObject);
 VAR num:longint;
 begin
-  num:=StringToInt(ExportNumberEdit.Text);
+  num:=StringToInt(ExportNumberEdit.text);
   if num<1 then num:=1 else if num>200 then num:=200;
-  ExportNumberEdit.Text:=intToString(num);
+  ExportNumberEdit.text:=intToString(num);
 end;
 
-procedure TSudokuMainForm.FormCreate(Sender: TObject);
+PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
 begin
-  MainImage.Height:=Screen.Height;
-  MainImage.Width:=Screen.Width;
+  MainImage.height:=screen.height;
+  MainImage.width:=screen.width;
 end;
 
-procedure TSudokuMainForm.Button1Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.Button1Click(Sender: TObject);
 begin
-  config.font.name       :=FontLabel.Font.Name;
-  config.font.italic     :=fsItalic in FontLabel.Font.Style;
-  config.font.bold       :=fsBold   in FontLabel.Font.Style;
-  config.view.bgColTop   :=BG1Shape .Brush.Color;
-  config.view.bgColBottom:=BG2Shape .Brush.Color;
-  config.view.gridCol    :=GridShape.Brush.Color;
-  config.view.givenCol   :=GivenShape  .Brush.Color;
-  config.view.neutralCol :=NeutralShape.Brush.Color;
-  config.view.confCol    :=ConfShape   .Brush.Color;
+  config.Font.name       :=FontLabel.Font.name;
+  config.Font.italic     :=fsItalic in FontLabel.Font.style;
+  config.Font.bold       :=fsBold   in FontLabel.Font.style;
+  config.view.bgColTop   :=BG1Shape .Brush.color;
+  config.view.bgColBottom:=BG2Shape .Brush.color;
+  config.view.gridCol    :=GridShape.Brush.color;
+  config.view.givenCol   :=GivenShape  .Brush.color;
+  config.view.neutralCol :=NeutralShape.Brush.color;
+  config.view.confCol    :=ConfShape   .Brush.color;
   config.riddle.renderRiddle;
 end;
 
@@ -1139,7 +1134,7 @@ PROCEDURE TSudokuMainForm.showHOF(modeIdx:byte);
   begin
     configuring:=true;
     config.riddle.pauseGame;
-    HOFGroupBox.Caption:='Bestenliste '+intToString(C_sudokuStructure[modeIdx].size)+'x'
+    HOFGroupBox.caption:='Bestenliste '+intToString(C_sudokuStructure[modeIdx].size)+'x'
                                        +intToString(C_sudokuStructure[modeIdx].size);
     for i:=0 to 19 do begin
       HOFStringGrid.Cells[1,i+1]:=config.hallOfFame[modeIdx,i].name;
@@ -1156,125 +1151,125 @@ PROCEDURE TSudokuMainForm.showHOF(modeIdx:byte);
     HOFStringGrid.AutoSizeColumns;
     h:=0;
     for i:=0 to 4 do h:=h+HOFStringGrid.ColWidths[i];
-    HOFGroupBox.Width:=h+10;
-    HOFGroupBox.Left:=(Width -HOFGroupBox.Width ) shr 1;
-    HOFGroupBox.Visible:=true;
+    HOFGroupBox.width:=h+10;
+    HOFGroupBox.Left:=(width -HOFGroupBox.width ) shr 1;
+    HOFGroupBox.visible:=true;
   end;
 
 PROCEDURE TSudokuMainForm.initButtonPanel(size:byte);
   begin
     case size of
       4: begin
-           NumButton_a.Caption:='1'; NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2'; NumButton_b.Visible:=true;
-           NumButton_e.Caption:='3'; NumButton_e.Visible:=true;
-           NumButton_f.Caption:='4'; NumButton_f.Visible:=true;
-           NumPanel.Width :=2*32;
-           NumPanel.Height:=2*32;
+           NumButton_a.caption:='1'; NumButton_a.visible:=true;
+           NumButton_b.caption:='2'; NumButton_b.visible:=true;
+           NumButton_e.caption:='3'; NumButton_e.visible:=true;
+           NumButton_f.caption:='4'; NumButton_f.visible:=true;
+           NumPanel.width :=2*32;
+           NumPanel.height:=2*32;
          end;
       6: begin
-           NumButton_a.Caption:='1'; NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2'; NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3'; NumButton_c.Visible:=true;
-           NumButton_e.Caption:='4'; NumButton_e.Visible:=true;
-           NumButton_f.Caption:='5'; NumButton_f.Visible:=true;
-           NumButton_g.Caption:='6'; NumButton_g.Visible:=true;
-           NumPanel.Width :=3*32;
-           NumPanel.Height:=2*32;
+           NumButton_a.caption:='1'; NumButton_a.visible:=true;
+           NumButton_b.caption:='2'; NumButton_b.visible:=true;
+           NumButton_c.caption:='3'; NumButton_c.visible:=true;
+           NumButton_e.caption:='4'; NumButton_e.visible:=true;
+           NumButton_f.caption:='5'; NumButton_f.visible:=true;
+           NumButton_g.caption:='6'; NumButton_g.visible:=true;
+           NumPanel.width :=3*32;
+           NumPanel.height:=2*32;
          end;
       8: begin
-           NumButton_a.Caption:='1'; NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2'; NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3'; NumButton_c.Visible:=true;
-           NumButton_e.Caption:='4'; NumButton_e.Visible:=true;
-           NumButton_f.Caption:='5'; NumButton_f.Visible:=true;
-           NumButton_g.Caption:='6'; NumButton_g.Visible:=true;
-           NumButton_i.Caption:='7'; NumButton_i.Visible:=true;
-           NumButton_j.Caption:='8'; NumButton_j.Visible:=true;
-                                     NumButton_k.Visible:=false;
-           NumPanel.Width :=3*32;
-           NumPanel.Height:=3*32;
+           NumButton_a.caption:='1'; NumButton_a.visible:=true;
+           NumButton_b.caption:='2'; NumButton_b.visible:=true;
+           NumButton_c.caption:='3'; NumButton_c.visible:=true;
+           NumButton_e.caption:='4'; NumButton_e.visible:=true;
+           NumButton_f.caption:='5'; NumButton_f.visible:=true;
+           NumButton_g.caption:='6'; NumButton_g.visible:=true;
+           NumButton_i.caption:='7'; NumButton_i.visible:=true;
+           NumButton_j.caption:='8'; NumButton_j.visible:=true;
+                                     NumButton_k.visible:=false;
+           NumPanel.width :=3*32;
+           NumPanel.height:=3*32;
          end;
       9: begin
-           NumButton_a.Caption:='1'; NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2'; NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3'; NumButton_c.Visible:=true;
-           NumButton_e.Caption:='4'; NumButton_e.Visible:=true;
-           NumButton_f.Caption:='5'; NumButton_f.Visible:=true;
-           NumButton_g.Caption:='6'; NumButton_g.Visible:=true;
-           NumButton_i.Caption:='7'; NumButton_i.Visible:=true;
-           NumButton_j.Caption:='8'; NumButton_j.Visible:=true;
-           NumButton_k.Caption:='9'; NumButton_k.Visible:=true;
-           NumPanel.Width :=3*32;
-           NumPanel.Height:=3*32;
+           NumButton_a.caption:='1'; NumButton_a.visible:=true;
+           NumButton_b.caption:='2'; NumButton_b.visible:=true;
+           NumButton_c.caption:='3'; NumButton_c.visible:=true;
+           NumButton_e.caption:='4'; NumButton_e.visible:=true;
+           NumButton_f.caption:='5'; NumButton_f.visible:=true;
+           NumButton_g.caption:='6'; NumButton_g.visible:=true;
+           NumButton_i.caption:='7'; NumButton_i.visible:=true;
+           NumButton_j.caption:='8'; NumButton_j.visible:=true;
+           NumButton_k.caption:='9'; NumButton_k.visible:=true;
+           NumPanel.width :=3*32;
+           NumPanel.height:=3*32;
          end;
      12: begin
-           NumButton_a.Caption:='1';  NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2';  NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3';  NumButton_c.Visible:=true;
-           NumButton_d.Caption:='4';  NumButton_d.Visible:=true;
-           NumButton_e.Caption:='5';  NumButton_e.Visible:=true;
-           NumButton_f.Caption:='6';  NumButton_f.Visible:=true;
-           NumButton_g.Caption:='7';  NumButton_g.Visible:=true;
-           NumButton_h.Caption:='8';  NumButton_h.Visible:=true;
-           NumButton_i.Caption:='9';  NumButton_i.Visible:=true;
-           NumButton_j.Caption:='10'; NumButton_j.Visible:=true;
-           NumButton_k.Caption:='11'; NumButton_k.Visible:=true;
-           NumButton_l.Caption:='12'; NumButton_l.Visible:=true;
-           NumPanel.Width :=4*32;
-           NumPanel.Height:=3*32;
+           NumButton_a.caption:='1';  NumButton_a.visible:=true;
+           NumButton_b.caption:='2';  NumButton_b.visible:=true;
+           NumButton_c.caption:='3';  NumButton_c.visible:=true;
+           NumButton_d.caption:='4';  NumButton_d.visible:=true;
+           NumButton_e.caption:='5';  NumButton_e.visible:=true;
+           NumButton_f.caption:='6';  NumButton_f.visible:=true;
+           NumButton_g.caption:='7';  NumButton_g.visible:=true;
+           NumButton_h.caption:='8';  NumButton_h.visible:=true;
+           NumButton_i.caption:='9';  NumButton_i.visible:=true;
+           NumButton_j.caption:='10'; NumButton_j.visible:=true;
+           NumButton_k.caption:='11'; NumButton_k.visible:=true;
+           NumButton_l.caption:='12'; NumButton_l.visible:=true;
+           NumPanel.width :=4*32;
+           NumPanel.height:=3*32;
          end;
      15: begin
-           NumButton_a.Caption:='1';  NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2';  NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3';  NumButton_c.Visible:=true;
-           NumButton_d.Caption:='4';  NumButton_d.Visible:=true;
-           NumButton_e.Caption:='5';  NumButton_e.Visible:=true;
-           NumButton_f.Caption:='6';  NumButton_f.Visible:=true;
-           NumButton_g.Caption:='7';  NumButton_g.Visible:=true;
-           NumButton_h.Caption:='8';  NumButton_h.Visible:=true;
-           NumButton_i.Caption:='9';  NumButton_i.Visible:=true;
-           NumButton_j.Caption:='10'; NumButton_j.Visible:=true;
-           NumButton_k.Caption:='11'; NumButton_k.Visible:=true;
-           NumButton_l.Caption:='12'; NumButton_l.Visible:=true;
-           NumButton_m.Caption:='13'; NumButton_m.Visible:=true;
-           NumButton_n.Caption:='14'; NumButton_n.Visible:=true;
-           NumButton_o.Caption:='15'; NumButton_o.Visible:=true;
-                                      NumButton_p.Visible:=false;
-           NumPanel.Width :=4*32;
-           NumPanel.Height:=4*32;
+           NumButton_a.caption:='1';  NumButton_a.visible:=true;
+           NumButton_b.caption:='2';  NumButton_b.visible:=true;
+           NumButton_c.caption:='3';  NumButton_c.visible:=true;
+           NumButton_d.caption:='4';  NumButton_d.visible:=true;
+           NumButton_e.caption:='5';  NumButton_e.visible:=true;
+           NumButton_f.caption:='6';  NumButton_f.visible:=true;
+           NumButton_g.caption:='7';  NumButton_g.visible:=true;
+           NumButton_h.caption:='8';  NumButton_h.visible:=true;
+           NumButton_i.caption:='9';  NumButton_i.visible:=true;
+           NumButton_j.caption:='10'; NumButton_j.visible:=true;
+           NumButton_k.caption:='11'; NumButton_k.visible:=true;
+           NumButton_l.caption:='12'; NumButton_l.visible:=true;
+           NumButton_m.caption:='13'; NumButton_m.visible:=true;
+           NumButton_n.caption:='14'; NumButton_n.visible:=true;
+           NumButton_o.caption:='15'; NumButton_o.visible:=true;
+                                      NumButton_p.visible:=false;
+           NumPanel.width :=4*32;
+           NumPanel.height:=4*32;
          end;
      16: begin
-           NumButton_a.Caption:='1';  NumButton_a.Visible:=true;
-           NumButton_b.Caption:='2';  NumButton_b.Visible:=true;
-           NumButton_c.Caption:='3';  NumButton_c.Visible:=true;
-           NumButton_d.Caption:='4';  NumButton_d.Visible:=true;
-           NumButton_e.Caption:='5';  NumButton_e.Visible:=true;
-           NumButton_f.Caption:='6';  NumButton_f.Visible:=true;
-           NumButton_g.Caption:='7';  NumButton_g.Visible:=true;
-           NumButton_h.Caption:='8';  NumButton_h.Visible:=true;
-           NumButton_i.Caption:='9';  NumButton_i.Visible:=true;
-           NumButton_j.Caption:='10'; NumButton_j.Visible:=true;
-           NumButton_k.Caption:='11'; NumButton_k.Visible:=true;
-           NumButton_l.Caption:='12'; NumButton_l.Visible:=true;
-           NumButton_m.Caption:='13'; NumButton_m.Visible:=true;
-           NumButton_n.Caption:='14'; NumButton_n.Visible:=true;
-           NumButton_o.Caption:='15'; NumButton_o.Visible:=true;
-           NumButton_p.Caption:='16'; NumButton_p.Visible:=true;
-           NumPanel.Width :=4*32;
-           NumPanel.Height:=4*32;
+           NumButton_a.caption:='1';  NumButton_a.visible:=true;
+           NumButton_b.caption:='2';  NumButton_b.visible:=true;
+           NumButton_c.caption:='3';  NumButton_c.visible:=true;
+           NumButton_d.caption:='4';  NumButton_d.visible:=true;
+           NumButton_e.caption:='5';  NumButton_e.visible:=true;
+           NumButton_f.caption:='6';  NumButton_f.visible:=true;
+           NumButton_g.caption:='7';  NumButton_g.visible:=true;
+           NumButton_h.caption:='8';  NumButton_h.visible:=true;
+           NumButton_i.caption:='9';  NumButton_i.visible:=true;
+           NumButton_j.caption:='10'; NumButton_j.visible:=true;
+           NumButton_k.caption:='11'; NumButton_k.visible:=true;
+           NumButton_l.caption:='12'; NumButton_l.visible:=true;
+           NumButton_m.caption:='13'; NumButton_m.visible:=true;
+           NumButton_n.caption:='14'; NumButton_n.visible:=true;
+           NumButton_o.caption:='15'; NumButton_o.visible:=true;
+           NumButton_p.caption:='16'; NumButton_p.visible:=true;
+           NumPanel.width :=4*32;
+           NumPanel.height:=4*32;
          end;
 
     end;
   end;
 
-initialization
+INITIALIZATION
   {$I Sudoku3Surface.lrs}
   randomize;
   config.create;
   winnerEntry.time:=-1;
 
-finalization
+FINALIZATION
   config.destroy;
 
 end.

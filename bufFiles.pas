@@ -1,6 +1,6 @@
 //{$define debugMode}
 UNIT buffiles;
-{Unit zum Umgang mit Dateien inkl. automatischen Casts auf die Basistypen
+{UNIT zum Umgang mit Dateien inkl. automatischen Casts auf die Basistypen
 Autor: Martin Schlegel
 Datum: erstellt irgendwann 2005
        03.05.2006 - bufferedFile: Kommentare und Methoden für serielle Zugriffe hinzugefügt
@@ -17,15 +17,15 @@ TYPE
       buf_fill,           //Füllstand des Puffers
       filepos:longint;    //Position in der Datei, die der Pufferposition 0 entspricht
       open:boolean;       //Flag, true, wenn die Datei geöffnet ist
-      buf :PByte;         //der Puffer
+      Buf :PByte;         //der Puffer
       readonly:boolean;   //Flag, true wenn Datei nicht beschrieben werden darf (erstellt über Konstruktor createReadOnly)
       seekIndex:longint;
       PROCEDURE clearBuffer(idx0,idx1:longint); //setzt den Puffer von Index idx0 bis idx1 auf null
-      PROCEDURE writeBuffer;                    //schreibt den Puffer zurück in die Datei
-      PROCEDURE readBuffer(idx:longint);        //liest die Datei ab dem übergebenen Index in den Puffer
+      PROCEDURE WriteBuffer;                    //schreibt den Puffer zurück in die Datei
+      PROCEDURE ReadBuffer(idx:longint);        //liest die Datei ab dem übergebenen Index in den Puffer
     public
-      CONSTRUCTOR create        (filename:string; buffersize:longint);
-      CONSTRUCTOR createReadOnly(filename:string; buffersize:longint);
+      CONSTRUCTOR create        (fileName:string; buffersize:longint);
+      CONSTRUCTOR createReadOnly(fileName:string; buffersize:longint);
       FUNCTION  exist:boolean;
       PROCEDURE rewriteFile;
       PROCEDURE resetFile;
@@ -40,18 +40,18 @@ TYPE
       PROCEDURE writeBoolean(VAR idx:longint; value:boolean); overload; //schreiben einer Variable vom Typ boolean an Dateiindex idx
       FUNCTION  readWord    (VAR idx:longint)      :word;     overload; //lesen einer Variable vom Typ     word    vom Dateiindex idx
       PROCEDURE writeWord   (VAR idx:longint; value:word);    overload; //schreiben einer Variable vom Typ word    an Dateiindex idx
-      FUNCTION  readDWord   (VAR idx:longint)      :Dword;    overload; //lesen einer Variable vom Typ     Dword   vom Dateiindex idx
-      PROCEDURE writeDWord  (VAR idx:longint; value:Dword);   overload; //schreiben einer Variable vom Typ Dword   an Dateiindex idx
-      FUNCTION  readQWord   (VAR idx:longint)      :Qword;    overload; //lesen einer Variable vom Typ     Qword   vom Dateiindex idx
-      PROCEDURE writeQWord  (VAR idx:longint; value:Qword);   overload; //schreiben einer Variable vom Typ Qword   an Dateiindex idx
+      FUNCTION  readDWord   (VAR idx:longint)      :dword;    overload; //lesen einer Variable vom Typ     Dword   vom Dateiindex idx
+      PROCEDURE writeDWord  (VAR idx:longint; value:dword);   overload; //schreiben einer Variable vom Typ Dword   an Dateiindex idx
+      FUNCTION  readQWord   (VAR idx:longint)      :qword;    overload; //lesen einer Variable vom Typ     Qword   vom Dateiindex idx
+      PROCEDURE writeQWord  (VAR idx:longint; value:qword);   overload; //schreiben einer Variable vom Typ Qword   an Dateiindex idx
       FUNCTION  readLongint (VAR idx:longint)      :longint;  overload; //lesen einer Variable vom Typ     longint vom Dateiindex idx
       PROCEDURE writeLongint(VAR idx:longint; value:longint); overload; //schreiben einer Variable vom Typ longint an Dateiindex idx
-      FUNCTION  readChar    (VAR idx:longint)      :Char;     overload; //lesen einer Variable vom Typ     Char    vom Dateiindex idx
+      FUNCTION  readChar    (VAR idx:longint)      :char;     overload; //lesen einer Variable vom Typ     Char    vom Dateiindex idx
       PROCEDURE writeChar   (VAR idx:longint; value:char);    overload; //schreiben einer Variable vom Typ char    an Dateiindex idx
-      FUNCTION  readsingle  (VAR idx:longint)      :single;   overload; //lesen einer Variable vom Typ     single  vom Dateiindex idx
-      PROCEDURE writesingle (VAR idx:longint; value:single);  overload; //schreiben einer Variable vom Typ single  an Dateiindex idx
-      FUNCTION  readdouble  (VAR idx:longint)      :double;   overload; //lesen einer Variable vom Typ     double  vom Dateiindex idx
-      PROCEDURE writedouble (VAR idx:longint; value:double);  overload; //schreiben einer Variable vom Typ double  an Dateiindex idx
+      FUNCTION  readSingle  (VAR idx:longint)      :single;   overload; //lesen einer Variable vom Typ     single  vom Dateiindex idx
+      PROCEDURE writeSingle (VAR idx:longint; value:single);  overload; //schreiben einer Variable vom Typ single  an Dateiindex idx
+      FUNCTION  readDouble  (VAR idx:longint)      :double;   overload; //lesen einer Variable vom Typ     double  vom Dateiindex idx
+      PROCEDURE writeDouble (VAR idx:longint; value:double);  overload; //schreiben einer Variable vom Typ double  an Dateiindex idx
       FUNCTION  readString  (VAR idx:longint)      :string;   overload; //lesen einer Variable vom Typ     string  vom Dateiindex idx
       PROCEDURE writeString (VAR idx:longint; value:string);  overload; //schreiben einer Variable vom Typ string  an Dateiindex idx
 
@@ -64,18 +64,18 @@ TYPE
       PROCEDURE writeBoolean(value:boolean); overload; //schreiben einer Variable vom Typ boolean an  aktueller Position
       FUNCTION  readWord          :word;     overload; //lesen einer Variable vom Typ     word    von aktueller Position
       PROCEDURE writeWord   (value:word);    overload; //schreiben einer Variable vom Typ word    an  aktueller Position
-      FUNCTION  readDWord         :Dword;    overload; //lesen einer Variable vom Typ     Dword   von aktueller Position
-      PROCEDURE writeDWord  (value:Dword);   overload; //schreiben einer Variable vom Typ Dword   an  aktueller Position
-      FUNCTION  readQWord         :Qword;    overload; //lesen einer Variable vom Typ     Qword   von aktueller Position
-      PROCEDURE writeQWord  (value:Qword);   overload; //schreiben einer Variable vom Typ Qword   an  aktueller Position
+      FUNCTION  readDWord         :dword;    overload; //lesen einer Variable vom Typ     Dword   von aktueller Position
+      PROCEDURE writeDWord  (value:dword);   overload; //schreiben einer Variable vom Typ Dword   an  aktueller Position
+      FUNCTION  readQWord         :qword;    overload; //lesen einer Variable vom Typ     Qword   von aktueller Position
+      PROCEDURE writeQWord  (value:qword);   overload; //schreiben einer Variable vom Typ Qword   an  aktueller Position
       FUNCTION  readLongint       :longint;  overload; //lesen einer Variable vom Typ     longint von aktueller Position
       PROCEDURE writeLongint(value:longint); overload; //schreiben einer Variable vom Typ longint an  aktueller Position
-      FUNCTION  readChar          :Char;     overload; //lesen einer Variable vom Typ     Char    von aktueller Position
+      FUNCTION  readChar          :char;     overload; //lesen einer Variable vom Typ     Char    von aktueller Position
       PROCEDURE writeChar   (value:char);    overload; //schreiben einer Variable vom Typ char    an  aktueller Position
-      FUNCTION  readsingle        :single;   overload; //lesen einer Variable vom Typ     single  von aktueller Position
-      PROCEDURE writesingle (value:single);  overload; //schreiben einer Variable vom Typ single  an  aktueller Position
-      FUNCTION  readdouble        :double;   overload; //lesen einer Variable vom Typ     double  von aktueller Position
-      PROCEDURE writedouble (value:double);  overload; //schreiben einer Variable vom Typ double  an  aktueller Position
+      FUNCTION  readSingle        :single;   overload; //lesen einer Variable vom Typ     single  von aktueller Position
+      PROCEDURE writeSingle (value:single);  overload; //schreiben einer Variable vom Typ single  an  aktueller Position
+      FUNCTION  readDouble        :double;   overload; //lesen einer Variable vom Typ     double  von aktueller Position
+      PROCEDURE writeDouble (value:double);  overload; //schreiben einer Variable vom Typ double  an  aktueller Position
       FUNCTION  readString        :string;   overload; //lesen einer Variable vom Typ     string  von aktueller Position
       PROCEDURE writeString (value:string);  overload; //schreiben einer Variable vom Typ string  an  aktueller Position
       DESTRUCTOR destroy;
@@ -84,69 +84,68 @@ TYPE
   serializable=object
   //Interface, das das Schreiben in und Lesen aus Objekten vom Typ bufferedFile unterstützt
     CONSTRUCTOR notReallyAConstructor; //formell Vorhanden um Fehlermeldung wg. "virtual" zu vermeiden
-    FUNCTION  loadFromFile(filename:string):boolean;                       overload; //liest die Inhalte des Objektes aus der Datei mit dem übergebenen Namen und gibt true zurück gdw. kein Fehler auftrat
-    PROCEDURE saveToFile(filename:string);                                 overload; //schreibt die Inhalte des Objektes in die Datei mit dem übergebenen Namen
+    FUNCTION  loadFromFile(fileName:string):boolean;                       overload; //liest die Inhalte des Objektes aus der Datei mit dem übergebenen Namen und gibt true zurück gdw. kein Fehler auftrat
+    PROCEDURE saveToFile(fileName:string);                                 overload; //schreibt die Inhalte des Objektes in die Datei mit dem übergebenen Namen
     FUNCTION  loadFromFile(VAR F:bufferedFile):boolean; virtual; abstract; overload; //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
     PROCEDURE saveToFile(VAR F:bufferedFile);           virtual; abstract; overload; //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
     FUNCTION  defaultFilesize:longint;                  virtual; abstract;           //gibt die Puffergröße (=übliche Dateigröße) an
   end;
 
-
-FUNCTION Exists(filename:string):boolean;
+FUNCTION Exists(fileName:string):boolean;
 IMPLEMENTATION
-FUNCTION Exists(filename:string):boolean;
+FUNCTION Exists(fileName:string):boolean;
   VAR dir:searchRec;
   begin
-    FindFirst(fileName,archive,Dir);
+    findFirst(fileName,archive,dir);
     result:=(dosError=0);
-    FindClose(Dir);
+    findClose(dir);
   end;
 //======================================================================
 PROCEDURE bufferedFile.clearBuffer(idx0,idx1:longint);
   VAR i:longint;
   begin
     if (idx0>=0)and (idx0<=idx1) and (idx1<buf_size) //Falls korrekte Grenzen übergeben
-      then for i:=idx0 to idx1 do (buf+i)^:=0; //Setze Puffereinträge auf null
+      then for i:=idx0 to idx1 do (Buf+i)^:=0; //Setze Puffereinträge auf null
   end;
 
-PROCEDURE bufferedFile.writeBuffer;
+PROCEDURE bufferedFile.WriteBuffer;
   begin
     if (filepos>=0) and not(readonly) then begin
-      seek(fil,filepos);             //Gehe zu der Position der Datei, ab der der Puffer beginnt
-      blockwrite(fil,buf^,buf_fill); //schreibe den Puffer in die Datei
+      Seek(fil,filepos);             //Gehe zu der Position der Datei, ab der der Puffer beginnt
+      BlockWrite(fil,Buf^,buf_fill); //schreibe den Puffer in die Datei
     end;
   end;
 
-PROCEDURE bufferedFile.readBuffer(idx:longint);
+PROCEDURE bufferedFile.ReadBuffer(idx:longint);
   begin
     if idx>=0 then begin
       if not(open) then resetFile;
       if (idx>=filesize(fil)) and not(readonly) then begin     //Falls auf eine Position hinter dem Dateiende zugegriffen werden soll...
         clearbuffer(0,buf_size-1);          //Leere gesamten Puffer
-        seek(fil,filesize(fil));            //gehe zum Dateiende
+        Seek(fil,filesize(fil));            //gehe zum Dateiende
         while idx>filesize(fil)-buf_size do //solange index größer ist, als die Datei nach Hinzufügen eines kompletten Puffers wäre
-          blockwrite(fil,buf^,buf_size);      //schreibe Puffer
+          BlockWrite(fil,Buf^,buf_size);      //schreibe Puffer
         if idx>filesize(fil)                //falls Datei immer noch nicht groß genug
-          then blockwrite(fil,buf^,idx-filesize(fil)); //schreibe verbleibenden Pufferanteil
+          then BlockWrite(fil,Buf^,idx-filesize(fil)); //schreibe verbleibenden Pufferanteil
       end; //if idx>...
       filepos:=idx;                       //speichere Position
-      seek(fil,filepos);                  //gehe zu Anfangsposition in der Datei
+      Seek(fil,filepos);                  //gehe zu Anfangsposition in der Datei
       if filesize(fil)-idx<buf_size       //Falls nicht der gesamte Puffer gefüllt werden kann
         then buf_fill:=filesize(fil)-idx    //setze Pufferfüllstand auf Differenz zwischen Anfangsposition und Dateiende
         else buf_fill:=buf_size;            //sonst setze Pufferfüllstand auf Maximum
       if buf_fill>0                       //Falls mindestens ein Byte gelesen werden soll
-        then blockread(fil,buf^,buf_fill);  //lies entsprechende Anzahl von Bytes aus Datei in Puffer
+        then BlockRead(fil,Buf^,buf_fill);  //lies entsprechende Anzahl von Bytes aus Datei in Puffer
       clearBuffer(buf_fill,buf_size-1);   //Setze restlichen Puffer auf null
     end;
   end;
 
-CONSTRUCTOR bufferedFile.create(filename:string; buffersize:longint);
+CONSTRUCTOR bufferedFile.create(fileName:string; buffersize:longint);
   begin
     if (buffersize>41943034) or (buffersize<=0) //falls eine ungültige Puffergröße übergeben wurde
       then buffersize:=4194304; //setze Puffergröße auf 1MB
-    assign(fil,filename);     //Weise der Datei den übergebenen Dateinamen zu
+    assign(fil,fileName);     //Weise der Datei den übergebenen Dateinamen zu
     buf_size:=buffersize;     //Speichere Puffergröße
-    getMem(buf,buf_Size);     //Bereite Puffer vor
+    getMem(Buf,buf_Size);     //Bereite Puffer vor
     clearbuffer(0,buf_Size-1); //Leere Puffer
     open:=false;              //setze Flag auf "Datei nicht geöffnet"
     filepos:=0;
@@ -154,9 +153,9 @@ CONSTRUCTOR bufferedFile.create(filename:string; buffersize:longint);
     readonly:=false;
   end;
 
-CONSTRUCTOR bufferedFile.createReadOnly(filename:string; buffersize:longint);
+CONSTRUCTOR bufferedFile.createReadOnly(fileName:string; buffersize:longint);
   begin
-    create(filename,buffersize);
+    create(fileName,buffersize);
     readonly:=true;
   end;
 
@@ -186,15 +185,15 @@ PROCEDURE bufferedFile.resetFile;
   begin
     if not(open) then begin       //Falls Datei noch nicht geöffnet
       if exist then reset(fil)    //Falls Datei existiert, öffne existierende Datei
-               else begin readOnly:=false; rewrite(fil) end; //sonst öffne Datei zum Schreiben neu
+               else begin readonly:=false; rewrite(fil) end; //sonst öffne Datei zum Schreiben neu
     end;
     open:=true;                   //Setze Flag auf "Datei geöffnet"
-    readbuffer(0);
+    ReadBuffer(0);
   end;
 
 PROCEDURE bufferedFile.closeFile;
   begin
-    writeBuffer; //Schreibe Puffer in Datei
+    WriteBuffer; //Schreibe Puffer in Datei
     close(fil);  //schließe Datei
     open:=false; //setze Flag auf "Datei nicht geöffnet"
   end;
@@ -215,13 +214,13 @@ FUNCTION  bufferedFile.readByte(VAR idx:longint):byte;
     then begin
       if (idx>=filepos+buf_size)  //falls neuer Index hinter dem bisherigem Puffer liegt,
         then buf_fill:=buf_size;  //wird der aktuelle Puffer als vollständig gefüllt angesehen
-      writeBuffer;                //schreibe aktuellen Puffer in die Datei
-      readBuffer(idx);            //lies neuen Puffer ab gesuchtem Index ein
+      WriteBuffer;                //schreibe aktuellen Puffer in die Datei
+      ReadBuffer(idx);            //lies neuen Puffer ab gesuchtem Index ein
     end;
     if buf_fill<=idx-filepos then //Falls Pufferfüllstand hinter auszulesendem Index liegt
        buf_fill:=idx-filepos+1;   //aktualisiere Pufferfüllstand
     inc(idx);
-    readByte:=(buf+idx-1-filepos)^;  //gib entsprechenden Eintrag des Puffers zurück
+    readByte:=(Buf+idx-1-filepos)^;  //gib entsprechenden Eintrag des Puffers zurück
   end;
 
 PROCEDURE bufferedFile.writeByte(VAR idx:longint; value:byte);
@@ -231,12 +230,12 @@ PROCEDURE bufferedFile.writeByte(VAR idx:longint; value:byte);
     then begin
       if (idx>=filepos+buf_size)  //falls neuer Index hinter dem bisherigem Puffer liegt,
         then buf_fill:=buf_size;  //wird der aktuelle Puffer als vollständig gefüllt angesehen
-      writeBuffer;                //schreibe aktuellen Puffer in die Datei
-      readBuffer(idx);            //lies neuen Puffer ab gesuchtem Index ein
+      WriteBuffer;                //schreibe aktuellen Puffer in die Datei
+      ReadBuffer(idx);            //lies neuen Puffer ab gesuchtem Index ein
     end;
     if buf_fill<=idx-filepos then //Falls Pufferfüllstand hinter auszulesendem Index liegt
        buf_fill:=idx-filepos+1;   //aktualisiere Pufferfüllstand
-    (buf+idx-filepos)^:=value;     //Schreibe Datum in Puffer
+    (Buf+idx-filepos)^:=value;     //Schreibe Datum in Puffer
     inc(idx);
   end;
 
@@ -245,9 +244,9 @@ FUNCTION  bufferedFile.readWord(VAR idx:longint):word;
     readWord:=readByte(idx) or
              (readByte(idx) shl 8);
   end;
-FUNCTION  bufferedFile.readDWord(VAR idx:longint):Dword;
+FUNCTION  bufferedFile.readDWord(VAR idx:longint):dword;
   VAR aid:array[0..3] of byte;
-      res:DWord;
+      res:dword;
       i:byte;
   begin
     for i:=0 to 3 do aid[i]:=readByte(idx);
@@ -255,9 +254,9 @@ FUNCTION  bufferedFile.readDWord(VAR idx:longint):Dword;
     readDWord:=res;
   end;
 
-FUNCTION  bufferedFile.readQWord(VAR idx:longint):Qword;
+FUNCTION  bufferedFile.readQWord(VAR idx:longint):qword;
   VAR aid:array[0..7] of byte;
-      res:QWord;
+      res:qword;
       i:byte;
   begin
     for i:=0 to 7 do aid[i]:=readByte(idx);
@@ -275,10 +274,10 @@ FUNCTION  bufferedFile.readLongint(VAR idx:longint):longint;
     readLongint:=res;
   end;
 
-FUNCTION  bufferedFile.readChar(VAR idx:longint):Char;
-  begin readChar:=chr(readbyte(idx)); end;
+FUNCTION  bufferedFile.readChar(VAR idx:longint):char;
+  begin readChar:=chr(readByte(idx)); end;
 
-FUNCTION  bufferedFile.readsingle(VAR idx:longint):single;
+FUNCTION  bufferedFile.readSingle(VAR idx:longint):single;
   VAR aid:array[0..3] of byte;
       res:single;
       i:byte;
@@ -288,7 +287,7 @@ FUNCTION  bufferedFile.readsingle(VAR idx:longint):single;
     readSingle:=res;
   end;
 
-FUNCTION  bufferedFile.readdouble(VAR idx:longint):double;
+FUNCTION  bufferedFile.readDouble(VAR idx:longint):double;
   VAR aid:array[0..7] of byte;
       res:double;
       i:byte;
@@ -305,9 +304,9 @@ FUNCTION  bufferedFile.readString  (VAR idx:longint)      :string;
   VAR l,i:byte;
       res:string;
   begin
-    l:=readbyte(idx);
+    l:=readByte(idx);
     res:='';
-    if l>0 then for i:=1 to l do res:=res+readchar(idx);
+    if l>0 then for i:=1 to l do res:=res+readChar(idx);
     readString:=res;
   end;
 
@@ -319,7 +318,7 @@ PROCEDURE bufferedFile.writeWord(VAR idx:longint; value:word);
     for i:=0 to 1 do writeByte(idx,aid[i]);
   end;
 
-PROCEDURE bufferedFile.writeDWord(VAR idx:longint; value:Dword);
+PROCEDURE bufferedFile.writeDWord(VAR idx:longint; value:dword);
   VAR aid:array[0..3] of byte;
       i:byte;
   begin
@@ -327,7 +326,7 @@ PROCEDURE bufferedFile.writeDWord(VAR idx:longint; value:Dword);
     for i:=0 to 3 do writeByte(idx,aid[i]);
   end;
 
-PROCEDURE bufferedFile.writeQWord(VAR idx:longint; value:Qword);
+PROCEDURE bufferedFile.writeQWord(VAR idx:longint; value:qword);
   VAR aid:array[0..7] of byte;
       i:byte;
   begin
@@ -346,7 +345,7 @@ PROCEDURE bufferedFile.writeLongint(VAR idx:longint; value:longint);
 PROCEDURE bufferedFile.writeChar(VAR idx:longint; value:char);
   begin writeByte(idx,ord(value)); end;
 
-PROCEDURE bufferedFile.writesingle(VAR idx:longint; value:single);
+PROCEDURE bufferedFile.writeSingle(VAR idx:longint; value:single);
   VAR aid:array[0..3] of byte;
       i:byte;
   begin
@@ -354,7 +353,7 @@ PROCEDURE bufferedFile.writesingle(VAR idx:longint; value:single);
     for i:=0 to 3 do writeByte(idx,aid[i]);
   end;
 
-PROCEDURE bufferedFile.writedouble(VAR idx:longint; value:double);
+PROCEDURE bufferedFile.writeDouble(VAR idx:longint; value:double);
   VAR aid:array[0..7] of byte;
       i:byte;
   begin
@@ -379,7 +378,7 @@ PROCEDURE bufferedFile.writeString (VAR idx:longint; value:string);
 DESTRUCTOR bufferedFile.destroy;
   begin
      if open then closeFile;
-     freemem(buf,buf_size);
+     freeMem(Buf,buf_size);
   end;
 
 PROCEDURE bufferedFile.seekPos(position:longint);
@@ -407,16 +406,16 @@ begin readWord    :=readWord    (seekIndex);       end;
 PROCEDURE bufferedFile.writeWord   (value:word);
 //schreiben einer Variable vom Typ word    an  aktueller Position
 begin writeWord                 (seekIndex,value); end;
-FUNCTION  bufferedFile.readDWord         :Dword;
+FUNCTION  bufferedFile.readDWord         :dword;
 //lesen einer Variable vom Typ     Dword   von aktueller Position
 begin readDWord   :=readDWord   (seekIndex);       end;
-PROCEDURE bufferedFile.writeDWord  (value:Dword);
+PROCEDURE bufferedFile.writeDWord  (value:dword);
 //schreiben einer Variable vom Typ Dword   an  aktueller Position
 begin writeDWord                (seekIndex,value); end;
-FUNCTION  bufferedFile.readQWord         :Qword;
+FUNCTION  bufferedFile.readQWord         :qword;
 //lesen einer Variable vom Typ     Qword   von aktueller Position
 begin readQWord   :=readQWord   (seekIndex);       end;
-PROCEDURE bufferedFile.writeQWord  (value:Qword);
+PROCEDURE bufferedFile.writeQWord  (value:qword);
 //schreiben einer Variable vom Typ Qword   an  aktueller Position
 begin writeQWord                (seekIndex,value); end;
 FUNCTION  bufferedFile.readLongint       :longint;
@@ -425,24 +424,24 @@ begin readLongint :=readLongint (seekIndex);       end;
 PROCEDURE bufferedFile.writeLongint(value:longint);
 //schreiben einer Variable vom Typ longint an  aktueller Position
 begin writeLongint              (seekIndex,value); end;
-FUNCTION  bufferedFile.readChar          :Char;
+FUNCTION  bufferedFile.readChar          :char;
 //lesen einer Variable vom Typ     Char    von aktueller Position
 begin readChar    :=readChar    (seekIndex);       end;
 PROCEDURE bufferedFile.writeChar   (value:char);
 //schreiben einer Variable vom Typ char    an  aktueller Position
 begin writeChar                 (seekIndex,value); end;
-FUNCTION  bufferedFile.readsingle        :single;
+FUNCTION  bufferedFile.readSingle        :single;
 //lesen einer Variable vom Typ     single  von aktueller Position
-begin readsingle  :=readsingle  (seekIndex);       end;
-PROCEDURE bufferedFile.writesingle (value:single);
+begin readSingle  :=readSingle  (seekIndex);       end;
+PROCEDURE bufferedFile.writeSingle (value:single);
 //schreiben einer Variable vom Typ single  an  aktueller Position
-begin writesingle               (seekIndex,value); end;
-FUNCTION  bufferedFile.readdouble        :double;
+begin writeSingle               (seekIndex,value); end;
+FUNCTION  bufferedFile.readDouble        :double;
 //lesen einer Variable vom Typ     double  von aktueller Position
-begin readdouble  :=readdouble  (seekIndex);       end;
-PROCEDURE bufferedFile.writedouble (value:double);
+begin readDouble  :=readDouble  (seekIndex);       end;
+PROCEDURE bufferedFile.writeDouble (value:double);
 //schreiben einer Variable vom Typ double  an  aktueller Position
-begin writedouble               (seekIndex,value); end;
+begin writeDouble               (seekIndex,value); end;
 FUNCTION  bufferedFile.readString        :string;
 //lesen einer Variable vom Typ     string  von aktueller Position
 begin readString  :=readString  (seekIndex);       end;
@@ -452,17 +451,17 @@ begin writeString               (seekIndex,value); end;
 //---------------------------------------------------------------------:bufferedFile
 //implementation of serializable:---------------------------------------------------
 CONSTRUCTOR serializable.notReallyAConstructor; begin end;
-FUNCTION serializable.loadFromFile(filename:string):boolean;
+FUNCTION serializable.loadFromFile(fileName:string):boolean;
 //liest die Inhalte des Objektes aus der Datei mit dem übergebenen Namen und gibt true zurück gdw. kein Fehler auftrat
   VAR f:bufferedFile;
   begin
     result:=true;
-    if exists(filename) then begin
+    if exists(fileName) then begin
       {$ifdef debugMode}
-      writeln('file "',filename,'" exists - trying to load');
+      writeln('file "',fileName,'" exists - trying to load');
       {$endif}
       try
-        f.createReadOnly(filename,defaultFileSize);
+        f.createReadOnly(fileName,defaultFileSize);
         f.resetFile;
         result:=loadFromFile(f);
         {$ifdef debugMode}
@@ -477,24 +476,24 @@ FUNCTION serializable.loadFromFile(filename:string):boolean;
     end else begin
       result:=false;
       {$ifdef debugMode}
-      writeln('file "',filename,'" does not exist');
+      writeln('file "',fileName,'" does not exist');
       {$endif}
     end;
   end;
 
-PROCEDURE serializable.saveToFile(filename:string);
+PROCEDURE serializable.saveToFile(fileName:string);
 //schreibt die Inhalte des Objektes in die Datei mit dem übergebenen Namen
   VAR f:bufferedFile;
   begin
     try
-      f.create(filename,defaultFileSize);
+      f.create(fileName,defaultFileSize);
       f.rewriteFile;
       saveToFile(f);
       f.closeFile;
       f.destroy;
     except
       {$ifdef debugMode}
-      writeln('error saving to file "',filename,'"');
+      writeln('error saving to file "',fileName,'"');
       {$endif}
     end;
   end;
