@@ -1,0 +1,1310 @@
+object SudokuMainForm: TSudokuMainForm
+  Left = 1038
+  Height = 810
+  Top = 85
+  Width = 856
+  HorzScrollBar.Page = 349
+  VertScrollBar.Page = 479
+  ActiveControl = Button1
+  Caption = 'Sudoku 3'
+  ClientHeight = 780
+  ClientWidth = 856
+  Constraints.MinHeight = 500
+  Constraints.MinWidth = 350
+  DesignTimePPI = 144
+  Font.CharSet = OEM_CHARSET
+  Menu = MainMenu1
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  OnShow = FormShow
+  LCLVersion = '1.8.4.0'
+  WindowState = wsMaximized
+  object MainImage: TImage
+    Left = 0
+    Height = 584
+    Top = 0
+    Width = 464
+    OnMouseDown = MainImageMouseDown
+  end
+  object ViewGroupBox: TGroupBox
+    Left = 16
+    Height = 245
+    Top = 216
+    Width = 378
+    AutoSize = True
+    Caption = 'Darstellung'
+    ClientHeight = 215
+    ClientWidth = 374
+    TabOrder = 0
+    Visible = False
+    object FontLabel: TLabel
+      AnchorSideLeft.Control = Button3
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol3Button
+      AnchorSideTop.Side = asrBottom
+      Left = 115
+      Height = 36
+      Top = 129
+      Width = 126
+      Align = alCustom
+      BorderSpacing.Left = 10
+      Caption = '123456789'
+      Font.Height = -26
+      ParentColor = False
+      ParentFont = False
+    end
+    object BG1Shape: TShape
+      AnchorSideLeft.Control = SetCol1Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol1Button
+      AnchorSideBottom.Control = SetCol1Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 170
+      Height = 43
+      Top = 0
+      Width = 28
+      Anchors = [akTop, akLeft, akBottom]
+    end
+    object BG2Shape: TShape
+      AnchorSideLeft.Control = SetCol2Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol2Button
+      AnchorSideBottom.Control = SetCol2Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 170
+      Height = 43
+      Top = 43
+      Width = 28
+      Anchors = [akTop, akLeft, akBottom]
+    end
+    object GridShape: TShape
+      AnchorSideLeft.Control = SetCol3Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol3Button
+      AnchorSideBottom.Control = SetCol3Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 170
+      Height = 43
+      Top = 86
+      Width = 28
+      Anchors = [akTop, akLeft, akBottom]
+    end
+    object GivenShape: TShape
+      AnchorSideLeft.Control = SetCol4Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol4Button
+      AnchorSideBottom.Control = SetCol4Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 346
+      Height = 43
+      Top = 0
+      Width = 28
+      Anchors = [akTop, akLeft, akBottom]
+    end
+    object NeutralShape: TShape
+      AnchorSideLeft.Control = SetCol4Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol5Button
+      AnchorSideBottom.Control = SetCol5Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 346
+      Height = 43
+      Top = 43
+      Width = 28
+      Anchors = [akTop, akLeft, akBottom]
+    end
+    object ConfShape: TShape
+      AnchorSideLeft.Control = SetCol6Button
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = SetCol6Button
+      AnchorSideBottom.Control = SetCol6Button
+      AnchorSideBottom.Side = asrBottom
+      Left = 346
+      Height = 43
+      Top = 86
+      Width = 28
+    end
+    object Button1: TButton
+      AnchorSideLeft.Control = Button3
+      AnchorSideTop.Control = Button3
+      AnchorSideTop.Side = asrBottom
+      Left = 0
+      Height = 43
+      Top = 172
+      Width = 136
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Übernehmen'
+      OnClick = Button1Click
+      TabOrder = 0
+    end
+    object Button2: TButton
+      AnchorSideLeft.Control = Button1
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = Button1
+      Left = 136
+      Height = 43
+      Top = 172
+      Width = 108
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Schließen'
+      OnClick = Button2Click
+      TabOrder = 1
+    end
+    object Button3: TButton
+      AnchorSideLeft.Control = ViewGroupBox
+      AnchorSideTop.Control = SetCol3Button
+      AnchorSideTop.Side = asrBottom
+      Left = 0
+      Height = 43
+      Top = 129
+      Width = 105
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Schriftart'
+      OnClick = Button3Click
+      TabOrder = 2
+    end
+    object SetCol1Button: TButton
+      AnchorSideLeft.Control = ViewGroupBox
+      AnchorSideTop.Control = ViewGroupBox
+      Left = 0
+      Height = 43
+      Top = 0
+      Width = 170
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Hintegrund oben'
+      OnClick = SetCol1ButtonClick
+      TabOrder = 3
+    end
+    object SetCol2Button: TButton
+      AnchorSideLeft.Control = ViewGroupBox
+      AnchorSideTop.Control = SetCol1Button
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = SetCol1Button
+      AnchorSideRight.Side = asrBottom
+      Left = 0
+      Height = 43
+      Top = 43
+      Width = 170
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Hintergrund unten'
+      OnClick = SetCol2ButtonClick
+      TabOrder = 4
+    end
+    object SetCol3Button: TButton
+      AnchorSideLeft.Control = SetCol2Button
+      AnchorSideTop.Control = SetCol2Button
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = SetCol2Button
+      AnchorSideRight.Side = asrBottom
+      Left = 0
+      Height = 43
+      Top = 86
+      Width = 170
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Gitterfarbe'
+      OnClick = SetCol3ButtonClick
+      TabOrder = 5
+    end
+    object SetCol4Button: TButton
+      AnchorSideLeft.Control = BG1Shape
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = ViewGroupBox
+      Left = 203
+      Height = 43
+      Top = 0
+      Width = 143
+      AutoSize = True
+      BorderSpacing.Left = 5
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Text, Vorgabe'
+      OnClick = SetCol4ButtonClick
+      TabOrder = 6
+    end
+    object SetCol5Button: TButton
+      AnchorSideLeft.Control = SetCol4Button
+      AnchorSideTop.Control = SetCol4Button
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = SetCol4Button
+      AnchorSideRight.Side = asrBottom
+      Left = 203
+      Height = 43
+      Top = 43
+      Width = 143
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Text, neutral'
+      OnClick = SetCol5ButtonClick
+      TabOrder = 7
+    end
+    object SetCol6Button: TButton
+      AnchorSideLeft.Control = SetCol5Button
+      AnchorSideTop.Control = SetCol5Button
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = SetCol5Button
+      AnchorSideRight.Side = asrBottom
+      Left = 203
+      Height = 43
+      Top = 86
+      Width = 143
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = True
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Text, falsch'
+      OnClick = SetCol6ButtonClick
+      TabOrder = 8
+    end
+  end
+  object DiffGroupBox1: TGroupBox
+    Left = 8
+    Height = 178
+    Top = 0
+    Width = 303
+    AutoSize = True
+    Caption = 'Rätsel'
+    ClientHeight = 148
+    ClientWidth = 299
+    TabOrder = 1
+    Visible = False
+    object Label7: TLabel
+      AnchorSideLeft.Control = DiffGroupBox1
+      AnchorSideTop.Control = MarkErrorsCB
+      AnchorSideTop.Side = asrBottom
+      Left = 5
+      Height = 25
+      Top = 29
+      Width = 107
+      BorderSpacing.Left = 5
+      Caption = 'Schwierigkeit:'
+      ParentColor = False
+    end
+    object MarkErrorsCB: TCheckBox
+      Left = 0
+      Height = 29
+      Top = 0
+      Width = 299
+      Align = alTop
+      Caption = 'Fehler markieren'
+      TabOrder = 0
+    end
+    object XSymmCB: TCheckBox
+      AnchorSideLeft.Control = DiffGroupBox1
+      AnchorSideTop.Control = DiffListBox
+      AnchorSideTop.Side = asrBottom
+      Left = 5
+      Height = 29
+      Top = 61
+      Width = 130
+      BorderSpacing.Left = 5
+      Caption = 'x-Symmetrie'
+      TabOrder = 1
+    end
+    object ySymmCB: TCheckBox
+      AnchorSideLeft.Control = DiffGroupBox1
+      AnchorSideTop.Control = XSymmCB
+      AnchorSideTop.Side = asrBottom
+      Left = 5
+      Height = 29
+      Top = 90
+      Width = 131
+      BorderSpacing.Left = 5
+      Caption = 'y-Symmetrie'
+      TabOrder = 2
+    end
+    object pSymmCB: TCheckBox
+      AnchorSideLeft.Control = DiffGroupBox1
+      AnchorSideTop.Control = ySymmCB
+      AnchorSideTop.Side = asrBottom
+      Left = 5
+      Height = 29
+      Top = 119
+      Width = 158
+      BorderSpacing.Left = 5
+      Caption = 'Punktsymmetrie'
+      TabOrder = 3
+    end
+    object Button4: TButton
+      AnchorSideLeft.Control = pSymmCB
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = DiffListBox
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = DiffGroupBox1
+      AnchorSideRight.Side = asrBottom
+      Left = 163
+      Height = 23
+      Top = 61
+      Width = 136
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Übernehmen'
+      OnClick = Button4Click
+      TabOrder = 4
+    end
+    object Button5: TButton
+      AnchorSideLeft.Control = Button4
+      AnchorSideTop.Control = Button4
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = Button4
+      AnchorSideRight.Side = asrBottom
+      Left = 163
+      Height = 25
+      Top = 84
+      Width = 136
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Schließen'
+      OnClick = Button5Click
+      TabOrder = 5
+    end
+    object DiffListBox: TListBox
+      AnchorSideLeft.Control = Label7
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = MarkErrorsCB
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = MarkErrorsCB
+      AnchorSideRight.Side = asrBottom
+      Left = 112
+      Height = 32
+      Top = 29
+      Width = 187
+      Align = alCustom
+      Anchors = [akTop, akLeft, akRight]
+      ExtendedSelect = False
+      Items.Strings = (
+        '25% vorgegeben (4x4,6x6)'
+        '30% vorgegeben (bis 9x9)'
+        '35% vorgegeben (bis 12x12)'
+        '40% vorgegeben (bis 12x12)'
+        '45% vorgegeben '
+        '50% vorgegeben'
+        '55% vorgegeben'
+        '60% vorgegeben'
+        '65% vorgegeben'
+        '70% vorgegeben'
+        '75% vorgegeben'
+        '80% vorgegeben'
+        '85% vorgegeben'
+        '90% vorgegeben'
+        '95% vorgegeben'
+      )
+      ItemHeight = 25
+      TabOrder = 6
+    end
+  end
+  object HOFGroupBox: TGroupBox
+    Left = 624
+    Height = 472
+    Top = 72
+    Width = 336
+    Caption = 'Bestenliste'
+    ClientHeight = 442
+    ClientWidth = 332
+    TabOrder = 2
+    Visible = False
+    object HOFStringGrid: TStringGrid
+      Left = 0
+      Height = 417
+      Top = 0
+      Width = 332
+      Align = alClient
+      GridLineWidth = 0
+      RowCount = 21
+      TabOrder = 0
+      TitleFont.CharSet = OEM_CHARSET
+      Cells = (
+        25
+        0
+        0
+        'Platz'
+        0
+        1
+        '1'
+        0
+        2
+        '2'
+        0
+        3
+        '3'
+        0
+        4
+        '4'
+        0
+        5
+        '5'
+        0
+        6
+        '6'
+        0
+        7
+        '7'
+        0
+        8
+        '8'
+        0
+        9
+        '9'
+        0
+        10
+        '10'
+        0
+        11
+        '11'
+        0
+        12
+        '12'
+        0
+        13
+        '13'
+        0
+        14
+        '14'
+        0
+        15
+        '15'
+        0
+        16
+        '16'
+        0
+        17
+        '17'
+        0
+        18
+        '18'
+        0
+        19
+        '19'
+        0
+        20
+        '20'
+        1
+        0
+        'Name'
+        2
+        0
+        'gegeben'
+        3
+        0
+        'Zeit'
+        4
+        0
+        'Hilfestellung'
+      )
+    end
+    object Button6: TButton
+      Left = 0
+      Height = 25
+      Top = 417
+      Width = 332
+      Align = alBottom
+      BorderSpacing.InnerBorder = 4
+      Caption = 'O.K.'
+      OnClick = Button6Click
+      TabOrder = 1
+    end
+  end
+  object ExportGroupBox: TGroupBox
+    Left = 568
+    Height = 536
+    Top = 192
+    Width = 352
+    Caption = 'Datei erstellen'
+    ClientHeight = 506
+    ClientWidth = 348
+    TabOrder = 3
+    Visible = False
+    object GroupBox1: TGroupBox
+      AnchorSideLeft.Control = GroupBox2
+      AnchorSideTop.Control = GroupBox2
+      AnchorSideTop.Side = asrBottom
+      AnchorSideBottom.Control = ExportProgressBar
+      Left = 0
+      Height = 133
+      Top = 353
+      Width = 190
+      Align = alCustom
+      Anchors = [akTop, akLeft, akBottom]
+      AutoSize = True
+      Caption = 'Dateiformat'
+      ClientHeight = 103
+      ClientWidth = 186
+      TabOrder = 1
+      object ExportFT1_RB: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 0
+        Width = 186
+        Align = alTop
+        Caption = 'Text'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object ExportFT2_RB: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 29
+        Width = 186
+        Align = alTop
+        Caption = 'LaTex'
+        TabOrder = 1
+      end
+      object ExportFT3_RB: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 58
+        Width = 186
+        Align = alTop
+        Caption = 'PDF (über pdfLatex)'
+        TabOrder = 2
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 0
+      Height = 353
+      Top = 0
+      Width = 348
+      Align = alTop
+      Caption = 'Rätsel'
+      ClientHeight = 323
+      ClientWidth = 344
+      TabOrder = 0
+      object Label1: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportDiff_LB
+        AnchorSideRight.Control = ExportDiff_LB
+        Left = 5
+        Height = 25
+        Top = 65
+        Width = 107
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Left = 5
+        Caption = 'Schwierigkeit:'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox2
+        Left = 5
+        Height = 25
+        Top = 0
+        Width = 57
+        Align = alCustom
+        BorderSpacing.Left = 5
+        Caption = 'Anzahl:'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportSizeListBox
+        Left = 5
+        Height = 25
+        Top = 33
+        Width = 52
+        Align = alCustom
+        BorderSpacing.Left = 5
+        Caption = 'Größe:'
+        ParentColor = False
+      end
+      object ExportDiff_LB: TListBox
+        AnchorSideTop.Control = ExportSizeListBox
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 32
+        Top = 65
+        Width = 232
+        Anchors = [akTop, akLeft, akRight]
+        Items.Strings = (
+          '25% vorgegeben (4x4,6x6)'
+          '30% vorgegeben (bis 9x9)'
+          '35% vorgegeben (bis 12x12)'
+          '40% vorgegeben (bis 12x12)'
+          '45% vorgegeben '
+          '50% vorgegeben'
+          '55% vorgegeben'
+          '60% vorgegeben'
+          '65% vorgegeben'
+          '70% vorgegeben'
+          '75% vorgegeben'
+          '80% vorgegeben'
+          '85% vorgegeben'
+          '90% vorgegeben'
+          '95% vorgegeben'
+        )
+        ItemHeight = 25
+        TabOrder = 2
+      end
+      object ExportNumberEdit: TEdit
+        AnchorSideLeft.Control = ExportDiff_LB
+        AnchorSideTop.Control = Label2
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 33
+        Top = 0
+        Width = 232
+        Anchors = [akTop, akLeft, akRight]
+        OnEditingDone = ExportNumberEditEditingDone
+        TabOrder = 0
+        Text = '1'
+      end
+      object GroupBox3: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportDiff_LB
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 97
+        Width = 344
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'x-Symmetrie'
+        ClientHeight = 29
+        ClientWidth = 340
+        TabOrder = 3
+        object ExportSX_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSX_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSX_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 234
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object GroupBox4: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox3
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 156
+        Width = 344
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'y-Symmetrie'
+        ClientHeight = 29
+        ClientWidth = 340
+        TabOrder = 4
+        object ExportSY_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSY_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSY_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 234
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object GroupBox5: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox4
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 215
+        Width = 344
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'Punktsymmetrie'
+        ClientHeight = 29
+        ClientWidth = 340
+        TabOrder = 5
+        object ExportSP_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSP_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSP_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 234
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object ExportSizeListBox: TListBox
+        AnchorSideLeft.Control = ExportDiff_LB
+        AnchorSideTop.Control = ExportNumberEdit
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 32
+        Top = 33
+        Width = 232
+        Anchors = [akTop, akLeft, akRight]
+        Items.Strings = (
+          '4x4'
+          '6x6'
+          '8x8'
+          '9x9'
+          '12x12'
+          '15x15'
+          '16x16'
+        )
+        ItemHeight = 25
+        TabOrder = 1
+      end
+      object ExportSolutions_CB: TCheckBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox5
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 29
+        Top = 274
+        Width = 344
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Lösungen Speichern'
+        TabOrder = 6
+      end
+    end
+    object Button8: TButton
+      AnchorSideLeft.Control = Button9
+      AnchorSideTop.Control = Button9
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = ExportGroupBox
+      AnchorSideRight.Side = asrBottom
+      Left = 190
+      Height = 25
+      Top = 378
+      Width = 158
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Datei erstellen'
+      OnClick = Button8Click
+      TabOrder = 2
+    end
+    object Button9: TButton
+      AnchorSideLeft.Control = GroupBox1
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = GroupBox1
+      AnchorSideRight.Control = ExportGroupBox
+      AnchorSideRight.Side = asrBottom
+      Left = 190
+      Height = 25
+      Top = 353
+      Width = 158
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Schließen'
+      OnClick = Button9Click
+      TabOrder = 3
+    end
+    object ExportProgressBar: TProgressBar
+      Left = 0
+      Height = 20
+      Top = 486
+      Width = 348
+      Align = alBottom
+      TabOrder = 4
+    end
+  end
+  object EnterNameGroupBox: TGroupBox
+    Left = 480
+    Height = 155
+    Top = 184
+    Width = 161
+    AutoSize = True
+    ClientHeight = 125
+    ClientWidth = 157
+    TabOrder = 4
+    Visible = False
+    object Label10: TLabel
+      Left = 0
+      Height = 75
+      Top = 0
+      Width = 157
+      Align = alTop
+      Alignment = taCenter
+      Caption = 'Glückwunsch!'#13#10'Sie haben eine neue'#13#10'Bestzeit erzielt.'
+      ParentColor = False
+    end
+    object NameEdit: TEdit
+      AnchorSideLeft.Control = Label4
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = Label10
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = Button10
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = Button10
+      Left = 77
+      Height = 33
+      Top = 75
+      Width = 80
+      Align = alCustom
+      Anchors = [akTop, akRight]
+      OnEditingDone = NameEditEditingDone
+      TabOrder = 0
+    end
+    object Button10: TButton
+      Left = 0
+      Height = 25
+      Top = 100
+      Width = 157
+      Align = alBottom
+      BorderSpacing.InnerBorder = 4
+      Caption = 'O.K.'
+      OnClick = NameEditEditingDone
+      TabOrder = 1
+    end
+    object Label4: TLabel
+      AnchorSideLeft.Control = EnterNameGroupBox
+      AnchorSideTop.Control = Label10
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = NameEdit
+      AnchorSideBottom.Control = Button10
+      Left = 0
+      Height = 25
+      Top = 75
+      Width = 77
+      Align = alCustom
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Caption = 'Name:'
+      ParentColor = False
+    end
+  end
+  object LoserGroupBox: TGroupBox
+    Left = 432
+    Height = 130
+    Top = 32
+    Width = 238
+    AutoSize = True
+    ClientHeight = 100
+    ClientWidth = 234
+    TabOrder = 5
+    Visible = False
+    object Label12: TLabel
+      Left = 0
+      Height = 75
+      Top = 0
+      Width = 234
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'Hmm...'#13#10'Das war jetzt leider '#13#10'zu schlecht für die Bestenliste.'
+      ParentColor = False
+    end
+    object Button7: TButton
+      Left = 0
+      Height = 25
+      Top = 75
+      Width = 234
+      Align = alBottom
+      BorderSpacing.InnerBorder = 4
+      Caption = 'O.K.'
+      OnClick = Button7Click
+      TabOrder = 0
+    end
+  end
+  object NumPanel: TPanel
+    Left = 520
+    Height = 168
+    Top = 384
+    Width = 160
+    ClientHeight = 168
+    ClientWidth = 160
+    TabOrder = 6
+    Visible = False
+    object NumButton_a: TButton
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = '16'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object NumButton_b: TButton
+      Left = 32
+      Height = 32
+      Top = 0
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_b'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 1
+    end
+    object NumButton_c: TButton
+      Left = 64
+      Height = 32
+      Top = 0
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_c'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 2
+    end
+    object NumButton_d: TButton
+      Left = 96
+      Height = 32
+      Top = 0
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_d'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 3
+    end
+    object NumButton_e: TButton
+      Left = 0
+      Height = 32
+      Top = 32
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_e'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 4
+    end
+    object NumButton_f: TButton
+      Left = 32
+      Height = 32
+      Top = 32
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_f'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 5
+    end
+    object NumButton_g: TButton
+      Left = 64
+      Height = 32
+      Top = 32
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_g'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 6
+    end
+    object NumButton_h: TButton
+      Left = 96
+      Height = 32
+      Top = 32
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_h'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 7
+    end
+    object NumButton_i: TButton
+      Left = 0
+      Height = 32
+      Top = 64
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_i'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 8
+    end
+    object NumButton_j: TButton
+      Left = 32
+      Height = 32
+      Top = 64
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_j'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 9
+    end
+    object NumButton_k: TButton
+      Left = 64
+      Height = 32
+      Top = 64
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_k'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 10
+    end
+    object NumButton_l: TButton
+      Left = 96
+      Height = 32
+      Top = 64
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_l'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 11
+    end
+    object NumButton_m: TButton
+      Left = 0
+      Height = 32
+      Top = 96
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_m'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 12
+    end
+    object NumButton_n: TButton
+      Left = 32
+      Height = 32
+      Top = 96
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_n'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 13
+    end
+    object NumButton_o: TButton
+      Left = 64
+      Height = 32
+      Top = 96
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_o'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 14
+    end
+    object NumButton_p: TButton
+      Left = 96
+      Height = 32
+      Top = 96
+      Width = 32
+      BorderSpacing.InnerBorder = 4
+      Caption = 'NumButton_p'
+      Font.Height = -21
+      OnClick = NumButtonClick
+      ParentFont = False
+      TabOrder = 15
+    end
+  end
+  object MainMenu1: TMainMenu
+    left = 64
+    top = 576
+    object MenuItem1: TMenuItem
+      Caption = 'Datei'
+      object MenuItem6: TMenuItem
+        Caption = 'Neues Spiel'
+        object MenuItemNG04: TMenuItem
+          Caption = '4x4'
+          OnClick = MenuItemNG04Click
+        end
+        object MenuItemNG06: TMenuItem
+          Caption = '6x6'
+          OnClick = MenuItemNG06Click
+        end
+        object MenuItemNG08: TMenuItem
+          Caption = '8x8'
+          OnClick = MenuItemNG08Click
+        end
+        object MenuItemNG09: TMenuItem
+          Caption = '9x9'
+          OnClick = MenuItemNG09Click
+        end
+        object MenuItemNG12: TMenuItem
+          Caption = '12x12'
+          OnClick = MenuItemNG12Click
+        end
+        object MenuItemNG15: TMenuItem
+          Caption = '15x15'
+          OnClick = MenuItemNG15Click
+        end
+        object MenuItemNG16: TMenuItem
+          Caption = '16x16'
+          OnClick = MenuItemNG16Click
+        end
+      end
+      object MenuItem7: TMenuItem
+        Caption = 'Bestenliste'
+        object MenuItemHOF04: TMenuItem
+          Caption = '4x4'
+          OnClick = MenuItemHOF04Click
+        end
+        object MenuItemHOF06: TMenuItem
+          Caption = '6x6'
+          OnClick = MenuItemHOF06Click
+        end
+        object MenuItemHOF08: TMenuItem
+          Caption = '8x8'
+          OnClick = MenuItemHOF08Click
+        end
+        object MenuItemHOF09: TMenuItem
+          Caption = '9x9'
+          OnClick = MenuItemHOF09Click
+        end
+        object MenuItemHOF12: TMenuItem
+          Caption = '12x12'
+          OnClick = MenuItemHOF12Click
+        end
+        object MenuItemHOF15: TMenuItem
+          Caption = '15x15'
+          OnClick = MenuItemHOF15Click
+        end
+        object MenuItemHOF16: TMenuItem
+          Caption = '16x16'
+          OnClick = MenuItemHOF16Click
+        end
+      end
+      object MenuItem8: TMenuItem
+        Caption = 'Datei erstellen'
+        OnClick = MenuItem8Click
+      end
+      object MenuItem9: TMenuItem
+        Caption = 'Beenden'
+        OnClick = MenuItem9Click
+      end
+    end
+    object MenuItem3: TMenuItem
+      Caption = 'Optionen'
+      object MenuItem4: TMenuItem
+        Caption = 'Darstellung'
+        OnClick = MenuItem4Click
+      end
+      object MenuItem5: TMenuItem
+        Caption = 'Rätsel'
+        OnClick = MenuItem5Click
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Pause'
+      OnClick = MenuItem2Click
+    end
+  end
+  object ColorDialog1: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 32
+    top = 576
+  end
+  object FontDialog1: TFontDialog
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 96
+    top = 576
+  end
+  object SaveDialog1: TSaveDialog
+    FilterIndex = 0
+    left = 64
+    top = 487
+  end
+end
