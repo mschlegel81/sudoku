@@ -1,6 +1,6 @@
 UNIT sudoku;
 INTERFACE
-USES serializationUtil;
+USES serializationUtil,sysutils,ExtCtrls,Graphics;
 CONST
   C_sudokuStructure:array [0..6] of record
                                       size     :byte;
@@ -27,9 +27,6 @@ TYPE
   T_sudokuState=(solved,unknown,unsolveable);
 
   FT_output=PROCEDURE(txt:string);
-
-  { T_sudoku }
-
   T_sudoku=object(T_serializable)
     private
       el:array of word;
@@ -37,8 +34,8 @@ TYPE
       FUNCTION fullSolve(fillRandom:boolean):T_sudokuState;
     public
       CONSTRUCTOR createUnfilled(size:byte);
-      CONSTRUCTOR createFull    (size:byte);
-      CONSTRUCTOR create(size:byte; symm_x,symm_y,symm_center:boolean; difficulty:word);
+      CONSTRUCTOR createFull    (CONST size:byte);
+      CONSTRUCTOR create(CONST size:byte; symm_x,symm_y,symm_center:boolean; difficulty:word);
       FUNCTION    getSquare(x,y:byte):byte;
       FUNCTION    given:word;
       DESTRUCTOR  destroy;
@@ -49,6 +46,83 @@ TYPE
       FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
       PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
   end;
+
+  hallOfFameEntry=record
+    name :string;
+    time :double;
+    given:word;
+    markErrors:boolean;
+  end;
+
+  T_sudokuRiddle=object(T_serializable)
+    private
+      fieldSize:byte;
+      modeIdx  :byte;
+      state:array[0..15,0..15] of record
+                                    given,conflicting:boolean;
+                                    value:byte;
+                                  end;
+      startTime :double;
+      paused    :boolean;
+      PROCEDURE checkConflicts;
+    public
+      PROPERTY getFieldSize:byte read fieldSize;
+      PROPERTY getModeIdx  :byte read modeIdx;
+
+      CONSTRUCTOR create(size:byte);
+      DESTRUCTOR  destroy;
+      PROCEDURE   pauseGame;
+      PROCEDURE   switchPause;
+      FUNCTION    isPaused:boolean;
+      FUNCTION    isSolved:boolean;
+      FUNCTION    makeHOFEntry:hallOfFameEntry;
+      PROCEDURE   setState(CONST x,y:byte; value:byte; CONST append:boolean);
+      PROCEDURE   clearState(CONST x,y:byte);
+      FUNCTION    givenState(CONST x,y:byte):boolean;
+      PROCEDURE   renderRiddle;
+      FUNCTION getSerialVersion:dword; virtual;
+      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
+      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
+  end;
+
+  T_config=object(T_serializable)
+    view:record
+           bgColTop,
+           bgColBottom,
+           gridCol,
+           givenCol,
+           neutralCol,
+           confCol:longint;
+         end;
+    Font:record
+           name:string;
+           bold,italic:boolean;
+         end;
+    difficulty:record
+                 markErrors,xSymm,ySymm,ptSymm:boolean;
+                 diff:byte;
+               end;
+    hallOfFame:array [0..6,0..19] of hallOfFameEntry;
+    riddle    :T_sudokuRiddle;
+    gameIsDone:boolean;
+    CONSTRUCTOR create;
+    DESTRUCTOR  destroy;
+    FUNCTION getSerialVersion:dword; virtual;
+    FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
+    PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
+    FUNCTION  isGoodEnough(modeIdx:byte; newEntry:hallOfFameEntry):boolean;
+    PROCEDURE addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
+  end;
+
+VAR
+  config        : T_config;
+  winnerEntry   : hallOfFameEntry;
+  x0,y0,selectX,selectY:longint;
+  configuring   ,
+  keyboardMode  : boolean;
+
+  quadSize      : longint;
+  mainImage     : TImage;
 
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
 IMPLEMENTATION
@@ -210,12 +284,12 @@ CONSTRUCTOR T_sudoku.createUnfilled(size: byte);
     for k:=0 to length(el)-1 do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
-CONSTRUCTOR T_sudoku.createFull(size: byte);
+CONSTRUCTOR T_sudoku.createFull(CONST size: byte);
   begin
     repeat createUnfilled(size); until fullSolve(true)=solved;
   end;
 
-CONSTRUCTOR T_sudoku.create(size: byte; symm_x, symm_y, symm_center: boolean;
+CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boolean;
   difficulty: word);
   VAR copy:array of word;
       k:word;
@@ -282,9 +356,9 @@ CONSTRUCTOR T_sudoku.create(size: byte; symm_x, symm_y, symm_center: boolean;
 
 FUNCTION T_sudoku.getSquare(x, y: byte): byte;
   begin
-    if (x>=0) and (x<fieldsize) and
-       (y>=0) and (y<fieldsize) then begin
-      x:=y*fieldSize+x;
+    if (x<fieldsize) and
+       (y<fieldsize) then begin
+      x+=y*fieldSize;
       result:=0;
       while (result<fieldSize) and (el[x]<>C_bit[result]) do inc(result);
       if result>=fieldsize then result:=255
@@ -445,7 +519,7 @@ FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
     if result then begin
       setLength(el,sqr(fieldSize));
       for i:=0 to length(el)-1 do begin
-        el[i]:=stream.readWord; result:=result and (el[i]>=0) and (el[i]<=C_sudokuStructure[structIdx].any);
+        el[i]:=stream.readWord; result:=result and (el[i]<=C_sudokuStructure[structIdx].any);
       end;
     end;
   end;
@@ -458,5 +532,450 @@ PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
     stream.writeByte(structIdx);
     for i:=0 to length(el)-1 do stream.writeWord(el[i]);
   end;
+
+FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
+  begin
+    if e1.markErrors then begin
+      if e2.markErrors then begin
+        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
+                (e2.time+6000)/(1+sqr(size)-e2.given);
+      end else begin
+        result:=(2*e1.time+6000)/(1+sqr(size)-e1.given)<
+                (  e2.time+6000)/(1+sqr(size)-e2.given);
+      end;
+    end else begin
+      if e2.markErrors then begin
+        result:=(  e1.time+6000)/(1+sqr(size)-e1.given)<
+                (2*e2.time+6000)/(1+sqr(size)-e2.given);
+      end else begin
+        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
+                (e2.time+6000)/(1+sqr(size)-e2.given);
+      end;
+    end;
+  end;
+
+//T_sudokuRiddle:-----------------------------------------------------------------------------
+PROCEDURE T_sudokuRiddle.pauseGame;
+  begin
+    if not(paused) then startTime:=now-startTime;
+    paused:=true;
+    renderRiddle;
+  end;
+
+PROCEDURE T_sudokuRiddle.switchPause;
+  begin
+    paused:=not(paused);
+    startTime:=now-startTime;
+    renderRiddle;
+  end;
+
+FUNCTION T_sudokuRiddle.isPaused: boolean;
+  begin result:=paused; end;
+
+FUNCTION T_sudokuRiddle.isSolved: boolean;
+  VAR x,y:byte;
+  begin
+    result:=true;
+    for x:=0 to fieldSize-1 do
+    for y:=0 to fieldSize-1 do result:=result and
+      (state[x,y].value<255) and not(state[x,y].conflicting);
+  end;
+
+FUNCTION T_sudokuRiddle.makeHOFEntry: hallOfFameEntry;
+  VAR x,y:byte;
+  begin
+    result.time:=now-startTime;
+    result.given:=0;
+    for x:=0 to fieldSize-1 do
+    for y:=0 to fieldSize-1 do
+    if state[x,y].given then inc(result.given);
+    result.markErrors:=config.difficulty.markErrors;
+  end;
+
+CONSTRUCTOR T_sudokuRiddle.create(size: byte);
+  VAR aid:T_sudoku;
+      i,j:byte;
+  begin
+    paused:=false;
+    fieldSize:=size;
+    modeIdx:=0;
+    startTime:=now;
+    while C_sudokuStructure[modeIdx].size<>size do inc(modeIdx);
+    aid.create(size,config.difficulty.xSymm,
+                    config.difficulty.ySymm,
+                    config.difficulty.ptSymm,
+                   ((75-5*config.difficulty.diff)*sqr(size)) div 100);
+    for i:=0 to size-1 do
+    for j:=0 to size-1 do begin
+      state[i,j].value      :=aid.getSquare(i,j);
+      state[i,j].given      :=(state[i,j].value<>255);
+      state[i,j].conflicting:=false;
+    end;
+  end;
+
+DESTRUCTOR T_sudokuRiddle.destroy;
+  begin end;
+
+PROCEDURE T_sudokuRiddle.checkConflicts;
+  VAR x1,y1,x2,y2:byte;
+  begin
+    for x1:=0 to fieldsize-1 do
+    for y1:=0 to fieldsize-1 do state[x1,y1].conflicting:=false;
+
+    for x1:=0 to fieldsize-1 do
+    for y1:=0 to fieldsize-1 do if state[x1,y1].value<>255 then
+    for x2:=0 to fieldsize-1 do
+    for y2:=0 to fieldsize-1 do if (state[x1,y1].value=state[x2,y2].value)
+      and ((x1<>x2) or (y1<>y2)) then begin
+      if (x1=x2) or //same column
+         (y1=y2) or //same row
+         (x1 div C_sudokuStructure[modeIdx].blocksize[0]=             // \
+          x2 div C_sudokuStructure[modeIdx].blocksize[0]) and         //  \
+         (y1 div C_sudokuStructure[modeIdx].blocksize[1]=             //  /same block
+          y2 div C_sudokuStructure[modeIdx].blocksize[1]) then begin  // /
+        state[x1,y1].conflicting:=true;
+        state[x2,y2].conflicting:=true;
+      end;
+    end;
+  end;
+
+PROCEDURE T_sudokuRiddle.setState(CONST x, y:byte; value: byte; CONST append: boolean);
+  begin
+    if (x<fieldSize)     and
+       (y<fieldSize)     and
+       not(state[x,y].given)            then begin
+
+      if append and (state[x,y].value*10+value<=fieldSize)
+        then value:=state[x,y].value*10+value;
+      if (value>0) and (value<=fieldSize) then state[x,y].value:=value
+                                          else state[x,y].value:=255;
+    end;
+    checkConflicts;
+    if isSolved then begin
+      winnerEntry:=makeHOFEntry;
+      if config.isGoodEnough(modeIdx,winnerEntry) then begin
+        SudokuMainForm.EnterNameGroupBox.visible:=true;
+      end else SudokuMainForm.LoserGroupBox.visible:=true;
+    end;
+  end;
+
+PROCEDURE T_sudokuRiddle.clearState(CONST x, y: byte);
+  begin
+    if (x<fieldSize)     and
+       (y<fieldSize)     and
+       not(state[x,y].given)            then begin
+       state[x,y].value:=255;
+    end;
+    checkConflicts;
+  end;
+
+FUNCTION T_sudokuRiddle.givenState(CONST x, y: byte): boolean;
+  begin
+    result:=(x<fieldSize) and
+            (y<fieldSize) and (state[x,y].given);
+  end;
+
+PROCEDURE T_sudokuRiddle.renderRiddle;
+  VAR gridTop,gridBottom:longint;
+
+  FUNCTION interpolateColor(y:longint):longint;
+    VAR r,g,b:byte;
+        int1,int2:word;
+    begin
+      int1:=(4096*y) div (mainImage.height);
+      int2:=4096-int1;
+      r:=(int1*((config.view.bgColBottom       ) and 255)
+         +int2*((config.view.bgColTop          ) and 255)) shr 12;
+      g:=(int1*((config.view.bgColBottom shr  8) and 255)
+         +int2*((config.view.bgColTop    shr  8) and 255)) shr 12;
+      b:=(int1*((config.view.bgColBottom shr 16) and 255)
+         +int2*((config.view.bgColTop    shr 16) and 255)) shr 12;
+      interpolateColor:=r or g shl 8 or b shl 16;
+    end;
+
+  FUNCTION interpolateColor2(y:longint):longint;
+    VAR r,g,b:byte;
+        int1,int2:word;
+    begin
+      int1:=(4096*y) div (mainImage.height);
+      int2:=4096-int1;
+      r:=(int1*((gridBottom       ) and 255)
+         +int2*((gridTop          ) and 255)) shr 12;
+      g:=(int1*((gridBottom shr  8) and 255)
+         +int2*((gridTop    shr  8) and 255)) shr 12;
+      b:=(int1*((gridBottom shr 16) and 255)
+         +int2*((gridTop    shr 16) and 255)) shr 12;
+      interpolateColor2:=r or g shl 8 or b shl 16;
+    end;
+
+  PROCEDURE vLine(x,y0,y1:longint);
+    VAR y:longint;
+    begin
+      for y:=y0 to y1 do MainImage.Canvas.Pixels[x,y]:=interpolateColor2(y);
+    end;
+
+  CONST sudokuChar:array [0..6] of char=('S','U','D','O','K','U',' ');
+
+  VAR x,y:longint;
+      txt:string;
+  begin
+    gridTop:=(((((config.view.bgColTop       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
+             (((((config.view.bgColTop shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
+             (((((config.view.bgColTop shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
+    gridBottom:=(((((config.view.bgColBottom       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
+                (((((config.view.bgColBottom shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
+                (((((config.view.bgColBottom shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
+
+    quadSize:=10;
+    while  (quadSize*fieldSize*1.1<mainImage.width    )
+       and (quadSize*fieldSize*1.1<mainImage.height-19) do inc(quadSize);
+    y0:=(mainImage.height-19-fieldSize*quadSize) shr 1;
+    x0:=(mainImage.width    -fieldSize*quadSize) shr 1;
+    for y:=0 to mainImage.height-19 do begin
+      mainImage.Canvas.Pen.color:=interpolateColor(y);
+      mainImage.Canvas.line(0,y,mainImage.width,y);
+    end;
+
+    for x:=0 to fieldSize do begin
+      if x mod C_sudokuStructure[modeIdx].blocksize[0]<>0 then begin
+        vLine(x0+x*quadSize,y0-1,y0+fieldSize*quadSize+1);
+      end;
+      if x mod C_sudokuStructure[modeIdx].blocksize[1]<>0 then begin
+        mainImage.Canvas.Pen.color:=interpolateColor2(y0+x*quadSize);
+        mainImage.Canvas.line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
+      end;
+    end;
+
+    mainImage.Canvas.Pen.color:=config.view.gridCol;
+    for x:=0 to fieldSize do begin
+      if x mod C_sudokuStructure[modeIdx].blocksize[0]=0 then begin
+        mainImage.Canvas.line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
+        mainImage.Canvas.line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
+      end;
+      if x mod C_sudokuStructure[modeIdx].blocksize[1]=0 then begin
+        mainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
+        mainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
+      end;
+    end;
+    if keyboardMode then begin
+      mainImage.Canvas.MoveTo(x0+selectX*quadSize+3,
+                              y0+selecty*quadSize+3);
+      mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
+                              y0+selecty*quadSize+3);
+      mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
+                              y0+selecty*quadSize+quadSize-3);
+      mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
+                              y0+selecty*quadSize+quadSize-3);
+      mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
+                              y0+selecty*quadSize+3);
+    end;
+
+    mainImage.Canvas.Brush.style:=bsClear;
+    mainImage.Canvas.Font.size:=round(quadSize*0.9);
+    mainImage.Canvas.Font.height:=round(quadSize*0.9);
+    mainImage.Canvas.Font.name  :=config.Font.name;
+    mainImage.Canvas.Font.color:=config.view.givenCol;
+    if config.Font.bold and config.Font.italic then mainImage.Canvas.Font.style:=[fsBold,fsItalic]
+    else if config.Font.bold                   then mainImage.Canvas.Font.style:=[fsBold]
+    else if config.Font.italic                 then mainImage.Canvas.Font.style:=[fsItalic]
+                                               else mainImage.Canvas.Font.style:=[];
+    if paused then for x:=0 to fieldSize-1 do
+    for y:=0 to fieldSize-1 do begin
+      txt:=sudokuChar[(x+y*fieldSize) mod 7];
+      mainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-mainImage.Canvas.textWidth(txt) shr 1),
+                            y0+y*quadSize,txt);
+    end else for x:=0 to fieldSize-1 do
+    for y:=0 to fieldSize-1 do if (state[x,y].value<255) then  begin
+      if state[x,y].given
+        then mainImage.Canvas.Font.color:=config.view.givenCol
+      else if state[x,y].conflicting and config.difficulty.markErrors
+        then mainImage.Canvas.Font.color:=config.view.confCol
+        else mainImage.Canvas.Font.color:=config.view.neutralCol;
+      txt:=intToStr(state[x,y].value);
+      mainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-mainImage.Canvas.textWidth(txt) shr 1),
+                            y0+y*quadSize,txt);
+    end;
+  end;
+
+FUNCTION T_sudokuRiddle.getSerialVersion: dword;
+begin
+  result:=12325862;
+end;
+
+FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
+  VAR i,j:byte;
+  begin
+    fieldsize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
+    modeIdx  :=stream.readByte; result:=result and
+                                  (modeIdx  in [0..6]) and
+                                  (C_sudokuStructure[modeIdx].size=fieldSize);
+    startTime:=now-stream.readDouble;
+    for i:=0 to fieldSize-1 do
+    for j:=0 to fieldSize-1 do with state[i,j] do begin
+      given:=stream.readBoolean;
+      value:=stream.readByte;
+    end;
+    checkConflicts;
+  end;
+
+PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
+  VAR i,j:byte;
+  begin
+    stream.writeByte(fieldsize);
+    stream.writeByte(modeIdx);
+    stream.writeDouble(now-startTime);
+    for i:=0 to fieldSize-1 do
+    for j:=0 to fieldSize-1 do with state[i,j] do begin
+      stream.writeBoolean(given);
+      stream.writeByte   (value);
+    end;
+  end;
+
+//-----------------------------------------------------------------------------:T_sudokuRiddle
+//T_config:-----------------------------------------------------------------------------------
+CONSTRUCTOR T_config.create;
+  VAR i,j:byte;
+  begin
+    if not(loadFromFile('sudoku3.cfg')) then begin
+      with view do begin
+        bgColTop   :=0;
+        bgColBottom:=2097152;
+        gridCol    :=11184810;
+        givenCol   :=11184810;
+        neutralCol :=13158600;
+        confCol    :=255;
+      end;
+      with Font do begin
+        name:='default';
+        bold:=false;
+        italic:=false;
+      end;
+      with difficulty do begin
+        markErrors:=true;
+        xSymm :=true;
+        ySymm :=true;
+        ptSymm:=true;
+        diff  :=5;
+      end;
+      for i:=0 to 6 do begin
+        for j:=0 to 19 do with hallOfFame[i,j] do begin
+          name:='';
+          time:=maxLongint-7019+j;
+          given:=sqr(C_sudokuStructure[i].size);
+          markErrors:=true;
+        end;
+        hallOfFame[i,0].name:='Sudoku';
+        hallOfFame[i,1].name:='von';
+        hallOfFame[i,2].name:='Martin Schlegel';
+        hallOfFame[i,3].name:='26.01.2008 - 10.02.2019';
+        hallOfFame[i,4].name:='erstellt mit';
+        hallOfFame[i,5].name:='Lazarus v1.8.4 Beta';
+      end;
+      riddle.create(9);
+      gameIsDone:=false;
+    end;
+  end;
+
+DESTRUCTOR T_config.destroy;
+  begin
+    saveToFile('sudoku3.cfg');
+  end;
+
+FUNCTION T_config.getSerialVersion: dword;
+begin
+  result:=34562387;
+end;
+
+FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
+  VAR i,j:byte;
+  begin
+    with view do begin
+      bgColTop   :=stream.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
+      bgColBottom:=stream.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
+      gridCol    :=stream.readLongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
+      givenCol   :=stream.readLongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
+      neutralCol :=stream.readLongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
+      confCol    :=stream.readLongint; result:=result and (confCol    >=0) and (confCol    <16777216);
+    end;
+    with Font do begin
+      name  :=stream.readAnsiString;
+      bold  :=stream.readBoolean;
+      italic:=stream.readBoolean;
+    end;
+    with difficulty do begin
+      markErrors:=stream.readBoolean;
+      xSymm     :=stream.readBoolean;
+      ySymm     :=stream.readBoolean;
+      ptSymm    :=stream.readBoolean;
+      diff      :=stream.readByte;
+    end;
+    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
+      name:=stream.readAnsiString;
+      time:=stream.readDouble;  result:=result and (time>0);
+      given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
+      markErrors:=stream.readBoolean;
+    end;
+    riddle.create(4);
+    result:=result and riddle.loadFromStream(stream);
+    gameIsDone:=stream.readBoolean;
+  end;
+
+PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
+  VAR i,j:byte;
+  begin
+    with view do begin
+      stream.writeLongint(bgColTop   );
+      stream.writeLongint(bgColBottom);
+      stream.writeLongint(gridCol    );
+      stream.writeLongint(givenCol   );
+      stream.writeLongint(neutralCol );
+      stream.writeLongint(confCol    );
+    end;
+    with Font do begin
+      stream.writeAnsiString(name);
+      stream.writeBoolean(bold);
+      stream.writeBoolean(italic);
+    end;
+    with difficulty do begin
+      stream.writeBoolean(markErrors);
+      stream.writeBoolean(xSymm     );
+      stream.writeBoolean(ySymm     );
+      stream.writeBoolean(ptSymm    );
+      stream.writeByte   (diff      );
+    end;
+    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
+      stream.writeAnsiString (name);
+      stream.writeDouble (time);
+      stream.writeWord   (given);
+      stream.writeBoolean(markErrors);
+    end;
+    riddle.saveToStream(stream);
+    stream.writeBoolean(gameIsDone);
+  end;
+
+FUNCTION T_config.isGoodEnough(modeIdx: byte; newEntry: hallOfFameEntry
+  ): boolean;
+  begin
+    result:=isBetterThan(C_sudokuStructure[modeIdx].size,
+                         newEntry,
+                         hallOfFame[modeIdx,19]);
+  end;
+
+PROCEDURE T_config.addHOFEntry(modeIdx: byte; newEntry: hallOfFameEntry);
+  VAR tmp:hallOfFameEntry;
+      i  :byte;
+  begin
+    i:=19;
+    hallOfFame[modeIdx,19]:=newEntry;
+    while (i>0) and isBetterThan(C_sudokuStructure[modeIdx].size,
+                      hallOfFame[modeIdx,i],
+                      hallOfFame[modeIdx,i-1]) do begin
+      tmp:=hallOfFame[modeIdx,i];
+      hallOfFame[modeIdx,i]:=hallOfFame[modeIdx,i-1];
+      hallOfFame[modeIdx,i-1]:=tmp;
+      dec(i);
+    end;
+  end;
+//-----------------------------------------------------------------------------------:T_config
 
 end.

@@ -8,77 +8,6 @@ USES
   sudoku,Menus, StdCtrls, Buttons, ComCtrls, Grids,dos,serializationUtil;
 
 TYPE
-
-  hallOfFameEntry=record
-    name :string;
-    time :double;
-    given:word;
-    markErrors:boolean;
-  end;
-
-  { T_sudokuRiddle }
-
-  T_sudokuRiddle=object(T_serializable)
-    private
-      fieldSize:byte;
-      modeIdx  :byte;
-      state:array[0..15,0..15] of record
-                                    given,conflicting:boolean;
-                                    value:byte;
-                                  end;
-      startTime :double;
-      paused    :boolean;
-      PROCEDURE checkConflicts;
-    public
-      CONSTRUCTOR create(size:byte);
-      DESTRUCTOR  destroy;
-      PROCEDURE   pauseGame;
-      PROCEDURE   switchPause;
-      FUNCTION    isPaused:boolean;
-      FUNCTION    isSolved:boolean;
-      FUNCTION    makeHOFEntry:hallOfFameEntry;
-      PROCEDURE   setState(x,y,value:byte; append:boolean);
-      PROCEDURE   clearState(x,y:byte);
-      FUNCTION    givenState(x,y:byte):boolean;
-      PROCEDURE   renderRiddle;
-      FUNCTION getSerialVersion:dword; virtual;
-      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
-      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
-  end;
-
-  { T_config }
-
-  T_config=object(T_serializable)
-    view:record
-           bgColTop,
-           bgColBottom,
-           gridCol,
-           givenCol,
-           neutralCol,
-           confCol:longint;
-         end;
-    Font:record
-           name:string;
-           bold,italic:boolean;
-         end;
-    difficulty:record
-                 markErrors,xSymm,ySymm,ptSymm:boolean;
-                 diff:byte;
-               end;
-    hallOfFame:array [0..6,0..19] of hallOfFameEntry;
-    riddle    :T_sudokuRiddle;
-    gameIsDone:boolean;
-    CONSTRUCTOR create;
-    DESTRUCTOR  destroy;
-    FUNCTION getSerialVersion:dword; virtual;
-    FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
-    PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
-    FUNCTION  isGoodEnough(modeIdx:byte; newEntry:hallOfFameEntry):boolean;
-    PROCEDURE addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
-  end;
-
-  { TSudokuMainForm }
-
   TSudokuMainForm = class(TForm)
     Button1: TButton;
     Button10: TButton;
@@ -243,502 +172,13 @@ TYPE
 
 VAR
   SudokuMainForm: TSudokuMainForm;
-  config        : T_config;
-  quadSize,x0,y0,selectX,selectY:longint;
-  keyboardMode  : boolean;
-  configuring   : boolean;
-  winnerEntry   : hallOfFameEntry;
 
 IMPLEMENTATION
-{$ifdef debugMode}
-PROCEDURE writeMyState;
-  begin
-    writeln('quadSize              =',quadSize              );
-    writeln('x0                    =',x0                    );
-    writeln('y0                    =',y0                    );
-    writeln('selectX               =',selectX               );
-    writeln('selectY               =',selectY               );
-    writeln('keyboardMode          =',keyboardMode          );
-    writeln('configuring           =',configuring           );
-    writeln('winnerEntry.name      =',winnerEntry.name      );
-    writeln('winnerEntry.time      =',winnerEntry.time      );
-    writeln('winnerEntry.given     =',winnerEntry.given     );
-    writeln('winnerEntry.markErrors=',winnerEntry.markErrors);
-    writeln('config.gameIsDone     =',config.gameIsDone);
-    writeln;
-  end;
-{$endif}
-
-FUNCTION intTime:longint;
-  VAR day,hour,minute,second,deca:word;
-  begin
-    GetDate(hour,minute,day,deca);
-    getTime(hour,minute,second,deca);
-    result:=deca+100*(second+60*(minute+60*(hour+24*day)));
-  end;
-
-FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
-  begin
-    if e1.markErrors then begin
-      if e2.markErrors then begin
-        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
-                (e2.time+6000)/(1+sqr(size)-e2.given);
-      end else begin
-        result:=(2*e1.time+6000)/(1+sqr(size)-e1.given)<
-                (  e2.time+6000)/(1+sqr(size)-e2.given);
-      end;
-    end else begin
-      if e2.markErrors then begin
-        result:=(  e1.time+6000)/(1+sqr(size)-e1.given)<
-                (2*e2.time+6000)/(1+sqr(size)-e2.given);
-      end else begin
-        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
-                (e2.time+6000)/(1+sqr(size)-e2.given);
-      end;
-    end;
-  end;
-
-//T_sudokuRiddle:-----------------------------------------------------------------------------
-PROCEDURE T_sudokuRiddle.pauseGame;
-  begin
-    if not(paused) then startTime:=intTime-startTime;
-    paused:=true;
-    renderRiddle;
-  end;
-
-PROCEDURE T_sudokuRiddle.switchPause;
-  begin
-    paused:=not(paused);
-    startTime:=intTime-startTime;
-    renderRiddle;
-  end;
-
-FUNCTION T_sudokuRiddle.isPaused: boolean;
-  begin result:=paused; end;
-
-FUNCTION T_sudokuRiddle.isSolved: boolean;
-  VAR x,y:byte;
-  begin
-    result:=true;
-    for x:=0 to fieldSize-1 do
-    for y:=0 to fieldSize-1 do result:=result and
-      (state[x,y].value<255) and not(state[x,y].conflicting);
-  end;
-
-FUNCTION T_sudokuRiddle.makeHOFEntry: hallOfFameEntry;
-  VAR x,y:byte;
-  begin
-    result.time:=intTime-startTime;
-    result.given:=0;
-    for x:=0 to fieldSize-1 do
-    for y:=0 to fieldSize-1 do
-    if state[x,y].given then inc(result.given);
-    result.markErrors:=config.difficulty.markErrors;
-  end;
-
-CONSTRUCTOR T_sudokuRiddle.create(size: byte);
-  VAR aid:T_sudoku;
-      i,j:byte;
-  begin
-    paused:=false;
-    fieldSize:=size;
-    modeIdx:=0;
-    startTime:=intTime;
-    while C_sudokuStructure[modeIdx].size<>size do inc(modeIdx);
-    aid.create(size,config.difficulty.xSymm,
-                    config.difficulty.ySymm,
-                    config.difficulty.ptSymm,
-                   ((75-5*config.difficulty.diff)*sqr(size)) div 100);
-    for i:=0 to size-1 do
-    for j:=0 to size-1 do begin
-      state[i,j].value      :=aid.getSquare(i,j);
-      state[i,j].given      :=(state[i,j].value<>255);
-      state[i,j].conflicting:=false;
-    end;
-  end;
-
-DESTRUCTOR T_sudokuRiddle.destroy;
-  begin end;
-
-PROCEDURE T_sudokuRiddle.checkConflicts;
-  VAR x1,y1,x2,y2:byte;
-  begin
-    for x1:=0 to fieldsize-1 do
-    for y1:=0 to fieldsize-1 do state[x1,y1].conflicting:=false;
-
-    for x1:=0 to fieldsize-1 do
-    for y1:=0 to fieldsize-1 do if state[x1,y1].value<>255 then
-    for x2:=0 to fieldsize-1 do
-    for y2:=0 to fieldsize-1 do if (state[x1,y1].value=state[x2,y2].value)
-      and ((x1<>x2) or (y1<>y2)) then begin
-      if (x1=x2) or //same column
-         (y1=y2) or //same row
-         (x1 div C_sudokuStructure[modeIdx].blocksize[0]=             // \
-          x2 div C_sudokuStructure[modeIdx].blocksize[0]) and         //  \
-         (y1 div C_sudokuStructure[modeIdx].blocksize[1]=             //  /same block
-          y2 div C_sudokuStructure[modeIdx].blocksize[1]) then begin  // /
-        state[x1,y1].conflicting:=true;
-        state[x2,y2].conflicting:=true;
-      end;
-    end;
-  end;
-
-PROCEDURE T_sudokuRiddle.setState(x, y, value: byte; append: boolean);
-  begin
-    if (x    >=0) and (x<fieldSize)     and
-       (y    >=0) and (y<fieldSize)     and
-       not(state[x,y].given)            then begin
-
-      if append and (state[x,y].value*10+value<=fieldSize)
-        then value:=state[x,y].value*10+value;
-      if (value>0) and (value<=fieldSize) then state[x,y].value:=value
-                                          else state[x,y].value:=255;
-    end;
-    checkConflicts;
-    if isSolved then begin
-      configuring:=true;
-      winnerEntry:=makeHOFEntry;
-      if config.isGoodEnough(modeIdx,winnerEntry) then begin
-        SudokuMainForm.EnterNameGroupBox.visible:=true;
-        {$ifdef debugMode} writeMyState; {$endif}
-      end else SudokuMainForm.LoserGroupBox.visible:=true;
-    end;
-  end;
-
-PROCEDURE T_sudokuRiddle.clearState(x, y: byte);
-  begin
-    if (x    >=0) and (x<fieldSize)     and
-       (y    >=0) and (y<fieldSize)     and
-       not(state[x,y].given)            then begin
-       state[x,y].value:=255;
-    end;
-    checkConflicts;
-  end;
-
-FUNCTION T_sudokuRiddle.givenState(x, y: byte): boolean;
-  begin
-    result:=(x    >=0) and (x<fieldSize) and
-            (y    >=0) and (y<fieldSize) and (state[x,y].given);
-  end;
-
-PROCEDURE T_sudokuRiddle.renderRiddle;
-  VAR gridTop,gridBottom:longint;
-
-  FUNCTION interpolateColor(y:longint):longint;
-    VAR r,g,b:byte;
-        int1,int2:word;
-    begin
-      int1:=(4096*y) div (SudokuMainForm.height-19);
-      int2:=4096-int1;
-      r:=(int1*((config.view.bgColBottom       ) and 255)
-         +int2*((config.view.bgColTop          ) and 255)) shr 12;
-      g:=(int1*((config.view.bgColBottom shr  8) and 255)
-         +int2*((config.view.bgColTop    shr  8) and 255)) shr 12;
-      b:=(int1*((config.view.bgColBottom shr 16) and 255)
-         +int2*((config.view.bgColTop    shr 16) and 255)) shr 12;
-      interpolateColor:=r or g shl 8 or b shl 16;
-    end;
-
-  FUNCTION interpolateColor2(y:longint):longint;
-    VAR r,g,b:byte;
-        int1,int2:word;
-    begin
-      int1:=(4096*y) div (SudokuMainForm.height-19);
-      int2:=4096-int1;
-      r:=(int1*((gridBottom       ) and 255)
-         +int2*((gridTop          ) and 255)) shr 12;
-      g:=(int1*((gridBottom shr  8) and 255)
-         +int2*((gridTop    shr  8) and 255)) shr 12;
-      b:=(int1*((gridBottom shr 16) and 255)
-         +int2*((gridTop    shr 16) and 255)) shr 12;
-      interpolateColor2:=r or g shl 8 or b shl 16;
-    end;
-
-  PROCEDURE vLine(x,y0,y1:longint);
-    VAR y:longint;
-    begin
-      for y:=y0 to y1 do SudokuMainForm.MainImage.Canvas.Pixels[x,y]:=interpolateColor2(y);
-    end;
-
-  CONST sudokuChar:array [0..6] of char=('S','U','D','O','K','U',' ');
-
-  VAR x,y:longint;
-      txt:string;
-  begin
-    gridTop:=(((((config.view.bgColTop       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
-             (((((config.view.bgColTop shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
-             (((((config.view.bgColTop shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
-    gridBottom:=(((((config.view.bgColBottom       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
-                (((((config.view.bgColBottom shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
-                (((((config.view.bgColBottom shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
-
-    quadSize:=10;
-    while  (quadSize*fieldSize*1.1<SudokuMainForm.width    )
-       and (quadSize*fieldSize*1.1<SudokuMainForm.height-19) do inc(quadSize);
-    y0:=(SudokuMainForm.height-19-fieldSize*quadSize) shr 1;
-    x0:=(SudokuMainForm.width    -fieldSize*quadSize) shr 1;
-    for y:=0 to SudokuMainForm.height-19 do begin
-      SudokuMainForm.MainImage.Canvas.Pen.color:=interpolateColor(y);
-      SudokuMainForm.MainImage.Canvas.line(0,y,SudokuMainForm.width,y);
-    end;
-
-    for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blocksize[0]<>0 then begin
-        vLine(x0+x*quadSize,y0-1,y0+fieldSize*quadSize+1);
-//        SudokuMainForm.MainImage.Canvas.Line(x0+x*quadSize  ,y0-1,x0+x*quadSize  ,y0+fieldSize*quadSize+1);
-      end;
-      if x mod C_sudokuStructure[modeIdx].blocksize[1]<>0 then begin
-        SudokuMainForm.MainImage.Canvas.Pen.color:=interpolateColor2(y0+x*quadSize);
-        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
-      end;
-    end;
-
-    SudokuMainForm.MainImage.Canvas.Pen.color:=config.view.gridCol;
-    for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blocksize[0]=0 then begin
-        SudokuMainForm.MainImage.Canvas.line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
-        SudokuMainForm.MainImage.Canvas.line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
-      end;
-      if x mod C_sudokuStructure[modeIdx].blocksize[1]=0 then begin
-        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
-        SudokuMainForm.MainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
-      end;
-    end;
-    if keyboardMode then begin
-      SudokuMainForm.MainImage.Canvas.MoveTo(x0+selectX*quadSize+3,
-                                             y0+selecty*quadSize+3);
-      SudokuMainForm.MainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                                             y0+selecty*quadSize+3);
-      SudokuMainForm.MainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                                             y0+selecty*quadSize+quadSize-3);
-      SudokuMainForm.MainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                                             y0+selecty*quadSize+quadSize-3);
-      SudokuMainForm.MainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                                             y0+selecty*quadSize+3);
-    end;
-
-    SudokuMainForm.MainImage.Canvas.Brush.style:=bsClear;
-    SudokuMainForm.MainImage.Canvas.Font.size:=round(quadSize*0.9);
-    SudokuMainForm.MainImage.Canvas.Font.height:=round(quadSize*0.9);
-    SudokuMainForm.MainImage.Canvas.Font.name  :=config.Font.name;
-    SudokuMainForm.MainImage.Canvas.Font.color:=config.view.givenCol;
-    if config.Font.bold and config.Font.italic then SudokuMainForm.MainImage.Canvas.Font.style:=[fsBold,fsItalic]
-    else if config.Font.bold                   then SudokuMainForm.MainImage.Canvas.Font.style:=[fsBold]
-    else if config.Font.italic                 then SudokuMainForm.MainImage.Canvas.Font.style:=[fsItalic]
-                                               else SudokuMainForm.MainImage.Canvas.Font.style:=[];
-    if paused then for x:=0 to fieldSize-1 do
-    for y:=0 to fieldSize-1 do begin
-      txt:=sudokuChar[(x+y*fieldSize) mod 7];
-      SudokuMainForm.MainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.textWidth(txt) shr 1),
-                            y0+y*quadSize,txt);
-    end else for x:=0 to fieldSize-1 do
-    for y:=0 to fieldSize-1 do if (state[x,y].value<255) then  begin
-      if state[x,y].given
-        then SudokuMainForm.MainImage.Canvas.Font.color:=config.view.givenCol
-      else if state[x,y].conflicting and config.difficulty.markErrors
-        then SudokuMainForm.MainImage.Canvas.Font.color:=config.view.confCol
-        else SudokuMainForm.MainImage.Canvas.Font.color:=config.view.neutralCol;
-      txt:=intToStr(state[x,y].value);
-      SudokuMainForm.MainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-SudokuMainForm.MainImage.Canvas.textWidth(txt) shr 1),
-                            y0+y*quadSize,txt);
-    end;
-  end;
-
-FUNCTION T_sudokuRiddle.getSerialVersion: dword;
-begin
-  result:=12325862;
-end;
-
-FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
-  ): boolean;
-//liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-  VAR i,j:byte;
-  begin
-    fieldsize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
-    modeIdx  :=stream.readByte; result:=result and
-                                  (modeIdx  in [0..6]) and
-                                  (C_sudokuStructure[modeIdx].size=fieldSize);
-    startTime:=intTime-stream.readLongint;
-    for i:=0 to fieldSize-1 do
-    for j:=0 to fieldSize-1 do with state[i,j] do begin
-      given:=stream.readBoolean;
-      value:=stream.readByte;
-    end;
-    checkConflicts;
-  end;
-
-PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper
-  );
-//schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-  VAR i,j:byte;
-  begin
-    stream.writeByte(fieldsize);
-    stream.writeByte(modeIdx);
-    stream.writeDouble(intTime-startTime);
-    for i:=0 to fieldSize-1 do
-    for j:=0 to fieldSize-1 do with state[i,j] do begin
-      stream.writeBoolean(given);
-      stream.writeByte   (value);
-    end;
-  end;
-
-//-----------------------------------------------------------------------------:T_sudokuRiddle
-//T_config:-----------------------------------------------------------------------------------
-CONSTRUCTOR T_config.create;
-  VAR i,j:byte;
-  begin
-    if not(loadFromFile('sudoku3.cfg')) then begin
-      with view do begin
-        bgColTop   :=0;
-        bgColBottom:=2097152;
-        gridCol    :=11184810;
-        givenCol   :=11184810;
-        neutralCol :=13158600;
-        confCol    :=255;
-      end;
-      with Font do begin
-        name:='default';
-        bold:=false;
-        italic:=false;
-      end;
-      with difficulty do begin
-        markErrors:=true;
-        xSymm :=true;
-        ySymm :=true;
-        ptSymm:=true;
-        diff  :=5;
-      end;
-      for i:=0 to 6 do begin
-        for j:=0 to 19 do with hallOfFame[i,j] do begin
-          name:='';
-          time:=maxLongint-7019+j;
-          given:=sqr(C_sudokuStructure[i].size);
-          markErrors:=true;
-        end;
-        hallOfFame[i,0].name:='Sudoku 3';
-        hallOfFame[i,1].name:='von';
-        hallOfFame[i,2].name:='Martin Schlegel';
-        hallOfFame[i,3].name:='26.01.2008 - 27.01.2008';
-        hallOfFame[i,4].name:='erstellt mit';
-        hallOfFame[i,5].name:='Lazarus v0.9.22 Beta';
-      end;
-      riddle.create(9);
-      gameIsDone:=false;
-    end;
-  end;
-
-DESTRUCTOR T_config.destroy;
-  begin
-    saveToFile('sudoku3.cfg');
-  end;
-
-FUNCTION T_config.getSerialVersion: dword;
-begin
-  result:=34562387;
-end;
-
-FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
-  ): boolean;
-  VAR i,j:byte;
-//liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-  begin
-    with view do begin
-      bgColTop   :=stream.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
-      bgColBottom:=stream.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
-      gridCol    :=stream.readLongint; result:=result and (gridCol    >=0) and (gridCol    <16777216);
-      givenCol   :=stream.readLongint; result:=result and (givenCol   >=0) and (givenCol   <16777216);
-      neutralCol :=stream.readLongint; result:=result and (neutralCol >=0) and (neutralCol <16777216);
-      confCol    :=stream.readLongint; result:=result and (confCol    >=0) and (confCol    <16777216);
-    end;
-    with Font do begin
-      name  :=stream.readAnsiString;
-      bold  :=stream.readBoolean;
-      italic:=stream.readBoolean;
-    end;
-    with difficulty do begin
-      markErrors:=stream.readBoolean;
-      xSymm     :=stream.readBoolean;
-      ySymm     :=stream.readBoolean;
-      ptSymm    :=stream.readBoolean;
-      diff      :=stream.readByte;
-    end;
-    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
-      name:=stream.readAnsiString;
-      time:=stream.readLongint; result:=result and (time>0);
-      given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
-      markErrors:=stream.readBoolean;
-    end;
-    riddle.create(4);
-    result:=result and riddle.loadFromStream(stream);
-    gameIsDone:=stream.readBoolean;
-  end;
-
-PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
-  VAR i,j:byte;
-//schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-  begin
-    with view do begin
-      stream.writeLongint(bgColTop   );
-      stream.writeLongint(bgColBottom);
-      stream.writeLongint(gridCol    );
-      stream.writeLongint(givenCol   );
-      stream.writeLongint(neutralCol );
-      stream.writeLongint(confCol    );
-    end;
-    with Font do begin
-      stream.writeAnsiString(name);
-      stream.writeBoolean(bold);
-      stream.writeBoolean(italic);
-    end;
-    with difficulty do begin
-      stream.writeBoolean(markErrors);
-      stream.writeBoolean(xSymm     );
-      stream.writeBoolean(ySymm     );
-      stream.writeBoolean(ptSymm    );
-      stream.writeByte   (diff      );
-    end;
-    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
-      stream.writeAnsiString (name);
-      stream.writeDouble (time);
-      stream.writeWord   (given);
-      stream.writeBoolean(markErrors);
-    end;
-    riddle.saveToStream(stream);
-    stream.writeBoolean(gameIsDone);
-  end;
-
-FUNCTION T_config.isGoodEnough(modeIdx: byte; newEntry: hallOfFameEntry
-  ): boolean;
-  begin
-    result:=isBetterThan(C_sudokuStructure[modeIdx].size,
-                         newEntry,
-                         hallOfFame[modeIdx,19]);
-  end;
-
-PROCEDURE T_config.addHOFEntry(modeIdx: byte; newEntry: hallOfFameEntry);
-  VAR tmp:hallOfFameEntry;
-      i  :byte;
-  begin
-    i:=19;
-    hallOfFame[modeIdx,19]:=newEntry;
-    while (i>0) and isBetterThan(C_sudokuStructure[modeIdx].size,
-                      hallOfFame[modeIdx,i],
-                      hallOfFame[modeIdx,i-1]) do begin
-      tmp:=hallOfFame[modeIdx,i];
-      hallOfFame[modeIdx,i]:=hallOfFame[modeIdx,i-1];
-      hallOfFame[modeIdx,i-1]:=tmp;
-      dec(i);
-    end;
-  end;
-//-----------------------------------------------------------------------------------:T_config
-
-{ TSudokuMainForm }
-
 PROCEDURE TSudokuMainForm.FormShow(Sender: TObject);
 begin
   DoubleBuffered:=true;
   configuring:=false;
-  initButtonPanel(config.riddle.fieldSize);
+  initButtonPanel(config.riddle.getFieldSize);
 end;
 
 PROCEDURE TSudokuMainForm.MainImageMouseDown(Sender: TObject;
@@ -746,16 +186,16 @@ PROCEDURE TSudokuMainForm.MainImageMouseDown(Sender: TObject;
 begin
   if not(configuring) and not(config.riddle.isPaused) then begin
     keyboardMode:=false;
-    if  (x>x0) and (x<x0+config.riddle.fieldSize*quadSize)
-    and (y>y0) and (y<y0+config.riddle.fieldSize*quadSize) then begin
+    if  (x>x0) and (x<x0+config.riddle.getFieldSize*quadSize)
+    and (y>y0) and (y<y0+config.riddle.getFieldSize*quadSize) then begin
       selectX:=(x-x0) div quadSize;
       selectY:=(y-y0) div quadSize;
       if (button=mbRight) then begin
         config.riddle.clearState(selectX,selectY);
         config.riddle.renderRiddle;
         NumPanel.visible:=false;
-      end else if (SelectX<0) or (selectX>=config.riddle.fieldSize)
-               or (SelectY<0) or (selectY>=config.riddle.fieldSize) then NumPanel.visible:=false
+      end else if (SelectX<0) or (selectX>=config.riddle.getFieldSize)
+               or (SelectY<0) or (selectY>=config.riddle.getFieldSize) then NumPanel.visible:=false
       else if (config.riddle.givenState(selectX,selectY)) then config.riddle.renderRiddle
       else begin
         NumPanel.Left:=x0+selectX*quadSize+(quadSize-NumPanel.width) shr 1;
@@ -851,14 +291,14 @@ begin
   if (winnerEntry.time>0) and not(config.gameIsDone) then begin
     config.gameIsDone:=true;
     winnerEntry.name:=nameEdit.text;
-    config.addHOFEntry(config.riddle.modeIdx,winnerEntry);
+    config.addHOFEntry(config.riddle.getModeIdx,winnerEntry);
     EnterNameGroupBox.visible:=false;
-    showHOF(config.riddle.modeIdx);
+    showHOF(config.riddle.getModeIdx);
   end else begin
     EnterNameGroupBox.visible:=false;
-    showHOF(config.riddle.modeIdx);
+    showHOF(config.riddle.getModeIdx);
   end;
-  config.riddle.create(C_sudokuStructure[config.riddle.modeIdx].size);
+  config.riddle.create(C_sudokuStructure[config.riddle.getModeIdx].size);
   config.gameIsDone:=false;
   config.riddle.pauseGame;
 end;
@@ -933,10 +373,10 @@ begin
        (bKey in [8,37..40,46,48..57,80,96..105]) then begin
       keyboardMode:=true;
       case bKey of
-        38    : if selectY>0                         then dec(selectY);
-        40    : if selectY<config.riddle.fieldSize-1 then inc(selectY);
-        37    : if selectX>0                         then dec(selectX);
-        39    : if selectX<config.riddle.fieldSize-1 then inc(selectX);
+        38    : if selectY>0                            then dec(selectY);
+        40    : if selectY<config.riddle.getFieldSize-1 then inc(selectY);
+        37    : if selectX>0                            then dec(selectX);
+        39    : if selectX<config.riddle.getFieldSize-1 then inc(selectX);
         48, 96: config.riddle.setState(selectX,selectY,0,true);
         49, 97: config.riddle.setState(selectX,selectY,1,true);
         50, 98: config.riddle.setState(selectX,selectY,2,true);
@@ -992,7 +432,7 @@ PROCEDURE TSudokuMainForm.Button7Click(Sender: TObject);
 begin
   configuring:=false;
   LoserGroupBox.visible:=false;
-  config.riddle.create(C_sudokuStructure[config.riddle.modeIdx].size);
+  config.riddle.create(C_sudokuStructure[config.riddle.getModeIdx].size);
   config.gameIsDone:=false;
   config.riddle.pauseGame;
 end;
@@ -1118,6 +558,7 @@ PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
 begin
   MainImage.height:=screen.height;
   MainImage.width:=screen.width;
+  sudoku.mainImage:=MainImage;
 end;
 
 PROCEDURE TSudokuMainForm.Button1Click(Sender: TObject);
