@@ -16,8 +16,6 @@ TYPE
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
-    MenuItem4: TMenuItem;
-    MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
@@ -62,8 +60,7 @@ TYPE
     PROCEDURE MainImageMouseDown(Sender: TObject; button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     PROCEDURE MenuItem2Click(Sender: TObject);
-    PROCEDURE MenuItem4Click(Sender: TObject);
-    PROCEDURE MenuItem5Click(Sender: TObject);
+    PROCEDURE MenuItem3Click(Sender: TObject);
     PROCEDURE MenuItem8Click(Sender: TObject);
     PROCEDURE MenuItem9Click(Sender: TObject);
     PROCEDURE MenuItemHOF04Click(Sender: TObject);
@@ -133,24 +130,10 @@ PROCEDURE TSudokuMainForm.MenuItem2Click(Sender: TObject);
     if not(configuring) then config.riddle.switchPause;
   end;
 
-PROCEDURE TSudokuMainForm.MenuItem4Click(Sender: TObject);
+PROCEDURE TSudokuMainForm.MenuItem3Click(Sender: TObject);
   begin
     config.riddle.pauseGame;
-    configuring:=true;
-    config.riddle.renderRiddle;
     showOptions;
-    configuring:=false;
-    config.riddle.renderRiddle;
-  end;
-
-PROCEDURE TSudokuMainForm.MenuItem5Click(Sender: TObject);
-  begin
-    config.riddle.pauseGame;
-    configuring:=true;
-    config.riddle.renderRiddle;
-    showOptions;
-    configuring:=false;
-    config.riddle.renderRiddle;
   end;
 
 PROCEDURE TSudokuMainForm.MenuItem8Click(Sender: TObject);

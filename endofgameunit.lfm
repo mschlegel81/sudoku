@@ -4,10 +4,13 @@ object endOfGameForm: TendOfGameForm
   Top = 165
   Width = 480
   AutoSize = True
+  BorderIcons = []
+  BorderStyle = bsDialog
   Caption = 'Spiel beendet'
   ClientHeight = 360
   ClientWidth = 480
   DesignTimePPI = 144
+  Position = poOwnerFormCenter
   LCLVersion = '1.8.4.0'
   object LoserGroupBox: TGroupBox
     Left = 0

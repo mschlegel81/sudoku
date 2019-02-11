@@ -7,6 +7,8 @@ object highscoresForm: ThighscoresForm
   ClientHeight = 360
   ClientWidth = 480
   DesignTimePPI = 144
+  OnShow = TabControl1Change
+  Position = poOwnerFormCenter
   LCLVersion = '1.8.4.0'
   object TabControl1: TTabControl
     Left = 0

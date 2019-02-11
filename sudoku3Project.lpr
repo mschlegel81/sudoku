@@ -11,7 +11,10 @@ USES
   { add your units here }, Sudoku3Surface, sudokuSettings, sudokuHighscores,
   endOfGameUnit, exportUnit;
 
+{$R *.res}
+
 begin
+  Application.Scaled:=true;
   Application.title:='Sudoku 3';
   Application.initialize;
   Application.CreateForm(TSudokuMainForm, SudokuMainForm);

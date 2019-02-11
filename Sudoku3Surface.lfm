@@ -309,14 +309,7 @@ object SudokuMainForm: TSudokuMainForm
     end
     object MenuItem3: TMenuItem
       Caption = 'Optionen'
-      object MenuItem4: TMenuItem
-        Caption = 'Darstellung'
-        OnClick = MenuItem4Click
-      end
-      object MenuItem5: TMenuItem
-        Caption = 'Rätsel'
-        OnClick = MenuItem5Click
-      end
+      OnClick = MenuItem3Click
     end
     object MenuItem2: TMenuItem
       Caption = 'Pause'

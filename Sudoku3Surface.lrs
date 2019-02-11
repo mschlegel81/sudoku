@@ -85,9 +85,7 @@ LazarusResources.Add('TSudokuMainForm','FORMDATA',[
   +#7'Caption'#6#5'16x16'#7'OnClick'#7#18'MenuItemHOF16Click'#0#0#0#9'TMenuItem'
   +#9'MenuItem8'#7'Caption'#6#15'Datei erstellen'#7'OnClick'#7#14'MenuItem8Clic'
   +'k'#0#0#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#7'Beenden'#7'OnClick'#7#14'Me'
-  +'nuItem9Click'#0#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#8'Optionen'#0#9
-  +'TMenuItem'#9'MenuItem4'#7'Caption'#6#11'Darstellung'#7'OnClick'#7#14'MenuIt'
-  +'em4Click'#0#0#9'TMenuItem'#9'MenuItem5'#7'Caption'#6#7'R'#195#164'tsel'#7'O'
-  +'nClick'#7#14'MenuItem5Click'#0#0#0#9'TMenuItem'#9'MenuItem2'#7'Caption'#6#5
-  +'Pause'#7'OnClick'#7#14'MenuItem2Click'#0#0#0#0
+  +'nuItem9Click'#0#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#8'Optionen'#7'On'
+  +'Click'#7#14'MenuItem3Click'#0#0#9'TMenuItem'#9'MenuItem2'#7'Caption'#6#5'Pa'
+  +'use'#7'OnClick'#7#14'MenuItem2Click'#0#0#0#0
 ]);
