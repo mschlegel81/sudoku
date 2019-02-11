@@ -1,0 +1,31 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TendOfGameForm','FORMDATA',[
+  'TPF0'#14'TendOfGameForm'#13'endOfGameForm'#4'Left'#3#140#3#6'Height'#3'h'#1#3
+  +'Top'#3#165#0#5'Width'#3#224#1#8'AutoSize'#9#7'Caption'#6#13'Spiel beendet'
+  +#12'ClientHeight'#3'h'#1#11'ClientWidth'#3#224#1#13'DesignTimePPI'#3#144#0#10
+  +'LCLVersion'#6#7'1.8.4.0'#0#9'TGroupBox'#13'LoserGroupBox'#4'Left'#2#0#6'Hei'
+  +'ght'#3'O'#1#3'Top'#2#0#5'Width'#3#224#1#5'Align'#7#8'alClient'#8'AutoSize'#9
+  +#12'ClientHeight'#3'1'#1#11'ClientWidth'#3#220#1#8'TabOrder'#2#0#7'Visible'#8
+  +#0#6'TLabel'#7'Label12'#4'Left'#2#0#6'Height'#2'K'#3'Top'#2#0#5'Width'#3#234
+  +#0#9'Alignment'#7#8'taCenter'#7'Caption'#6'@Hmm...'#13#10'Das war jetzt leid'
+  +'er '#13#10'zu schlecht f'#195#188'r die Bestenliste.'#11'ParentColor'#8#0#0
+  +#0#9'TGroupBox'#17'EnterNameGroupBox'#4'Left'#2#0#6'Height'#3'O'#1#3'Top'#2#0
+  +#5'Width'#3#224#1#5'Align'#7#8'alClient'#8'AutoSize'#9#12'ClientHeight'#3'1'
+  +#1#11'ClientWidth'#3#220#1#8'TabOrder'#2#1#7'Visible'#8#0#6'TLabel'#7'Label1'
+  +'0'#4'Left'#2#0#6'Height'#2'K'#3'Top'#2#0#5'Width'#3#220#1#5'Align'#7#5'alTo'
+  +'p'#9'Alignment'#7#8'taCenter'#7'Caption'#6'5Gl'#195#188'ckwunsch!'#13#10'Si'
+  +'e haben eine neue'#13#10'Bestzeit erzielt.'#11'ParentColor'#8#0#0#5'TEdit'#8
+  +'NameEdit'#22'AnchorSideLeft.Control'#7#6'Label4'#19'AnchorSideLeft.Side'#7#9
+  +'asrBottom'#21'AnchorSideTop.Control'#7#7'Label10'#18'AnchorSideTop.Side'#7#9
+  +'asrBottom'#20'AnchorSideRight.Side'#7#9'asrBottom'#4'Left'#2'3'#6'Height'#2
+  +'!'#3'Top'#2'K'#5'Width'#3#169#1#5'Align'#7#8'alCustom'#7'Anchors'#11#5'akTo'
+  +'p'#6'akLeft'#7'akRight'#0#8'TabOrder'#2#0#0#0#6'TLabel'#6'Label4'#22'Anchor'
+  +'SideLeft.Control'#7#17'EnterNameGroupBox'#21'AnchorSideTop.Control'#7#7'Lab'
+  +'el10'#18'AnchorSideTop.Side'#7#9'asrBottom'#23'AnchorSideRight.Control'#7#8
+  +'NameEdit'#4'Left'#2#0#6'Height'#2#25#3'Top'#2'K'#5'Width'#2'3'#5'Align'#7#8
+  +'alCustom'#7'Caption'#6#5'Name:'#11'ParentColor'#8#0#0#0#7'TButton'#8'Button'
+  +'10'#4'Left'#2#0#6'Height'#2#25#3'Top'#3'O'#1#5'Width'#3#224#1#5'Align'#7#8
+  +'alBottom'#25'BorderSpacing.InnerBorder'#2#4#6'Cancel'#9#7'Caption'#6#4'O.K.'
+  +#11'ModalResult'#2#1#8'TabOrder'#2#2#0#0#0
+]);

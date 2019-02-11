@@ -1,0 +1,377 @@
+object exportForm: TexportForm
+  Left = 412
+  Height = 537
+  Top = 115
+  Width = 480
+  Caption = 'exportForm'
+  ClientHeight = 537
+  ClientWidth = 480
+  DesignTimePPI = 144
+  LCLVersion = '1.8.4.0'
+  object ExportGroupBox: TGroupBox
+    Left = 0
+    Height = 537
+    Top = 0
+    Width = 480
+    Align = alClient
+    Caption = 'Datei erstellen'
+    ClientHeight = 507
+    ClientWidth = 476
+    TabOrder = 0
+    Visible = False
+    object GroupBox1: TGroupBox
+      AnchorSideLeft.Control = GroupBox2
+      AnchorSideTop.Control = GroupBox2
+      AnchorSideTop.Side = asrBottom
+      AnchorSideBottom.Control = ExportProgressBar
+      Left = 0
+      Height = 134
+      Top = 353
+      Width = 114
+      Align = alCustom
+      Anchors = [akTop, akLeft, akBottom]
+      AutoSize = True
+      Caption = 'Dateiformat'
+      ClientHeight = 104
+      ClientWidth = 110
+      TabOrder = 1
+      object ExportFT1_RB: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 0
+        Width = 110
+        Align = alTop
+        Caption = 'Text'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object ExportFT2_RB: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 29
+        Width = 110
+        Align = alTop
+        Caption = 'LaTex'
+        TabOrder = 1
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 0
+      Height = 353
+      Top = 0
+      Width = 476
+      Align = alTop
+      Caption = 'Rätsel'
+      ClientHeight = 323
+      ClientWidth = 472
+      TabOrder = 0
+      object Label1: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportDiff_LB
+        AnchorSideRight.Control = ExportDiff_LB
+        Left = 5
+        Height = 25
+        Top = 65
+        Width = 107
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Left = 5
+        Caption = 'Schwierigkeit:'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox2
+        Left = 5
+        Height = 25
+        Top = 0
+        Width = 57
+        Align = alCustom
+        BorderSpacing.Left = 5
+        Caption = 'Anzahl:'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportSizeListBox
+        Left = 5
+        Height = 25
+        Top = 33
+        Width = 52
+        Align = alCustom
+        BorderSpacing.Left = 5
+        Caption = 'Größe:'
+        ParentColor = False
+      end
+      object ExportDiff_LB: TListBox
+        AnchorSideTop.Control = ExportSizeListBox
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 32
+        Top = 65
+        Width = 360
+        Anchors = [akTop, akLeft, akRight]
+        Items.Strings = (
+          '25% vorgegeben (4x4,6x6)'
+          '30% vorgegeben (bis 9x9)'
+          '35% vorgegeben (bis 12x12)'
+          '40% vorgegeben (bis 12x12)'
+          '45% vorgegeben '
+          '50% vorgegeben'
+          '55% vorgegeben'
+          '60% vorgegeben'
+          '65% vorgegeben'
+          '70% vorgegeben'
+          '75% vorgegeben'
+          '80% vorgegeben'
+          '85% vorgegeben'
+          '90% vorgegeben'
+          '95% vorgegeben'
+        )
+        ItemHeight = 25
+        TabOrder = 2
+      end
+      object ExportNumberEdit: TEdit
+        AnchorSideLeft.Control = ExportDiff_LB
+        AnchorSideTop.Control = Label2
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 33
+        Top = 0
+        Width = 360
+        Anchors = [akTop, akLeft, akRight]
+        OnEditingDone = ExportNumberEditEditingDone
+        TabOrder = 0
+        Text = '1'
+      end
+      object GroupBox3: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = ExportDiff_LB
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 97
+        Width = 472
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'x-Symmetrie'
+        ClientHeight = 29
+        ClientWidth = 468
+        TabOrder = 3
+        object ExportSX_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSX_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSX_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 362
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object GroupBox4: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox3
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 156
+        Width = 472
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'y-Symmetrie'
+        ClientHeight = 29
+        ClientWidth = 468
+        TabOrder = 4
+        object ExportSY_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSY_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSY_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 362
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object GroupBox5: TGroupBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox4
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 59
+        Top = 215
+        Width = 472
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        Caption = 'Punktsymmetrie'
+        ClientHeight = 29
+        ClientWidth = 468
+        TabOrder = 5
+        object ExportSP_RB1: TRadioButton
+          Left = 0
+          Height = 29
+          Top = 0
+          Width = 43
+          Align = alLeft
+          Caption = 'ja'
+          TabOrder = 0
+        end
+        object ExportSP_RB2: TRadioButton
+          Left = 43
+          Height = 29
+          Top = 0
+          Width = 63
+          Align = alLeft
+          Caption = 'nein'
+          TabOrder = 1
+        end
+        object ExportSP_RB3: TRadioButton
+          Left = 106
+          Height = 29
+          Top = 0
+          Width = 362
+          Align = alClient
+          Caption = 'zufällig'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+      end
+      object ExportSizeListBox: TListBox
+        AnchorSideLeft.Control = ExportDiff_LB
+        AnchorSideTop.Control = ExportNumberEdit
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 112
+        Height = 32
+        Top = 33
+        Width = 360
+        Anchors = [akTop, akLeft, akRight]
+        Items.Strings = (
+          '4x4'
+          '6x6'
+          '8x8'
+          '9x9'
+          '12x12'
+          '15x15'
+          '16x16'
+        )
+        ItemHeight = 25
+        TabOrder = 1
+      end
+      object ExportSolutions_CB: TCheckBox
+        AnchorSideLeft.Control = GroupBox2
+        AnchorSideTop.Control = GroupBox5
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = GroupBox2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 29
+        Top = 274
+        Width = 472
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Lösungen Speichern'
+        TabOrder = 6
+      end
+    end
+    object Button8: TButton
+      AnchorSideLeft.Control = Button9
+      AnchorSideTop.Control = Button9
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = ExportGroupBox
+      AnchorSideRight.Side = asrBottom
+      Left = 114
+      Height = 25
+      Top = 378
+      Width = 362
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Caption = 'Datei erstellen'
+      ModalResult = 1
+      OnClick = Button8Click
+      TabOrder = 2
+    end
+    object Button9: TButton
+      AnchorSideLeft.Control = GroupBox1
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = GroupBox1
+      AnchorSideRight.Control = ExportGroupBox
+      AnchorSideRight.Side = asrBottom
+      Left = 114
+      Height = 25
+      Top = 353
+      Width = 362
+      Anchors = [akTop, akLeft, akRight]
+      BorderSpacing.InnerBorder = 4
+      Cancel = True
+      Caption = 'Schließen'
+      ModalResult = 2
+      TabOrder = 3
+    end
+    object ExportProgressBar: TProgressBar
+      Left = 0
+      Height = 20
+      Top = 487
+      Width = 476
+      Align = alBottom
+      TabOrder = 4
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    left = 209
+    top = 244
+  end
+end

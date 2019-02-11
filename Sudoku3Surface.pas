@@ -5,32 +5,37 @@ INTERFACE
 
 USES
   Classes, sysutils, LResources, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  sudoku,Menus, StdCtrls, Buttons, ComCtrls, Grids,dos,serializationUtil;
+  sudoku,Menus, StdCtrls, Buttons, ComCtrls, sudokuSettings,exportUnit,sudokuHighscores;
 
 TYPE
+
+  { TSudokuMainForm }
+
   TSudokuMainForm = class(TForm)
-    Button1: TButton;
-    Button10: TButton;
-    Button8: TButton;
-    Button9: TButton;
-    ExportSolutions_CB: TCheckBox;
-    ExportSY_RB1: TRadioButton;
-    ExportSY_RB2: TRadioButton;
-    ExportSY_RB3: TRadioButton;
-    ExportSP_RB1: TRadioButton;
-    ExportSP_RB2: TRadioButton;
-    ExportSP_RB3: TRadioButton;
-    GroupBox3: TGroupBox;
-    GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
-    ExportNumberEdit: TEdit;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    ExportDiff_LB: TListBox;
-    Label3: TLabel;
-    ExportSizeListBox: TListBox;
+    MainMenu1: TMainMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
+    MenuItemHOF04: TMenuItem;
+    MenuItemHOF06: TMenuItem;
+    MenuItemHOF08: TMenuItem;
+    MenuItemHOF09: TMenuItem;
+    MenuItemHOF12: TMenuItem;
+    MenuItemHOF15: TMenuItem;
+    MenuItemHOF16: TMenuItem;
+    MenuItemNG04: TMenuItem;
+    MenuItemNG06: TMenuItem;
+    MenuItemNG08: TMenuItem;
+    MenuItemNG09: TMenuItem;
+    MenuItemNG12: TMenuItem;
+    MenuItemNG15: TMenuItem;
+    MenuItemNG16: TMenuItem;
     NumButton_c: TButton;
     NumButton_d: TButton;
     NumButton_e: TButton;
@@ -47,88 +52,9 @@ TYPE
     NumButton_p: TButton;
     NumButton_a: TButton;
     NumButton_b: TButton;
-    DiffListBox: TListBox;
     NumPanel: TPanel;
-    ExportProgressBar: TProgressBar;
-    ExportFT1_RB: TRadioButton;
-    ExportFT2_RB: TRadioButton;
-    ExportFT3_RB: TRadioButton;
-    ExportSX_RB1: TRadioButton;
-    ExportSX_RB2: TRadioButton;
-    ExportSX_RB3: TRadioButton;
-    SaveDialog1: TSaveDialog;
-    SetCol3Button: TButton;
-    SetCol4Button: TButton;
-    SetCol5Button: TButton;
-    SetCol6Button: TButton;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
-    Button7: TButton;
-    SetCol1Button: TButton;
-    SetCol2Button: TButton;
-    Label12: TLabel;
-    LoserGroupBox: TGroupBox;
-    nameEdit: TEdit;
-    ExportGroupBox: TGroupBox;
-    EnterNameGroupBox: TGroupBox;
-    HOFGroupBox: TGroupBox;
-    Label10: TLabel;
     Label11: TLabel;
-    MarkErrorsCB: TCheckBox;
-    MenuItemHOF04: TMenuItem;
-    MenuItemHOF06: TMenuItem;
-    MenuItemHOF08: TMenuItem;
-    MenuItemHOF09: TMenuItem;
-    MenuItemHOF12: TMenuItem;
-    MenuItemHOF15: TMenuItem;
-    MenuItemHOF16: TMenuItem;
-    MenuItem7: TMenuItem;
-    MenuItem8: TMenuItem;
-    MenuItem9: TMenuItem;
-    MenuItemNG09: TMenuItem;
-    MenuItemNG12: TMenuItem;
-    MenuItemNG15: TMenuItem;
-    MenuItemNG16: TMenuItem;
-    MenuItem6: TMenuItem;
-    MenuItemNG04: TMenuItem;
-    MenuItemNG06: TMenuItem;
-    MenuItemNG08: TMenuItem;
-    HOFStringGrid: TStringGrid;
-    XSymmCB: TCheckBox;
-    ySymmCB: TCheckBox;
-    pSymmCB: TCheckBox;
-    ColorDialog1: TColorDialog;
-    FontDialog1: TFontDialog;
-    DiffGroupBox1: TGroupBox;
-    FontLabel: TLabel;
-    BG1Shape: TShape;
-    BG2Shape: TShape;
-    GridShape: TShape;
-    GivenShape: TShape;
-    Label7: TLabel;
-    MenuItem5: TMenuItem;
-    NeutralShape: TShape;
-    ConfShape: TShape;
-    ViewGroupBox: TGroupBox;
     MainImage: TImage;
-    MainMenu1: TMainMenu;
-    MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
-    MenuItem3: TMenuItem;
-    MenuItem4: TMenuItem;
-    PROCEDURE Button1Click(Sender: TObject);
-    PROCEDURE Button2Click(Sender: TObject);
-    PROCEDURE Button3Click(Sender: TObject);
-    PROCEDURE Button4Click(Sender: TObject);
-    PROCEDURE Button5Click(Sender: TObject);
-    PROCEDURE Button6Click(Sender: TObject);
-    PROCEDURE Button7Click(Sender: TObject);
-    PROCEDURE Button8Click(Sender: TObject);
-    PROCEDURE Button9Click(Sender: TObject);
-    PROCEDURE ExportNumberEditEditingDone(Sender: TObject);
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormKeyDown(Sender: TObject; VAR key: word; Shift: TShiftState);
     PROCEDURE FormResize(Sender: TObject);
@@ -154,18 +80,10 @@ TYPE
     PROCEDURE MenuItemNG12Click(Sender: TObject);
     PROCEDURE MenuItemNG15Click(Sender: TObject);
     PROCEDURE MenuItemNG16Click(Sender: TObject);
-    PROCEDURE NameEditEditingDone(Sender: TObject);
     PROCEDURE NumButtonClick(Sender: TObject);
-    PROCEDURE SetCol1ButtonClick(Sender: TObject);
-    PROCEDURE SetCol2ButtonClick(Sender: TObject);
-    PROCEDURE SetCol3ButtonClick(Sender: TObject);
-    PROCEDURE SetCol4ButtonClick(Sender: TObject);
-    PROCEDURE SetCol5ButtonClick(Sender: TObject);
-    PROCEDURE SetCol6ButtonClick(Sender: TObject);
   private
     { private declarations }
   public
-    PROCEDURE showHOF(modeIdx:byte);
     PROCEDURE initButtonPanel(size:byte);
     { public declarations }
   end;
@@ -211,97 +129,66 @@ begin
 end;
 
 PROCEDURE TSudokuMainForm.MenuItem2Click(Sender: TObject);
-begin
-  if not(configuring) then config.riddle.switchPause;
-end;
+  begin
+    if not(configuring) then config.riddle.switchPause;
+  end;
 
 PROCEDURE TSudokuMainForm.MenuItem4Click(Sender: TObject);
-begin
-  config.riddle.pauseGame;
-  configuring:=true;
-  FontLabel.Font.name    :=config.Font.name;
-  if config.Font.bold and config.Font.italic then FontLabel.Font.style:=[fsBold,fsItalic]
-  else if config.Font.bold                   then FontLabel.Font.style:=[fsBold]
-  else if config.Font.italic                 then FontLabel.Font.style:=[fsItalic];
-  BG1Shape .Brush.color   :=config.view.bgColTop   ;
-  BG2Shape .Brush.color   :=config.view.bgColBottom;
-  GridShape.Brush.color   :=config.view.gridCol    ;
-  GivenShape  .Brush.color:=config.view.givenCol   ;
-  NeutralShape.Brush.color:=config.view.neutralCol ;
-  ConfShape   .Brush.color:=config.view.confCol    ;
-  ViewGroupBox.visible:=true;
-end;
+  begin
+    config.riddle.pauseGame;
+    configuring:=true;
+    config.riddle.renderRiddle;
+    showOptions;
+    configuring:=false;
+    config.riddle.renderRiddle;
+  end;
 
 PROCEDURE TSudokuMainForm.MenuItem5Click(Sender: TObject);
-begin
-  config.riddle.pauseGame;
-  configuring:=true;
-  MarkErrorsCB.checked  :=config.difficulty.markErrors;
-  XSymmCB     .checked  :=config.difficulty.xSymm;
-  ySymmCB     .checked  :=config.difficulty.ySymm;
-  pSymmCB     .checked  :=config.difficulty.ptSymm;
-  DiffListBox .ItemIndex:=config.difficulty.diff;
-  DiffGroupBox1.visible:=true;
-end;
+  begin
+    config.riddle.pauseGame;
+    configuring:=true;
+    config.riddle.renderRiddle;
+    showOptions;
+    configuring:=false;
+    config.riddle.renderRiddle;
+  end;
 
 PROCEDURE TSudokuMainForm.MenuItem8Click(Sender: TObject);
-begin
-  config.riddle.pauseGame;
-  configuring:=true;
-  ExportGroupBox.visible:=true;
-end;
+  begin
+    config.riddle.pauseGame;
+    configuring:=true;
+    config.riddle.renderRiddle;
+    showExportForm;
+    configuring:=false;
+    config.riddle.renderRiddle;
+  end;
 
 PROCEDURE TSudokuMainForm.MenuItem9Click(Sender: TObject);
 begin
   close;
 end;
 
-PROCEDURE TSudokuMainForm.MenuItemHOF04Click(Sender: TObject);
-begin showHOF(0); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF06Click(Sender: TObject);
-begin showHOF(1); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF08Click(Sender: TObject);
-begin showHOF(2); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF09Click(Sender: TObject);
-begin showHOF(3); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF12Click(Sender: TObject);
-begin showHOF(4); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF15Click(Sender: TObject);
-begin showHOF(5); end;
-PROCEDURE TSudokuMainForm.MenuItemHOF16Click(Sender: TObject);
-begin showHOF(6); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF04Click(Sender: TObject); begin showHallOfFame(0); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF06Click(Sender: TObject); begin showHallOfFame(1); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF08Click(Sender: TObject); begin showHallOfFame(2); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF09Click(Sender: TObject); begin showHallOfFame(3); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF12Click(Sender: TObject); begin showHallOfFame(4); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF15Click(Sender: TObject); begin showHallOfFame(5); end;
+PROCEDURE TSudokuMainForm.MenuItemHOF16Click(Sender: TObject); begin showHallOfFame(6); end;
 PROCEDURE TSudokuMainForm.MenuItemNG04Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(4); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(4); end;
+begin config.riddle.initGame(4); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(4); end;
 PROCEDURE TSudokuMainForm.MenuItemNG06Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(6); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(6); end;
+begin config.riddle.initGame(6); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(6); end;
 PROCEDURE TSudokuMainForm.MenuItemNG08Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(8); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(8); end;
+begin config.riddle.initGame(8); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(8); end;
 PROCEDURE TSudokuMainForm.MenuItemNG09Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(9); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(9); end;
+begin config.riddle.initGame(9); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(9); end;
 PROCEDURE TSudokuMainForm.MenuItemNG12Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(12); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(12); end;
+begin config.riddle.initGame(12); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(12); end;
 PROCEDURE TSudokuMainForm.MenuItemNG15Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(15); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(15); end;
+begin config.riddle.initGame(15); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(15); end;
 PROCEDURE TSudokuMainForm.MenuItemNG16Click(Sender: TObject);
-begin config.riddle.destroy; config.riddle.create(16); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(16); end;
-
-PROCEDURE TSudokuMainForm.NameEditEditingDone(Sender: TObject);
-begin
-  {$ifdef debugMode} writeMyState; {$endif}
-  if (winnerEntry.time>0) and not(config.gameIsDone) then begin
-    config.gameIsDone:=true;
-    winnerEntry.name:=nameEdit.text;
-    config.addHOFEntry(config.riddle.getModeIdx,winnerEntry);
-    EnterNameGroupBox.visible:=false;
-    showHOF(config.riddle.getModeIdx);
-  end else begin
-    EnterNameGroupBox.visible:=false;
-    showHOF(config.riddle.getModeIdx);
-  end;
-  config.riddle.create(C_sudokuStructure[config.riddle.getModeIdx].size);
-  config.gameIsDone:=false;
-  config.riddle.pauseGame;
-end;
+begin config.riddle.initGame(16); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(16); end;
 
 PROCEDURE TSudokuMainForm.NumButtonClick(Sender: TObject);
 begin
@@ -310,52 +197,10 @@ begin
   NumPanel.visible:=false;
 end;
 
-PROCEDURE TSudokuMainForm.SetCol1ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         BG1Shape.Brush.color;
-  if ColorDialog1.execute then BG1Shape.Brush.color:=ColorDialog1.color;
-end;
-
-PROCEDURE TSudokuMainForm.SetCol2ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         BG2Shape.Brush.color;
-  if ColorDialog1.execute then BG2Shape.Brush.color:=ColorDialog1.color;
-end;
-
-PROCEDURE TSudokuMainForm.SetCol3ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         GridShape.Brush.color;
-  if ColorDialog1.execute then GridShape.Brush.color:=ColorDialog1.color;
-end;
-
-PROCEDURE TSudokuMainForm.SetCol4ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         GivenShape.Brush.color;
-  if ColorDialog1.execute then GivenShape.Brush.color:=ColorDialog1.color;
-end;
-
-PROCEDURE TSudokuMainForm.SetCol5ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         NeutralShape.Brush.color;
-  if ColorDialog1.execute then NeutralShape.Brush.color:=ColorDialog1.color;
-end;
-
-PROCEDURE TSudokuMainForm.SetCol6ButtonClick(Sender: TObject);
-begin
-  ColorDialog1.color:=         ConfShape.Brush.color;
-  if ColorDialog1.execute then ConfShape.Brush.color:=ColorDialog1.color;
-end;
-
 PROCEDURE TSudokuMainForm.FormResize(Sender: TObject);
-begin
-  config.riddle.renderRiddle;
-  LoserGroupBox    .Left:=(width -LoserGroupBox    .width ) shr 1;
-  LoserGroupBox    .top :=(height-LoserGroupBox    .height) shr 1;
-  EnterNameGroupBox.Left:=(width -EnterNameGroupBox.width ) shr 1;
-  EnterNameGroupBox.top :=(height-EnterNameGroupBox.height) shr 1;
-  HOFGroupBox      .Left:=(width -HOFGroupBox      .width ) shr 1;
-  HOFGroupBox      .top :=(height-HOFGroupBox      .height) shr 1;
-end;
+  begin
+    config.riddle.renderRiddle;
+  end;
 
 PROCEDURE TSudokuMainForm.FormKeyDown(Sender: TObject; VAR key: word;
   Shift: TShiftState);
@@ -395,208 +240,11 @@ begin
   end;
 end;
 
-PROCEDURE TSudokuMainForm.Button2Click(Sender: TObject);
-begin
-  ViewGroupBox.visible:=false;
-  configuring:=false;
-end;
-
-PROCEDURE TSudokuMainForm.Button3Click(Sender: TObject);
-begin
-  FontDialog1.Font:=FontLabel.Font;
-  if FontDialog1.execute then FontLabel.Font:=FontDialog1.Font;
-end;
-
-PROCEDURE TSudokuMainForm.Button4Click(Sender: TObject);
-begin
-  config.difficulty.markErrors:=MarkErrorsCB.checked ;
-  config.difficulty.xSymm     :=XSymmCB     .checked ;
-  config.difficulty.ySymm     :=ySymmCB     .checked ;
-  config.difficulty.ptSymm    :=pSymmCB     .checked ;
-  config.difficulty.diff      :=DiffListBox .ItemIndex;
-end;
-
-PROCEDURE TSudokuMainForm.Button5Click(Sender: TObject);
-begin
-  DiffGroupBox1.visible:=false;
-  configuring:=false;
-end;
-
-PROCEDURE TSudokuMainForm.Button6Click(Sender: TObject);
-begin
-  configuring:=false;
-  HOFGroupBox.visible:=false;
-end;
-
-PROCEDURE TSudokuMainForm.Button7Click(Sender: TObject);
-begin
-  configuring:=false;
-  LoserGroupBox.visible:=false;
-  config.riddle.create(C_sudokuStructure[config.riddle.getModeIdx].size);
-  config.gameIsDone:=false;
-  config.riddle.pauseGame;
-end;
-
-VAR solutionOut:boolean;
-    solutions:array of string;
-    outFile:textFile;
-
-PROCEDURE writeOut(txt:string);
-  begin
-    if solutionOut
-      then solutions[length(solutions)-1]:=solutions[length(solutions)-1]+txt
-      else write(outFile,txt);
-   end;
-
-PROCEDURE writelnOut(txt:string);
-  begin
-    if solutionOut
-      then begin
-        solutions[length(solutions)-1]:=solutions[length(solutions)-1]+txt;
-        setLength(solutions,length(solutions)+1);
-        solutions[length(solutions)-1]:='';
-      end
-      else writeln(outFile,txt);
-  end;
-
-PROCEDURE TSudokuMainForm.Button8Click(Sender: TObject);
-VAR s:T_sudoku;
-    x:word;
-    txtOut,sx,sy,sc:boolean;
-    riddleSize:byte;
-    diffic:word;
-    numberOfRiddles:word;
-
-FUNCTION enumString(x:word):string;
-  begin
-    if ExportSolutions_CB.checked then begin
-      str(x,result);
-      result:='\#'+result;
-    end else result:='';
-  end;
-
-FUNCTION correctedExtension(fileName:string; ext:string):string;
-  VAR a,b,c:shortstring;
-  begin
-    FSplit(fileName,a,b,c);
-    if c<>ext then result:=a+b+ext
-              else result:=fileName;
-  end;
-
-begin
-  if SaveDialog1.execute then begin
-    randomize;
-    txtOut:=ExportFT1_RB.checked;
-    if txtOut then SaveDialog1.fileName:=correctedExtension(SaveDialog1.fileName,'.txt')
-              else SaveDialog1.fileName:=correctedExtension(SaveDialog1.fileName,'.tex');
-    assignFile(outFile,SaveDialog1.fileName);
-    rewrite(outFile);
-    case byte(ExportSizeListBox.ItemIndex) of
-      0: riddleSize:= 4;
-      1: riddleSize:= 6;
-      2: riddleSize:= 8;
-      3: riddleSize:= 9;
-      4: riddleSize:=12;
-      5: riddleSize:=15;
-      6: riddleSize:=16;
-    end;
-    diffic:=((75-5*DiffListBox.ItemIndex)*sqr(riddlesize)) div 100;
-    numberOfRiddles:=strToInt(ExportNumberEdit.text);
-    setLength(solutions,2);
-    if txtOut then solutions[0]:='LOESUNGEN:'
-              else solutions[0]:='\newpage \begin{Large} L\"osungen \end{Large}';
-    solutions[1]:='';
-    solutionOut:=false;
-    if not(txtOut) then writeLatexHeader(@writelnOut);
-    ExportProgressBar.max:=numberOfRiddles;
-    for x:=1 to numberOfRiddles do begin
-      ExportProgressBar.position:=x;
-      if ExportSX_RB3.checked then sx:=(random(3)=0) else sx:=ExportSX_RB1.checked;
-      if ExportSY_RB3.checked then sy:=(random(3)=0) else sy:=ExportSY_RB1.checked;
-      if ExportSP_RB3.checked then sc:=(random(3)=0) else sc:=ExportSP_RB1.checked;
-      s.create(riddleSize,sx,sy,sc,diffic);
-      solutionOut:=false;
-      if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
-                else s.writeLaTexForm(@writeOut,@writelnOut,enumString(x),false);
-      if ExportSolutions_CB.checked then begin
-        solutionOut:=true;
-        s.solve;
-        if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
-                  else s.writeLaTexForm(@writeOut,@writelnOut,enumString(x),true);
-      end;
-      s.destroy;
-    end;
-    if ExportSolutions_CB.checked then begin
-      solutionOut:=false;
-      for x:=0 to length(solutions)-1 do writelnOut(solutions[x]);
-    end;
-    setLength(solutions,0);
-    if not(txtOut) then writelnOut(C_LaTeX_fileFooter);
-    closeFile(outFile);
-    if ExportFT3_RB.checked then begin
-      Exec('cmd','/C pdflatex '+SaveDialog1.fileName);
-      Exec('cmd','/C start '+correctedExtension(SaveDialog1.fileName,'.pdf'));
-    end else Exec('cmd','/C start '+SaveDialog1.fileName);
-  end;
-end;
-
-PROCEDURE TSudokuMainForm.Button9Click(Sender: TObject);
-begin
-  ExportGroupBox.visible:=false;
-  configuring:=false;
-end;
-
-PROCEDURE TSudokuMainForm.ExportNumberEditEditingDone(Sender: TObject);
-VAR num:longint;
-begin
-  num:=strToInt(ExportNumberEdit.text);
-  if num<1 then num:=1 else if num>200 then num:=200;
-  ExportNumberEdit.text:=intToStr(num);
-end;
-
 PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
-begin
-  MainImage.height:=screen.height;
-  MainImage.width:=screen.width;
-  sudoku.mainImage:=MainImage;
-end;
-
-PROCEDURE TSudokuMainForm.Button1Click(Sender: TObject);
-begin
-  config.Font.name       :=FontLabel.Font.name;
-  config.Font.italic     :=fsItalic in FontLabel.Font.style;
-  config.Font.bold       :=fsBold   in FontLabel.Font.style;
-  config.view.bgColTop   :=BG1Shape .Brush.color;
-  config.view.bgColBottom:=BG2Shape .Brush.color;
-  config.view.gridCol    :=GridShape.Brush.color;
-  config.view.givenCol   :=GivenShape  .Brush.color;
-  config.view.neutralCol :=NeutralShape.Brush.color;
-  config.view.confCol    :=ConfShape   .Brush.color;
-  config.riddle.renderRiddle;
-end;
-
-PROCEDURE TSudokuMainForm.showHOF(modeIdx:byte);
-  VAR i:byte;
-      h:longint;
   begin
-    configuring:=true;
-    config.riddle.pauseGame;
-    HOFGroupBox.caption:='Bestenliste '+intToStr(C_sudokuStructure[modeIdx].size)+'x'
-                                       +intToStr(C_sudokuStructure[modeIdx].size);
-    for i:=0 to 19 do begin
-      HOFStringGrid.Cells[1,i+1]:=config.hallOfFame[modeIdx,i].name;
-      HOFStringGrid.Cells[2,i+1]:=intToStr(config.hallOfFame[modeIdx,i].given);
-      HOFStringGrid.Cells[3,i+1]:=FormatDateTime('hh:mm:ss',config.hallOfFame[modeIdx,i].time);
-      if config.hallOfFame[modeIdx,i].markErrors
-        then HOFStringGrid.Cells[4,i+1]:='X'
-        else HOFStringGrid.Cells[4,i+1]:='';
-    end;
-    HOFStringGrid.AutoSizeColumns;
-    h:=0;
-    for i:=0 to 4 do h:=h+HOFStringGrid.ColWidths[i];
-    HOFGroupBox.width:=h+10;
-    HOFGroupBox.Left:=(width -HOFGroupBox.width ) shr 1;
-    HOFGroupBox.visible:=true;
+    MainImage.height:=screen.height;
+    MainImage.width:=screen.width;
+    sudoku.mainImage:=MainImage;
   end;
 
 PROCEDURE TSudokuMainForm.initButtonPanel(size:byte);
@@ -702,7 +350,6 @@ PROCEDURE TSudokuMainForm.initButtonPanel(size:byte);
            NumPanel.width :=4*32;
            NumPanel.height:=4*32;
          end;
-
     end;
   end;
 

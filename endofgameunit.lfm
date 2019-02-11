@@ -1,0 +1,94 @@
+object endOfGameForm: TendOfGameForm
+  Left = 908
+  Height = 360
+  Top = 165
+  Width = 480
+  AutoSize = True
+  Caption = 'Spiel beendet'
+  ClientHeight = 360
+  ClientWidth = 480
+  DesignTimePPI = 144
+  LCLVersion = '1.8.4.0'
+  object LoserGroupBox: TGroupBox
+    Left = 0
+    Height = 335
+    Top = 0
+    Width = 480
+    Align = alClient
+    AutoSize = True
+    ClientHeight = 305
+    ClientWidth = 476
+    TabOrder = 0
+    Visible = False
+    object Label12: TLabel
+      Left = 0
+      Height = 75
+      Top = 0
+      Width = 234
+      Alignment = taCenter
+      Caption = 'Hmm...'#13#10'Das war jetzt leider '#13#10'zu schlecht für die Bestenliste.'
+      ParentColor = False
+    end
+  end
+  object EnterNameGroupBox: TGroupBox
+    Left = 0
+    Height = 335
+    Top = 0
+    Width = 480
+    Align = alClient
+    AutoSize = True
+    ClientHeight = 305
+    ClientWidth = 476
+    TabOrder = 1
+    Visible = False
+    object Label10: TLabel
+      Left = 0
+      Height = 75
+      Top = 0
+      Width = 476
+      Align = alTop
+      Alignment = taCenter
+      Caption = 'Glückwunsch!'#13#10'Sie haben eine neue'#13#10'Bestzeit erzielt.'
+      ParentColor = False
+    end
+    object NameEdit: TEdit
+      AnchorSideLeft.Control = Label4
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = Label10
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Side = asrBottom
+      Left = 51
+      Height = 33
+      Top = 75
+      Width = 425
+      Align = alCustom
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 0
+    end
+    object Label4: TLabel
+      AnchorSideLeft.Control = EnterNameGroupBox
+      AnchorSideTop.Control = Label10
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = NameEdit
+      Left = 0
+      Height = 25
+      Top = 75
+      Width = 51
+      Align = alCustom
+      Caption = 'Name:'
+      ParentColor = False
+    end
+  end
+  object Button10: TButton
+    Left = 0
+    Height = 25
+    Top = 335
+    Width = 480
+    Align = alBottom
+    BorderSpacing.InnerBorder = 4
+    Cancel = True
+    Caption = 'O.K.'
+    ModalResult = 1
+    TabOrder = 2
+  end
+end

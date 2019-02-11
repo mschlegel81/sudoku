@@ -40,8 +40,8 @@ TYPE
       FUNCTION    given:word;
       DESTRUCTOR  destroy;
       PROCEDURE   solve;
-      PROCEDURE   writeTxtForm  (writeOut,writelnOut:FT_output);
-      PROCEDURE   writeLaTeXForm(writeOut,writelnOut:FT_output; enumString:string; small:boolean);
+      PROCEDURE   writeTxtForm  (CONST writeOut,writelnOut:FT_output);
+      PROCEDURE   writeLaTeXForm(CONST writeOut,writelnOut:FT_output; CONST enumString:string; CONST small:boolean);
       FUNCTION getSerialVersion:dword; virtual;
       FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
       PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
@@ -66,14 +66,14 @@ TYPE
       paused    :boolean;
       PROCEDURE checkConflicts;
     public
+      CONSTRUCTOR create;
       PROPERTY getFieldSize:byte read fieldSize;
       PROPERTY getModeIdx  :byte read modeIdx;
 
-      CONSTRUCTOR create(size:byte);
-      DESTRUCTOR  destroy;
+      PROCEDURE initGame(size:byte);
       PROCEDURE   pauseGame;
       PROCEDURE   switchPause;
-      FUNCTION    isPaused:boolean;
+      PROPERTY    isPaused:boolean read paused;
       FUNCTION    isSolved:boolean;
       FUNCTION    makeHOFEntry:hallOfFameEntry;
       PROCEDURE   setState(CONST x,y:byte; value:byte; CONST append:boolean);
@@ -110,9 +110,11 @@ TYPE
     FUNCTION getSerialVersion:dword; virtual;
     FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
     PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
-    FUNCTION  isGoodEnough(modeIdx:byte; newEntry:hallOfFameEntry):boolean;
-    PROCEDURE addHOFEntry(modeIdx:byte; newEntry:hallOfFameEntry);
+    FUNCTION  isGoodEnough(CONST modeIdx:byte; CONST newEntry:hallOfFameEntry):boolean;
+    PROCEDURE addHOFEntry(CONST modeIdx:byte; CONST newEntry:hallOfFameEntry);
   end;
+
+TYPE F_endOfGame=PROCEDURE(CONST b:boolean);
 
 VAR
   config        : T_config;
@@ -123,6 +125,7 @@ VAR
 
   quadSize      : longint;
   mainImage     : TImage;
+  endOfGameCallback:F_endOfGame;
 
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
 IMPLEMENTATION
@@ -380,7 +383,7 @@ DESTRUCTOR T_sudoku.destroy;
 PROCEDURE T_sudoku.solve;
   begin fullSolve(false); end;
 
-PROCEDURE T_sudoku.writeTxtForm(writeOut, writelnOut: FT_output);
+PROCEDURE T_sudoku.writeTxtForm(CONST writeOut, writelnOut: FT_output);
   FUNCTION numString(w:word):string;
     VAR i:byte;
     begin
@@ -443,8 +446,7 @@ PROCEDURE T_sudoku.writeTxtForm(writeOut, writelnOut: FT_output);
     writelnOut(' '); //abschlieﬂende Leerzeile
   end;
 
-PROCEDURE T_sudoku.writeLaTeXForm(writeOut, writelnOut: FT_output;
-  enumString: string; small: boolean);
+PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output; CONST enumString: string; CONST small: boolean);
   FUNCTION numString(w:word):string;
     VAR i:byte;
     begin
@@ -569,9 +571,6 @@ PROCEDURE T_sudokuRiddle.switchPause;
     renderRiddle;
   end;
 
-FUNCTION T_sudokuRiddle.isPaused: boolean;
-  begin result:=paused; end;
-
 FUNCTION T_sudokuRiddle.isSolved: boolean;
   VAR x,y:byte;
   begin
@@ -592,7 +591,7 @@ FUNCTION T_sudokuRiddle.makeHOFEntry: hallOfFameEntry;
     result.markErrors:=config.difficulty.markErrors;
   end;
 
-CONSTRUCTOR T_sudokuRiddle.create(size: byte);
+PROCEDURE T_sudokuRiddle.initGame(size: byte);
   VAR aid:T_sudoku;
       i,j:byte;
   begin
@@ -612,9 +611,6 @@ CONSTRUCTOR T_sudokuRiddle.create(size: byte);
       state[i,j].conflicting:=false;
     end;
   end;
-
-DESTRUCTOR T_sudokuRiddle.destroy;
-  begin end;
 
 PROCEDURE T_sudokuRiddle.checkConflicts;
   VAR x1,y1,x2,y2:byte;
@@ -639,7 +635,12 @@ PROCEDURE T_sudokuRiddle.checkConflicts;
     end;
   end;
 
-PROCEDURE T_sudokuRiddle.setState(CONST x, y:byte; value: byte; CONST append: boolean);
+CONSTRUCTOR T_sudokuRiddle.create;
+  begin
+  end;
+
+PROCEDURE T_sudokuRiddle.setState(CONST x, y: byte; value: byte;
+  CONST append: boolean);
   begin
     if (x<fieldSize)     and
        (y<fieldSize)     and
@@ -653,9 +654,10 @@ PROCEDURE T_sudokuRiddle.setState(CONST x, y:byte; value: byte; CONST append: bo
     checkConflicts;
     if isSolved then begin
       winnerEntry:=makeHOFEntry;
-      if config.isGoodEnough(modeIdx,winnerEntry) then begin
-        SudokuMainForm.EnterNameGroupBox.visible:=true;
-      end else SudokuMainForm.LoserGroupBox.visible:=true;
+      endOfGameCallback(config.isGoodEnough(modeIdx,winnerEntry));
+      initGame(C_sudokuStructure[modeIdx].size);
+      config.gameIsDone:=false;
+      pauseGame;
     end;
   end;
 
@@ -802,7 +804,8 @@ begin
   result:=12325862;
 end;
 
-FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
+FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
+  ): boolean;
   VAR i,j:byte;
   begin
     fieldsize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
@@ -818,7 +821,8 @@ FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper)
     checkConflicts;
   end;
 
-PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
+PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper
+  );
   VAR i,j:byte;
   begin
     stream.writeByte(fieldsize);
@@ -836,6 +840,7 @@ PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper)
 CONSTRUCTOR T_config.create;
   VAR i,j:byte;
   begin
+    riddle.create;
     if not(loadFromFile('sudoku3.cfg')) then begin
       with view do begin
         bgColTop   :=0;
@@ -871,7 +876,7 @@ CONSTRUCTOR T_config.create;
         hallOfFame[i,4].name:='erstellt mit';
         hallOfFame[i,5].name:='Lazarus v1.8.4 Beta';
       end;
-      riddle.create(9);
+      riddle.initGame(9);
       gameIsDone:=false;
     end;
   end;
@@ -882,9 +887,9 @@ DESTRUCTOR T_config.destroy;
   end;
 
 FUNCTION T_config.getSerialVersion: dword;
-begin
-  result:=34562387;
-end;
+  begin
+    result:=34562387;
+  end;
 
 FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
   VAR i,j:byte;
@@ -915,7 +920,7 @@ FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
       given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
       markErrors:=stream.readBoolean;
     end;
-    riddle.create(4);
+    riddle.initGame(4);
     result:=result and riddle.loadFromStream(stream);
     gameIsDone:=stream.readBoolean;
   end;
@@ -953,7 +958,7 @@ PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
     stream.writeBoolean(gameIsDone);
   end;
 
-FUNCTION T_config.isGoodEnough(modeIdx: byte; newEntry: hallOfFameEntry
+FUNCTION T_config.isGoodEnough(CONST modeIdx: byte; CONST newEntry: hallOfFameEntry
   ): boolean;
   begin
     result:=isBetterThan(C_sudokuStructure[modeIdx].size,
@@ -961,7 +966,7 @@ FUNCTION T_config.isGoodEnough(modeIdx: byte; newEntry: hallOfFameEntry
                          hallOfFame[modeIdx,19]);
   end;
 
-PROCEDURE T_config.addHOFEntry(modeIdx: byte; newEntry: hallOfFameEntry);
+PROCEDURE T_config.addHOFEntry(CONST modeIdx: byte; CONST newEntry: hallOfFameEntry);
   VAR tmp:hallOfFameEntry;
       i  :byte;
   begin

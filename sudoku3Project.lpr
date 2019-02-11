@@ -8,14 +8,13 @@ USES
   {$endif}{$endif}
   Interfaces, // this includes the LCL widgetset
   Forms
-  { add your units here }, Sudoku3Surface, sudokuSettings, sudokuHighscores;
+  { add your units here }, Sudoku3Surface, sudokuSettings, sudokuHighscores,
+  endOfGameUnit, exportUnit;
 
 begin
   Application.title:='Sudoku 3';
   Application.initialize;
   Application.CreateForm(TSudokuMainForm, SudokuMainForm);
-  Application.CreateForm(TForm1, Form1);
-  Application.CreateForm(TForm2, Form2);
   Application.run;
 end.
 
