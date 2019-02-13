@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -57,15 +57,19 @@
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
-      <IgnoreBinaries Value="False"/>
-      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
-      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
     </PublishOptions>
     <RunParams>
       <local>
-        <FormatVersion Value="1"/>
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default">
+          <local>
+            <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+          </local>
+        </Mode0>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="1">
       <Item1>
@@ -76,10 +80,9 @@
       <Unit0>
         <Filename Value="sudoku3Project.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="53" Y="8"/>
         <UsageCount Value="40"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="Sudoku3Surface.pas"/>
@@ -88,20 +91,19 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="43"/>
-        <CursorPos X="82" Y="51"/>
+        <TopLine Value="91"/>
+        <CursorPos X="61" Y="95"/>
         <UsageCount Value="40"/>
         <Bookmarks Count="1">
-          <Item0 X="5" Y="137" ID="1"/>
+          <Item0 X="5" Y="138" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="sudoku.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <UsageCount Value="18"/>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="C:\lazarus\lcl\graphics.pp"/>
@@ -142,10 +144,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="sudokuSettings"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="sudokuhighscores.pas"/>
@@ -154,20 +154,17 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="sudokuHighscores"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="10"/>
         <CursorPos X="95" Y="11"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="common\serializationUtil.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="81"/>
         <CursorPos X="16" Y="103"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="..\lazarus64\lcl\extctrls.pp"/>
@@ -184,12 +181,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="endOfGameUnit"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="8"/>
         <CursorPos Y="49"/>
         <UsageCount Value="22"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit12>
       <Unit13>
         <Filename Value="exportunit.pas"/>
@@ -198,135 +193,33 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="exportUnit"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="125"/>
         <CursorPos X="88" Y="147"/>
         <UsageCount Value="22"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit13>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="135" Column="34" TopLine="101"/>
-      </Position1>
-      <Position2>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="93" TopLine="72"/>
-      </Position2>
-      <Position3>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="142" Column="35" TopLine="112"/>
-      </Position3>
-      <Position4>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="143" Column="46" TopLine="112"/>
-      </Position4>
-      <Position5>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="142" Column="34" TopLine="112"/>
-      </Position5>
-      <Position6>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="91" TopLine="72"/>
-      </Position6>
-      <Position7>
-        <Filename Value="sudokusettings.pas"/>
-        <Caret Line="120" Column="120" TopLine="113"/>
-      </Position7>
-      <Position8>
-        <Filename Value="common\serializationUtil.pas"/>
-        <Caret Line="103" Column="15" TopLine="81"/>
-      </Position8>
-      <Position9>
-        <Filename Value="common\serializationUtil.pas"/>
-        <Caret Line="371" TopLine="337"/>
-      </Position9>
-      <Position10>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="111" Column="17" TopLine="90"/>
-      </Position10>
-      <Position11>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="922" TopLine="919"/>
-      </Position11>
-      <Position12>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="109" Column="15" TopLine="90"/>
-      </Position12>
-      <Position13>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="882" Column="3" TopLine="880"/>
-      </Position13>
-      <Position14>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="109" Column="14" TopLine="87"/>
-      </Position14>
-      <Position15>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="884" TopLine="880"/>
-      </Position15>
-      <Position16>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="71" Column="26" TopLine="45"/>
-      </Position16>
-      <Position17>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="642" TopLine="640"/>
-      </Position17>
-      <Position18>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="111" Column="23" TopLine="71"/>
-      </Position18>
-      <Position19>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="922" TopLine="893"/>
-      </Position19>
-      <Position20>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="985" Column="5" TopLine="941"/>
-      </Position20>
-      <Position21>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="108" Column="18" TopLine="80"/>
-      </Position21>
-      <Position22>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="848" Column="46" TopLine="838"/>
-      </Position22>
-      <Position23>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="606" TopLine="584"/>
-      </Position23>
-      <Position24>
         <Filename Value="Sudoku3Surface.pas"/>
         <Caret Line="8" Column="46"/>
-      </Position24>
-      <Position25>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="606" TopLine="584"/>
-      </Position25>
-      <Position26>
-        <Filename Value="sudoku3Project.lpr"/>
-        <Caret Line="8" Column="53"/>
-      </Position26>
-      <Position27>
-        <Filename Value="endofgameunit.pas"/>
-        <Caret Line="2"/>
-      </Position27>
-      <Position28>
+      </Position1>
+      <Position2>
         <Filename Value="Sudoku3Surface.pas"/>
         <Caret Line="8" Column="46" TopLine="3"/>
-      </Position28>
-      <Position29>
+      </Position2>
+      <Position3>
         <Filename Value="Sudoku3Surface.pas"/>
         <Caret Line="132" Column="17" TopLine="117"/>
-      </Position29>
-      <Position30>
+      </Position3>
+      <Position4>
         <Filename Value="Sudoku3Surface.pas"/>
         <Caret Line="141" TopLine="117"/>
-      </Position30>
+      </Position4>
+      <Position5>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="51" Column="82" TopLine="43"/>
+      </Position5>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

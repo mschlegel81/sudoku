@@ -92,6 +92,7 @@ IMPLEMENTATION
 PROCEDURE TSudokuMainForm.FormShow(Sender: TObject);
 begin
   DoubleBuffered:=true;
+  MainImage.picture.Bitmap.setSize(MainImage.width,MainImage.height);
   configuring:=false;
   initButtonPanel(config.riddle.getFieldSize);
 end;

@@ -8,7 +8,7 @@ LazarusResources.Add('TSudokuMainForm','FORMDATA',[
   +'onstraints.MinWidth'#3'^'#1#13'DesignTimePPI'#3#144#0#12'Font.CharSet'#7#11
   +'OEM_CHARSET'#4'Menu'#7#9'MainMenu1'#8'OnCreate'#7#10'FormCreate'#9'OnKeyDow'
   +'n'#7#11'FormKeyDown'#8'OnResize'#7#10'FormResize'#6'OnShow'#7#8'FormShow'#8
-  +'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#7'1.8.4.0'#6'Scaled'#8#11'W'
+  +'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#7'2.0.0.4'#6'Scaled'#8#11'W'
   +'indowState'#7#11'wsMaximized'#0#6'TImage'#9'MainImage'#4'Left'#2#0#6'Height'
   +#3'H'#2#3'Top'#2#0#5'Width'#3#208#1#11'OnMouseDown'#7#18'MainImageMouseDown'
   +#0#0#6'TPanel'#8'NumPanel'#4'Left'#3#8#2#6'Height'#3#168#0#3'Top'#3#128#1#5
