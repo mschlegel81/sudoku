@@ -52,7 +52,7 @@ TYPE
     NumButton_b: TButton;
     NumPanel: TPanel;
     Label11: TLabel;
-    MainImage: TImage;
+    mainImage: TImage;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormKeyDown(Sender: TObject; VAR key: word; Shift: TShiftState);
     PROCEDURE FormResize(Sender: TObject);
@@ -92,7 +92,7 @@ IMPLEMENTATION
 PROCEDURE TSudokuMainForm.FormShow(Sender: TObject);
 begin
   DoubleBuffered:=true;
-  MainImage.picture.Bitmap.setSize(MainImage.width,MainImage.height);
+  mainImage.picture.Bitmap.setSize(mainImage.width,mainImage.height);
   configuring:=false;
   initButtonPanel(config.riddle.getFieldSize);
 end;
@@ -110,8 +110,8 @@ begin
         config.riddle.clearState(selectX,selectY);
         config.riddle.renderRiddle;
         NumPanel.visible:=false;
-      end else if (SelectX<0) or (selectX>=config.riddle.getFieldSize)
-               or (SelectY<0) or (selectY>=config.riddle.getFieldSize) then NumPanel.visible:=false
+      end else if (selectX<0) or (selectX>=config.riddle.getFieldSize)
+               or (selectY<0) or (selectY>=config.riddle.getFieldSize) then NumPanel.visible:=false
       else if (config.riddle.givenState(selectX,selectY)) then config.riddle.renderRiddle
       else begin
         NumPanel.Left:=x0+selectX*quadSize+(quadSize-NumPanel.width) shr 1;
@@ -226,9 +226,9 @@ end;
 
 PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
   begin
-    MainImage.height:=screen.height;
-    MainImage.width:=screen.width;
-    sudoku.mainImage:=MainImage;
+    mainImage.height:=screen.height;
+    mainImage.width:=screen.width;
+    sudoku.mainImage:=mainImage;
   end;
 
 PROCEDURE TSudokuMainForm.initButtonPanel(size:byte);

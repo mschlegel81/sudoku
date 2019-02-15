@@ -12,6 +12,7 @@ TYPE
   TendOfGameForm = class(TForm)
     Button10: TButton;
     EnterNameGroupBox: TGroupBox;
+    timeLabel: TLabel;
     Label10: TLabel;
     Label12: TLabel;
     Label4: TLabel;
@@ -33,7 +34,7 @@ PROCEDURE showEndOfGameForm(CONST goodEnoughForHallOfFame: boolean);
     if endOfGameForm=nil then begin
       endOfGameForm:=TendOfGameForm.create(nil);
     end;
-
+    endOfGameForm.timeLabel.caption:='Zeit: '+formattedTime(winnerEntry);
     endOfGameForm.LoserGroupBox.visible:=not(goodEnoughForHallOfFame);
     endOfGameForm.EnterNameGroupBox.visible:=goodEnoughForHallOfFame;
     endOfGameForm.ShowModal;

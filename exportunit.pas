@@ -117,7 +117,7 @@ PROCEDURE TexportForm.Button8Click(Sender: TObject);
         5: riddleSize:=15;
         6: riddleSize:=16;
       end;
-      diffic:=((75-5*ExportDiff_LB.ItemIndex)*sqr(riddlesize)) div 100;
+      diffic:=((75-5*ExportDiff_LB.ItemIndex)*sqr(riddleSize)) div 100;
       numberOfRiddles:=strToInt(ExportNumberEdit.text);
       setLength(solutions,2);
       if txtOut then solutions[0]:='LOESUNGEN:'
@@ -134,12 +134,12 @@ PROCEDURE TexportForm.Button8Click(Sender: TObject);
         s.create(riddleSize,sx,sy,sc,diffic);
         solutionOut:=false;
         if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
-                  else s.writeLaTexForm(@writeOut,@writelnOut,enumString(x),false);
+                  else s.writeLaTeXForm(@writeOut,@writelnOut,enumString(x),false);
         if ExportSolutions_CB.checked then begin
           solutionOut:=true;
           s.solve;
           if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
-                    else s.writeLaTexForm(@writeOut,@writelnOut,enumString(x),true);
+                    else s.writeLaTeXForm(@writeOut,@writelnOut,enumString(x),true);
         end;
         s.destroy;
       end;

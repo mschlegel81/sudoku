@@ -2,20 +2,22 @@ UNIT sudoku;
 INTERFACE
 USES serializationUtil,sysutils,ExtCtrls,Graphics;
 CONST
+
+  C_firstTime=maxLongint-7019;
   C_sudokuStructure:array [0..6] of record
                                       size     :byte;
-                                      blocksize:array[0..1] of byte;
+                                      blockSize:array[0..1] of byte;
                                       any      :word;
                                     end=
-  ((size: 4; blocksize:(2,2); any:   15),
-   (size: 6; blocksize:(2,3); any:   63),
-   (size: 8; blocksize:(2,4); any:  255),
-   (size: 9; blocksize:(3,3); any:  511),
-   (size:12; blocksize:(3,4); any: 4095),
-   (size:15; blocksize:(3,5); any:32767),
-   (size:16; blocksize:(4,4); any:65535));
+  ((size: 4; blockSize:(2,2); any:   15),
+   (size: 6; blockSize:(2,3); any:   63),
+   (size: 8; blockSize:(2,4); any:  255),
+   (size: 9; blockSize:(3,3); any:  511),
+   (size:12; blockSize:(3,4); any: 4095),
+   (size:15; blockSize:(3,5); any:32767),
+   (size:16; blockSize:(4,4); any:65535));
 
-  C_LaTeX_fileHeader:array[0..5] of string=('\documentclass[12pt,a4paper]{report} \usepackage{graphics}' ,
+  C_Latex_fileHeader:array[0..5] of string=('\documentclass[12pt,a4paper]{report} \usepackage{graphics}' ,
                                             '\oddsidemargin 0in \evensidemargin 0in \topmargin 0in \textheight 23cm \textwidth 16cm',
                                             '\renewcommand\arraystretch{1.4}',
                                             '\setlength{\lineskip}{2.0ex plus0.5ex minus0.5ex}',
@@ -128,8 +130,15 @@ VAR
   endOfGameCallback:F_endOfGame;
 
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
+FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
 IMPLEMENTATION
 CONST C_bit:array[0..15] of word=(1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768);
+
+FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
+  begin
+    if hofEntry.time>=C_firstTime then result:='' else
+    result:=FormatDateTime('[h]:mm:ss',hofEntry.time,[fdoInterval]);
+  end;
 
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
   VAR i:byte;
@@ -185,7 +194,7 @@ FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
             //exclude value in row:                                                                                      //  //
             for i1:=0 to fieldSize-1 do if i1<>i0 then exclude(j0*fieldSize+i1);                                         //  //
             //exclude value in column:                                                                                   //  //
-            for j1:=0 to fieldsize-1 do if j1<>j0 then exclude(j1*fieldSize+i0);                                         //  //
+            for j1:=0 to fieldSize-1 do if j1<>j0 then exclude(j1*fieldSize+i0);                                         //  //
             //exclude value in block:                                                                                    //  //
             for i1:=(i0 div C_sudokuStructure[structIdx].blockSize[0])   *C_sudokuStructure[structIdx].blockSize[0]   to //  //
                    ((i0 div C_sudokuStructure[structIdx].blockSize[0])+1)*C_sudokuStructure[structIdx].blockSize[0]-1 do //  //
@@ -217,7 +226,7 @@ FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
         end else begin                                                                                                   //
           excludor:=0;                                                                                                   //
           //exclude value in column:                                                                                     //
-          for j1:=0 to fieldsize-1 do if j1<>j0 then excludor:=excludor or el[j1*fieldSize+i0];                          //
+          for j1:=0 to fieldSize-1 do if j1<>j0 then excludor:=excludor or el[j1*fieldSize+i0];                          //
           if determined(excludor) then begin                                                                             //
             el[k]        :=excludor;                                                                                     //
             totalProgress:=true;                                                                                         //
@@ -359,12 +368,12 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boole
 
 FUNCTION T_sudoku.getSquare(x, y: byte): byte;
   begin
-    if (x<fieldsize) and
-       (y<fieldsize) then begin
+    if (x<fieldSize) and
+       (y<fieldSize) then begin
       x+=y*fieldSize;
       result:=0;
       while (result<fieldSize) and (el[x]<>C_bit[result]) do inc(result);
-      if result>=fieldsize then result:=255
+      if result>=fieldSize then result:=255
                            else inc(result);
     end else result:=255;
   end;
@@ -374,7 +383,7 @@ FUNCTION T_sudoku.given: word;
   begin
     result:=0;
     for i:=0 to length(el)-1 do
-    for j:=0 to fieldSize-1 do if (el[i]=C_Bit[j]) then inc(result);
+    for j:=0 to fieldSize-1 do if (el[i]=C_bit[j]) then inc(result);
   end;
 
 DESTRUCTOR T_sudoku.destroy;
@@ -615,20 +624,20 @@ PROCEDURE T_sudokuRiddle.initGame(size: byte);
 PROCEDURE T_sudokuRiddle.checkConflicts;
   VAR x1,y1,x2,y2:byte;
   begin
-    for x1:=0 to fieldsize-1 do
-    for y1:=0 to fieldsize-1 do state[x1,y1].conflicting:=false;
+    for x1:=0 to fieldSize-1 do
+    for y1:=0 to fieldSize-1 do state[x1,y1].conflicting:=false;
 
-    for x1:=0 to fieldsize-1 do
-    for y1:=0 to fieldsize-1 do if state[x1,y1].value<>255 then
-    for x2:=0 to fieldsize-1 do
-    for y2:=0 to fieldsize-1 do if (state[x1,y1].value=state[x2,y2].value)
+    for x1:=0 to fieldSize-1 do
+    for y1:=0 to fieldSize-1 do if state[x1,y1].value<>255 then
+    for x2:=0 to fieldSize-1 do
+    for y2:=0 to fieldSize-1 do if (state[x1,y1].value=state[x2,y2].value)
       and ((x1<>x2) or (y1<>y2)) then begin
       if (x1=x2) or //same column
          (y1=y2) or //same row
-         (x1 div C_sudokuStructure[modeIdx].blocksize[0]=             // \
-          x2 div C_sudokuStructure[modeIdx].blocksize[0]) and         //  \
-         (y1 div C_sudokuStructure[modeIdx].blocksize[1]=             //  /same block
-          y2 div C_sudokuStructure[modeIdx].blocksize[1]) then begin  // /
+         (x1 div C_sudokuStructure[modeIdx].blockSize[0]=             // \
+          x2 div C_sudokuStructure[modeIdx].blockSize[0]) and         //  \
+         (y1 div C_sudokuStructure[modeIdx].blockSize[1]=             //  /same block
+          y2 div C_sudokuStructure[modeIdx].blockSize[1]) then begin  // /
         state[x1,y1].conflicting:=true;
         state[x2,y2].conflicting:=true;
       end;
@@ -713,7 +722,7 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
   PROCEDURE vLine(x,y0,y1:longint);
     VAR y:longint;
     begin
-      for y:=y0 to y1 do MainImage.Canvas.Pixels[x,y]:=interpolateColor2(y);
+      for y:=y0 to y1 do mainImage.Canvas.Pixels[x,y]:=interpolateColor2(y);
     end;
 
   CONST sudokuChar:array [0..6] of char=('S','U','D','O','K','U',' ');
@@ -739,10 +748,10 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     end;
 
     for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blocksize[0]<>0 then begin
+      if x mod C_sudokuStructure[modeIdx].blockSize[0]<>0 then begin
         vLine(x0+x*quadSize,y0-1,y0+fieldSize*quadSize+1);
       end;
-      if x mod C_sudokuStructure[modeIdx].blocksize[1]<>0 then begin
+      if x mod C_sudokuStructure[modeIdx].blockSize[1]<>0 then begin
         mainImage.Canvas.Pen.color:=interpolateColor2(y0+x*quadSize);
         mainImage.Canvas.line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
       end;
@@ -750,26 +759,26 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
 
     mainImage.Canvas.Pen.color:=config.view.gridCol;
     for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blocksize[0]=0 then begin
+      if x mod C_sudokuStructure[modeIdx].blockSize[0]=0 then begin
         mainImage.Canvas.line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
         mainImage.Canvas.line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
       end;
-      if x mod C_sudokuStructure[modeIdx].blocksize[1]=0 then begin
+      if x mod C_sudokuStructure[modeIdx].blockSize[1]=0 then begin
         mainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
         mainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
       end;
     end;
     if keyboardMode then begin
       mainImage.Canvas.MoveTo(x0+selectX*quadSize+3,
-                              y0+selecty*quadSize+3);
+                              y0+selectY*quadSize+3);
       mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                              y0+selecty*quadSize+3);
+                              y0+selectY*quadSize+3);
       mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                              y0+selecty*quadSize+quadSize-3);
+                              y0+selectY*quadSize+quadSize-3);
       mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                              y0+selecty*quadSize+quadSize-3);
+                              y0+selectY*quadSize+quadSize-3);
       mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                              y0+selecty*quadSize+3);
+                              y0+selectY*quadSize+3);
     end;
 
     mainImage.Canvas.Brush.style:=bsClear;
@@ -808,7 +817,7 @@ FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
   ): boolean;
   VAR i,j:byte;
   begin
-    fieldsize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
+    fieldSize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
     modeIdx  :=stream.readByte; result:=result and
                                   (modeIdx  in [0..6]) and
                                   (C_sudokuStructure[modeIdx].size=fieldSize);
@@ -825,7 +834,7 @@ PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper
   );
   VAR i,j:byte;
   begin
-    stream.writeByte(fieldsize);
+    stream.writeByte(fieldSize);
     stream.writeByte(modeIdx);
     stream.writeDouble(now-startTime);
     for i:=0 to fieldSize-1 do
@@ -865,7 +874,7 @@ CONSTRUCTOR T_config.create;
       for i:=0 to 6 do begin
         for j:=0 to 19 do with hallOfFame[i,j] do begin
           name:='';
-          time:=maxLongint-7019+j;
+          time:=C_firstTime+j;
           given:=sqr(C_sudokuStructure[i].size);
           markErrors:=true;
         end;

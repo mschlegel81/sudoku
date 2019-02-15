@@ -31,6 +31,7 @@ VAR
 
 PROCEDURE showHallOfFame(modeIdx: byte);
   begin
+    config.riddle.pauseGame;
     if highscoresForm=nil then highscoresForm:=ThighscoresForm.create(nil);
     highscoresForm.TabControl1.TabIndex:=modeIdx;
     highscoresForm.ShowModal;
@@ -46,7 +47,7 @@ PROCEDURE ThighscoresForm.TabControl1Change(Sender: TObject);
     for i:=0 to 19 do begin
       HOFStringGrid.Cells[1,i+1]:=config.hallOfFame[modeIdx,i].name;
       HOFStringGrid.Cells[2,i+1]:=intToStr(config.hallOfFame[modeIdx,i].given);
-      HOFStringGrid.Cells[3,i+1]:=FormatDateTime('hh:mm:ss',config.hallOfFame[modeIdx,i].time);
+      HOFStringGrid.Cells[3,i+1]:=formattedTime(config.hallOfFame[modeIdx,i]);
       if config.hallOfFame[modeIdx,i].markErrors
         then HOFStringGrid.Cells[4,i+1]:='X'
         else HOFStringGrid.Cells[4,i+1]:='';

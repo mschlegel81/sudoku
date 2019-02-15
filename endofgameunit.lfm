@@ -11,15 +11,15 @@ object endOfGameForm: TendOfGameForm
   ClientWidth = 480
   DesignTimePPI = 144
   Position = poOwnerFormCenter
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.0.4'
   object LoserGroupBox: TGroupBox
     Left = 0
-    Height = 335
-    Top = 0
+    Height = 310
+    Top = 25
     Width = 480
     Align = alClient
     AutoSize = True
-    ClientHeight = 305
+    ClientHeight = 280
     ClientWidth = 476
     TabOrder = 0
     Visible = False
@@ -35,12 +35,12 @@ object endOfGameForm: TendOfGameForm
   end
   object EnterNameGroupBox: TGroupBox
     Left = 0
-    Height = 335
-    Top = 0
+    Height = 310
+    Top = 25
     Width = 480
     Align = alClient
     AutoSize = True
-    ClientHeight = 305
+    ClientHeight = 280
     ClientWidth = 476
     TabOrder = 1
     Visible = False
@@ -93,5 +93,14 @@ object endOfGameForm: TendOfGameForm
     Caption = 'O.K.'
     ModalResult = 1
     TabOrder = 2
+  end
+  object timeLabel: TLabel
+    Left = 0
+    Height = 25
+    Top = 0
+    Width = 480
+    Align = alTop
+    Caption = 'timeLabel'
+    ParentColor = False
   end
 end
