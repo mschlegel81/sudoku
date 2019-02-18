@@ -813,8 +813,7 @@ begin
   result:=12325862;
 end;
 
-FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
-  ): boolean;
+FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
   VAR i,j:byte;
   begin
     fieldSize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
@@ -830,13 +829,13 @@ FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
     checkConflicts;
   end;
 
-PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper
-  );
+PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
   VAR i,j:byte;
   begin
     stream.writeByte(fieldSize);
     stream.writeByte(modeIdx);
-    stream.writeDouble(now-startTime);
+    if isPaused then stream.writeDouble(    startTime)
+                else stream.writeDouble(now-startTime);
     for i:=0 to fieldSize-1 do
     for j:=0 to fieldSize-1 do with state[i,j] do begin
       stream.writeBoolean(given);
