@@ -1,6 +1,6 @@
 UNIT sudoku;
 INTERFACE
-USES serializationUtil,sysutils,ExtCtrls,Graphics;
+USES serializationUtil,sysutils,ExtCtrls,Graphics,types;
 CONST
 
   C_firstTime=maxLongint-7019;
@@ -26,14 +26,14 @@ CONST
   C_LaTeX_fileFooter:string='\end{center}\end{document}';
 
 TYPE
-  T_sudokuState=(solved,unknown,unsolveable);
+  T_sudokuState=(ss_solved,ss_unknown,ss_unsolveable);
 
   FT_output=PROCEDURE(txt:string);
   T_sudoku=object(T_serializable)
     private
       el:array of word;
       fieldSize,structIdx:byte;
-      FUNCTION fullSolve(fillRandom:boolean):T_sudokuState;
+      FUNCTION fullSolve(CONST fillRandom:boolean):T_sudokuState;
     public
       CONSTRUCTOR createUnfilled(size:byte);
       CONSTRUCTOR createFull    (CONST size:byte);
@@ -121,18 +121,24 @@ TYPE F_endOfGame=PROCEDURE(CONST b:boolean);
 VAR
   config        : T_config;
   winnerEntry   : hallOfFameEntry;
-  x0,y0,selectX,selectY:longint;
-  configuring   ,
-  keyboardMode  : boolean;
-
-  quadSize      : longint;
   mainImage     : TImage;
   endOfGameCallback:F_endOfGame;
 
+  x0,y0,quadSize: longint;
+
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
 FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
+FUNCTION getMarkerBounds(CONST ix,iy:longint):TRect;
 IMPLEMENTATION
 CONST C_bit:array[0..15] of word=(1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768);
+
+FUNCTION getMarkerBounds(CONST ix,iy:longint):TRect;
+  begin
+    result.Left  :=x0+ ix   *quadSize+3;
+    result.Right :=x0+(ix+1)*quadSize-3;
+    result.top   :=y0+ iy   *quadSize+3;
+    result.Bottom:=y0+(iy+1)*quadSize-3;
+  end;
 
 FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
   begin
@@ -144,7 +150,7 @@ PROCEDURE writeLatexHeader(writelnOut:FT_output);
   VAR i:byte;
   begin for i:=0 to 5 do writelnOut(C_Latex_fileHeader[i]); end;
 
-FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
+FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
   VAR i0,j0,i1,j1:byte;
       k,excludor:word;
       done:array of boolean;
@@ -156,10 +162,6 @@ FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
                   (v=C_bit[ 4]) or (v=C_bit[ 5]) or (v=C_bit[ 6]) or (v=C_bit[ 7]) or
                   (v=C_bit[ 8]) or (v=C_bit[ 9]) or (v=C_bit[10]) or (v=C_bit[11]) or
                   (v=C_bit[12]) or (v=C_bit[13]) or (v=C_bit[14]) or (v=C_bit[15]);
-           {      (v=    1) or (v=    2) or (v=    4) or (v=    8) or
-                  (v=   16) or (v=   32) or (v=   64) or (v=  128) or
-                  (v=  256) or (v=  512) or (v= 1024) or (v= 2048) or
-                  (v= 4096) or (v= 8192) or (v=16384) or (v=32768);}
     end;
 
   PROCEDURE exclude(idx:word); inline;
@@ -267,13 +269,13 @@ FUNCTION T_sudoku.fullSolve(fillRandom: boolean): T_sudokuState;
     until not(totalProgress);
 
     //determine value to return
-    result:=solved;
+    result:=ss_solved;
     k:=0;
     repeat
-      if el[k]=0 then result:=unsolveable
-      else if (result=solved) and not(determined(el[k])) then result:=unknown;
+      if el[k]=0 then result:=ss_unsolveable
+      else if (result=ss_solved) and not(determined(el[k])) then result:=ss_unknown;
       inc(k);
-    until (k=length(el)) or (result=unsolveable);
+    until (k=length(el)) or (result=ss_unsolveable);
     setLength(done,0);
   end; //fullSolve
 
@@ -286,19 +288,19 @@ CONSTRUCTOR T_sudoku.createUnfilled(size: byte);
     //lookup structure index matching size
     structIdx:=0;
     while (structIdx<7) and (C_sudokuStructure[structIdx].size<size) do inc(structIdx);
-    //if unknown size was entered, select size=9x9 <-> structIdx=3
+    //if ss_unknown size was entered, select size=9x9 <-> structIdx=3
     if structIdx>=7 then structIdx:=3;
     //determine actual field size
     fieldSize:=C_sudokuStructure[structIdx].size;
     //allocate cells array
     setLength(el,fieldSize*fieldSize);
-    //set all cells to unknown value
+    //set all cells to ss_unknown value
     for k:=0 to length(el)-1 do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
 CONSTRUCTOR T_sudoku.createFull(CONST size: byte);
   begin
-    repeat createUnfilled(size); until fullSolve(true)=solved;
+    repeat createUnfilled(size); until fullSolve(true)=ss_solved;
   end;
 
 CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boolean;
@@ -342,9 +344,9 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boole
     end;
 
   begin
-    //create solved field
+    //create ss_solved field
     createFull(size);
-    //create copy of solved riddle
+    //create copy of ss_solved riddle
     setLength(copy,length(el)); for k:=0 to length(el)-1 do copy[k]:=el[k];
     outerUndefTries:=0;
     repeat
@@ -354,7 +356,7 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boole
         lastUndef:=length(undefList);
         undefine(random(fieldSize),random(fieldSize),symm_x,symm_y,symm_center);
         applyUndefList;
-        if (fullSolve(false)<>solved) then begin
+        if (fullSolve(false)<>ss_solved) then begin
           setLength(undefList,lastUndef);
           inc(undefTries);
         end;
@@ -568,9 +570,11 @@ FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
 //T_sudokuRiddle:-----------------------------------------------------------------------------
 PROCEDURE T_sudokuRiddle.pauseGame;
   begin
-    if not(paused) then startTime:=now-startTime;
-    paused:=true;
-    renderRiddle;
+    if not(paused) then begin
+      startTime:=now-startTime;
+      paused:=true;
+      renderRiddle;
+    end;
   end;
 
 PROCEDURE T_sudokuRiddle.switchPause;
@@ -661,6 +665,7 @@ PROCEDURE T_sudokuRiddle.setState(CONST x, y: byte; value: byte;
                                           else state[x,y].value:=255;
     end;
     checkConflicts;
+    renderRiddle;
     if isSolved then begin
       winnerEntry:=makeHOFEntry;
       endOfGameCallback(config.isGoodEnough(modeIdx,winnerEntry));
@@ -678,6 +683,7 @@ PROCEDURE T_sudokuRiddle.clearState(CONST x, y: byte);
        state[x,y].value:=255;
     end;
     checkConflicts;
+    renderRiddle;
   end;
 
 FUNCTION T_sudokuRiddle.givenState(CONST x, y: byte): boolean;
@@ -740,9 +746,9 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     quadSize:=10;
     while  (quadSize*fieldSize*1.1<mainImage.width    )
        and (quadSize*fieldSize*1.1<mainImage.height-19) do inc(quadSize);
-    y0:=(mainImage.height-19-fieldSize*quadSize) shr 1;
-    x0:=(mainImage.width    -fieldSize*quadSize) shr 1;
-    for y:=0 to mainImage.height-19 do begin
+    y0:=(mainImage.height-1-fieldSize*quadSize) shr 1;
+    x0:=(mainImage.width   -fieldSize*quadSize) shr 1;
+    for y:=0 to mainImage.height-1 do begin
       mainImage.Canvas.Pen.color:=interpolateColor(y);
       mainImage.Canvas.line(0,y,mainImage.width,y);
     end;
@@ -767,18 +773,6 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
         mainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
         mainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
       end;
-    end;
-    if keyboardMode then begin
-      mainImage.Canvas.MoveTo(x0+selectX*quadSize+3,
-                              y0+selectY*quadSize+3);
-      mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                              y0+selectY*quadSize+3);
-      mainImage.Canvas.LineTo(x0+selectX*quadSize+quadSize-3,
-                              y0+selectY*quadSize+quadSize-3);
-      mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                              y0+selectY*quadSize+quadSize-3);
-      mainImage.Canvas.LineTo(x0+selectX*quadSize+3,
-                              y0+selectY*quadSize+3);
     end;
 
     mainImage.Canvas.Brush.style:=bsClear;

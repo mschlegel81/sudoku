@@ -9,13 +9,14 @@ object highscoresForm: ThighscoresForm
   DesignTimePPI = 144
   OnShow = TabControl1Change
   Position = poOwnerFormCenter
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.0.4'
   object TabControl1: TTabControl
     Left = 0
     Height = 41
     Top = 0
     Width = 480
     OnChange = TabControl1Change
+    TabHeight = 36
     TabIndex = 0
     Tabs.Strings = (
       '4x4'

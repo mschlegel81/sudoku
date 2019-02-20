@@ -9,9 +9,6 @@ USES
   ComCtrls, StdCtrls, Grids,sudoku;
 
 TYPE
-
-  { ThighscoresForm }
-
   ThighscoresForm = class(TForm)
     Button6: TButton;
     HOFGroupBox: TGroupBox;

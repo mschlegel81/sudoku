@@ -53,6 +53,7 @@ TYPE
     NumPanel: TPanel;
     Label11: TLabel;
     mainImage: TImage;
+    MarkerShape: TShape;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormKeyDown(Sender: TObject; VAR key: word; Shift: TShiftState);
     PROCEDURE FormResize(Sender: TObject);
@@ -80,6 +81,7 @@ TYPE
     PROCEDURE NumButtonClick(Sender: TObject);
   private
     { private declarations }
+    selectX,selectY:longint;
   public
     PROCEDURE initButtonPanel(size:byte);
     { public declarations }
@@ -93,15 +95,13 @@ PROCEDURE TSudokuMainForm.FormShow(Sender: TObject);
 begin
   DoubleBuffered:=true;
   mainImage.picture.Bitmap.setSize(mainImage.width,mainImage.height);
-  configuring:=false;
   initButtonPanel(config.riddle.getFieldSize);
 end;
 
-PROCEDURE TSudokuMainForm.MainImageMouseDown(Sender: TObject;
-  button: TMouseButton; Shift: TShiftState; X, Y: integer);
+PROCEDURE TSudokuMainForm.MainImageMouseDown(Sender: TObject; button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
-  if not(configuring) and not(config.riddle.isPaused) then begin
-    keyboardMode:=false;
+  if not(config.riddle.isPaused) then begin
+    MarkerShape.visible:=false;
     if  (x>x0) and (x<x0+config.riddle.getFieldSize*quadSize)
     and (y>y0) and (y<y0+config.riddle.getFieldSize*quadSize) then begin
       selectX:=(x-x0) div quadSize;
@@ -128,7 +128,7 @@ end;
 
 PROCEDURE TSudokuMainForm.MenuItem2Click(Sender: TObject);
   begin
-    if not(configuring) then config.riddle.switchPause;
+    config.riddle.switchPause;
   end;
 
 PROCEDURE TSudokuMainForm.MenuItem3Click(Sender: TObject);
@@ -140,17 +140,13 @@ PROCEDURE TSudokuMainForm.MenuItem3Click(Sender: TObject);
 PROCEDURE TSudokuMainForm.MenuItem8Click(Sender: TObject);
   begin
     config.riddle.pauseGame;
-    configuring:=true;
-    config.riddle.renderRiddle;
     showExportForm;
-    configuring:=false;
-    config.riddle.renderRiddle;
   end;
 
 PROCEDURE TSudokuMainForm.MenuItem9Click(Sender: TObject);
-begin
-  close;
-end;
+  begin
+    close;
+  end;
 
 PROCEDURE TSudokuMainForm.MenuItemHOF04Click(Sender: TObject); begin showHallOfFame(0); end;
 PROCEDURE TSudokuMainForm.MenuItemHOF06Click(Sender: TObject); begin showHallOfFame(1); end;
@@ -159,25 +155,17 @@ PROCEDURE TSudokuMainForm.MenuItemHOF09Click(Sender: TObject); begin showHallOfF
 PROCEDURE TSudokuMainForm.MenuItemHOF12Click(Sender: TObject); begin showHallOfFame(4); end;
 PROCEDURE TSudokuMainForm.MenuItemHOF15Click(Sender: TObject); begin showHallOfFame(5); end;
 PROCEDURE TSudokuMainForm.MenuItemHOF16Click(Sender: TObject); begin showHallOfFame(6); end;
-PROCEDURE TSudokuMainForm.MenuItemNG04Click(Sender: TObject);
-begin config.riddle.initGame(4); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(4); end;
-PROCEDURE TSudokuMainForm.MenuItemNG06Click(Sender: TObject);
-begin config.riddle.initGame(6); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(6); end;
-PROCEDURE TSudokuMainForm.MenuItemNG08Click(Sender: TObject);
-begin config.riddle.initGame(8); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(8); end;
-PROCEDURE TSudokuMainForm.MenuItemNG09Click(Sender: TObject);
-begin config.riddle.initGame(9); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(9); end;
-PROCEDURE TSudokuMainForm.MenuItemNG12Click(Sender: TObject);
-begin config.riddle.initGame(12); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(12); end;
-PROCEDURE TSudokuMainForm.MenuItemNG15Click(Sender: TObject);
-begin config.riddle.initGame(15); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(15); end;
-PROCEDURE TSudokuMainForm.MenuItemNG16Click(Sender: TObject);
-begin config.riddle.initGame(16); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(16); end;
+PROCEDURE TSudokuMainForm.MenuItemNG04Click(Sender: TObject); begin config.riddle.initGame(4); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(4); end;
+PROCEDURE TSudokuMainForm.MenuItemNG06Click(Sender: TObject); begin config.riddle.initGame(6); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(6); end;
+PROCEDURE TSudokuMainForm.MenuItemNG08Click(Sender: TObject); begin config.riddle.initGame(8); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(8); end;
+PROCEDURE TSudokuMainForm.MenuItemNG09Click(Sender: TObject); begin config.riddle.initGame(9); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(9); end;
+PROCEDURE TSudokuMainForm.MenuItemNG12Click(Sender: TObject); begin config.riddle.initGame(12); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(12); end;
+PROCEDURE TSudokuMainForm.MenuItemNG15Click(Sender: TObject); begin config.riddle.initGame(15); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(15); end;
+PROCEDURE TSudokuMainForm.MenuItemNG16Click(Sender: TObject); begin config.riddle.initGame(16); config.gameIsDone:=false; config.riddle.renderRiddle; initButtonPanel(16); end;
 
 PROCEDURE TSudokuMainForm.NumButtonClick(Sender: TObject);
 begin
   config.riddle.setState(selectX,selectY,strToInt(TButton(Sender).caption),false);
-  config.riddle.renderRiddle;
   NumPanel.visible:=false;
 end;
 
@@ -191,36 +179,34 @@ PROCEDURE TSudokuMainForm.FormKeyDown(Sender: TObject; VAR key: word;
   VAR bKey:byte;
 begin
   NumPanel.visible:=false;
-  if not(configuring) then begin
-    bKey:=key;
-    if config.riddle.isPaused and (Shift=[]) and (key=80) then begin
-      config.riddle.switchPause;
-      config.riddle.renderRiddle;
-    end else if not(config.riddle.isPaused) and
-       (Shift=[]) and
-       (key<=105) and
-       (bKey in [8,37..40,46,48..57,80,96..105]) then begin
-      keyboardMode:=true;
-      case bKey of
-        38    : if selectY>0                            then dec(selectY);
-        40    : if selectY<config.riddle.getFieldSize-1 then inc(selectY);
-        37    : if selectX>0                            then dec(selectX);
-        39    : if selectX<config.riddle.getFieldSize-1 then inc(selectX);
-        48, 96: config.riddle.setState(selectX,selectY,0,true);
-        49, 97: config.riddle.setState(selectX,selectY,1,true);
-        50, 98: config.riddle.setState(selectX,selectY,2,true);
-        51, 99: config.riddle.setState(selectX,selectY,3,true);
-        52,100: config.riddle.setState(selectX,selectY,4,true);
-        53,101: config.riddle.setState(selectX,selectY,5,true);
-        54,102: config.riddle.setState(selectX,selectY,6,true);
-        55,103: config.riddle.setState(selectX,selectY,7,true);
-        56,104: config.riddle.setState(selectX,selectY,8,true);
-        57,105: config.riddle.setState(selectX,selectY,9,true);
-         8, 46: config.riddle.clearState(selectX,selectY);
-        80    : config.riddle.switchPause;
-      end; //case
-      config.riddle.renderRiddle;
-    end;
+  bKey:=key;
+  if config.riddle.isPaused and (Shift=[]) and (key=80) then begin
+    config.riddle.switchPause;
+  end else if not(config.riddle.isPaused) and
+     (Shift=[]) and
+     (key<=105) and
+     (bKey in [8,37..40,46,48..57,80,96..105]) then begin
+    case bKey of
+      38    : if selectY>0                            then dec(selectY);
+      40    : if selectY<config.riddle.getFieldSize-1 then inc(selectY);
+      37    : if selectX>0                            then dec(selectX);
+      39    : if selectX<config.riddle.getFieldSize-1 then inc(selectX);
+      48, 96: config.riddle.setState(selectX,selectY,0,true);
+      49, 97: config.riddle.setState(selectX,selectY,1,true);
+      50, 98: config.riddle.setState(selectX,selectY,2,true);
+      51, 99: config.riddle.setState(selectX,selectY,3,true);
+      52,100: config.riddle.setState(selectX,selectY,4,true);
+      53,101: config.riddle.setState(selectX,selectY,5,true);
+      54,102: config.riddle.setState(selectX,selectY,6,true);
+      55,103: config.riddle.setState(selectX,selectY,7,true);
+      56,104: config.riddle.setState(selectX,selectY,8,true);
+      57,105: config.riddle.setState(selectX,selectY,9,true);
+       8, 46: config.riddle.clearState(selectX,selectY);
+      80    : config.riddle.switchPause;
+    end; //case
+    MarkerShape.visible:=true;
+    MarkerShape.Pen.color:=config.view.gridCol;
+    MarkerShape.BoundsRect:=getMarkerBounds(selectX,selectY);
   end;
 end;
 
@@ -229,6 +215,8 @@ PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
     mainImage.height:=screen.height;
     mainImage.width:=screen.width;
     sudoku.mainImage:=mainImage;
+    selectX:=0;
+    selectY:=0;
   end;
 
 PROCEDURE TSudokuMainForm.initButtonPanel(size:byte);

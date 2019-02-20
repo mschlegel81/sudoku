@@ -63,29 +63,31 @@ LazarusResources.Add('TSudokuMainForm','FORMDATA',[
   +#11'NumButton_p'#4'Left'#2'`'#6'Height'#2' '#3'Top'#2'`'#5'Width'#2' '#25'Bo'
   +'rderSpacing.InnerBorder'#2#4#7'Caption'#6#11'NumButton_p'#11'Font.Height'#2
   +#235#7'OnClick'#7#14'NumButtonClick'#10'ParentFont'#8#8'TabOrder'#2#15#0#0#0
-  +#9'TMainMenu'#9'MainMenu1'#4'left'#2'@'#3'top'#3'@'#2#0#9'TMenuItem'#9'MenuI'
-  +'tem1'#7'Caption'#6#5'Datei'#0#9'TMenuItem'#9'MenuItem6'#7'Caption'#6#11'Neu'
-  ,'es Spiel'#0#9'TMenuItem'#12'MenuItemNG04'#7'Caption'#6#3'4x4'#7'OnClick'#7
-  +#17'MenuItemNG04Click'#0#0#9'TMenuItem'#12'MenuItemNG06'#7'Caption'#6#3'6x6'
-  +#7'OnClick'#7#17'MenuItemNG06Click'#0#0#9'TMenuItem'#12'MenuItemNG08'#7'Capt'
-  +'ion'#6#3'8x8'#7'OnClick'#7#17'MenuItemNG08Click'#0#0#9'TMenuItem'#12'MenuIt'
-  +'emNG09'#7'Caption'#6#3'9x9'#7'OnClick'#7#17'MenuItemNG09Click'#0#0#9'TMenuI'
-  +'tem'#12'MenuItemNG12'#7'Caption'#6#5'12x12'#7'OnClick'#7#17'MenuItemNG12Cli'
-  +'ck'#0#0#9'TMenuItem'#12'MenuItemNG15'#7'Caption'#6#5'15x15'#7'OnClick'#7#17
-  +'MenuItemNG15Click'#0#0#9'TMenuItem'#12'MenuItemNG16'#7'Caption'#6#5'16x16'#7
-  +'OnClick'#7#17'MenuItemNG16Click'#0#0#0#9'TMenuItem'#9'MenuItem7'#7'Caption'
-  +#6#11'Bestenliste'#0#9'TMenuItem'#13'MenuItemHOF04'#7'Caption'#6#3'4x4'#7'On'
-  +'Click'#7#18'MenuItemHOF04Click'#0#0#9'TMenuItem'#13'MenuItemHOF06'#7'Captio'
-  +'n'#6#3'6x6'#7'OnClick'#7#18'MenuItemHOF06Click'#0#0#9'TMenuItem'#13'MenuIte'
-  +'mHOF08'#7'Caption'#6#3'8x8'#7'OnClick'#7#18'MenuItemHOF08Click'#0#0#9'TMenu'
-  +'Item'#13'MenuItemHOF09'#7'Caption'#6#3'9x9'#7'OnClick'#7#18'MenuItemHOF09Cl'
-  +'ick'#0#0#9'TMenuItem'#13'MenuItemHOF12'#7'Caption'#6#5'12x12'#7'OnClick'#7
-  +#18'MenuItemHOF12Click'#0#0#9'TMenuItem'#13'MenuItemHOF15'#7'Caption'#6#5'15'
-  +'x15'#7'OnClick'#7#18'MenuItemHOF15Click'#0#0#9'TMenuItem'#13'MenuItemHOF16'
-  +#7'Caption'#6#5'16x16'#7'OnClick'#7#18'MenuItemHOF16Click'#0#0#0#9'TMenuItem'
-  +#9'MenuItem8'#7'Caption'#6#15'Datei erstellen'#7'OnClick'#7#14'MenuItem8Clic'
-  +'k'#0#0#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#7'Beenden'#7'OnClick'#7#14'Me'
-  +'nuItem9Click'#0#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#8'Optionen'#7'On'
-  +'Click'#7#14'MenuItem3Click'#0#0#9'TMenuItem'#9'MenuItem2'#7'Caption'#6#5'Pa'
-  +'use'#7'OnClick'#7#14'MenuItem2Click'#0#0#0#0
+  +#6'TShape'#11'MarkerShape'#4'Left'#3'1'#2#6'Height'#2'\'#3'Top'#3#156#0#5'Wi'
+  +'dth'#2'['#11'Brush.Color'#7#6'clNone'#11'Brush.Style'#7#7'bsClear'#9'Pen.Co'
+  ,'lor'#7#5'clRed'#7'Visible'#8#0#0#9'TMainMenu'#9'MainMenu1'#4'left'#2'@'#3't'
+  +'op'#3'@'#2#0#9'TMenuItem'#9'MenuItem1'#7'Caption'#6#5'Datei'#0#9'TMenuItem'
+  +#9'MenuItem6'#7'Caption'#6#11'Neues Spiel'#0#9'TMenuItem'#12'MenuItemNG04'#7
+  +'Caption'#6#3'4x4'#7'OnClick'#7#17'MenuItemNG04Click'#0#0#9'TMenuItem'#12'Me'
+  +'nuItemNG06'#7'Caption'#6#3'6x6'#7'OnClick'#7#17'MenuItemNG06Click'#0#0#9'TM'
+  +'enuItem'#12'MenuItemNG08'#7'Caption'#6#3'8x8'#7'OnClick'#7#17'MenuItemNG08C'
+  +'lick'#0#0#9'TMenuItem'#12'MenuItemNG09'#7'Caption'#6#3'9x9'#7'OnClick'#7#17
+  +'MenuItemNG09Click'#0#0#9'TMenuItem'#12'MenuItemNG12'#7'Caption'#6#5'12x12'#7
+  +'OnClick'#7#17'MenuItemNG12Click'#0#0#9'TMenuItem'#12'MenuItemNG15'#7'Captio'
+  +'n'#6#5'15x15'#7'OnClick'#7#17'MenuItemNG15Click'#0#0#9'TMenuItem'#12'MenuIt'
+  +'emNG16'#7'Caption'#6#5'16x16'#7'OnClick'#7#17'MenuItemNG16Click'#0#0#0#9'TM'
+  +'enuItem'#9'MenuItem7'#7'Caption'#6#11'Bestenliste'#0#9'TMenuItem'#13'MenuIt'
+  +'emHOF04'#7'Caption'#6#3'4x4'#7'OnClick'#7#18'MenuItemHOF04Click'#0#0#9'TMen'
+  +'uItem'#13'MenuItemHOF06'#7'Caption'#6#3'6x6'#7'OnClick'#7#18'MenuItemHOF06C'
+  +'lick'#0#0#9'TMenuItem'#13'MenuItemHOF08'#7'Caption'#6#3'8x8'#7'OnClick'#7#18
+  +'MenuItemHOF08Click'#0#0#9'TMenuItem'#13'MenuItemHOF09'#7'Caption'#6#3'9x9'#7
+  +'OnClick'#7#18'MenuItemHOF09Click'#0#0#9'TMenuItem'#13'MenuItemHOF12'#7'Capt'
+  +'ion'#6#5'12x12'#7'OnClick'#7#18'MenuItemHOF12Click'#0#0#9'TMenuItem'#13'Men'
+  +'uItemHOF15'#7'Caption'#6#5'15x15'#7'OnClick'#7#18'MenuItemHOF15Click'#0#0#9
+  +'TMenuItem'#13'MenuItemHOF16'#7'Caption'#6#5'16x16'#7'OnClick'#7#18'MenuItem'
+  +'HOF16Click'#0#0#0#9'TMenuItem'#9'MenuItem8'#7'Caption'#6#15'Datei erstellen'
+  +#7'OnClick'#7#14'MenuItem8Click'#0#0#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#7
+  +'Beenden'#7'OnClick'#7#14'MenuItem9Click'#0#0#0#9'TMenuItem'#9'MenuItem3'#7
+  +'Caption'#6#8'Optionen'#7'OnClick'#7#14'MenuItem3Click'#0#0#9'TMenuItem'#9'M'
+  +'enuItem2'#7'Caption'#6#5'Pause'#7'OnClick'#7#14'MenuItem2Click'#0#0#0#0
 ]);

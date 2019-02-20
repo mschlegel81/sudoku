@@ -231,6 +231,16 @@ object SudokuMainForm: TSudokuMainForm
       TabOrder = 15
     end
   end
+  object MarkerShape: TShape
+    Left = 561
+    Height = 92
+    Top = 156
+    Width = 91
+    Brush.Color = clNone
+    Brush.Style = bsClear
+    Pen.Color = clRed
+    Visible = False
+  end
   object MainMenu1: TMainMenu
     left = 64
     top = 576
