@@ -1,1 +1,1 @@
-..\lazarus32\lazbuild.exe sudoku3Project.lpi
+..\lazarus32\lazbuild.exe sudoku3Project.lpi --bm=Default
