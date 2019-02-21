@@ -1,9 +1,10 @@
 UNIT sudoku;
 INTERFACE
-USES serializationUtil,sysutils,ExtCtrls,Graphics,types;
+USES serializationUtil,sysutils,ExtCtrls,Graphics,types,myGenerics;
 CONST
 
   C_firstTime=maxLongint-7019;
+  C_defaultStructureIndex=3;
   C_sudokuStructure:array [0..6] of record
                                       size     :byte;
                                       blockSize:array[0..1] of byte;
@@ -31,14 +32,15 @@ TYPE
   FT_output=PROCEDURE(txt:string);
   T_sudoku=object(T_serializable)
     private
-      el:array of word;
+      el:array [0..255] of word;
       fieldSize,structIdx:byte;
       FUNCTION fullSolve(CONST fillRandom:boolean):T_sudokuState;
     public
       CONSTRUCTOR createUnfilled(size:byte);
       CONSTRUCTOR createFull    (CONST size:byte);
-      CONSTRUCTOR create(CONST size:byte; symm_x,symm_y,symm_center:boolean; difficulty:word);
-      FUNCTION    getSquare(x,y:byte):byte;
+      CONSTRUCTOR create(CONST size:byte; CONST symm_x,symm_y,symm_center:boolean; CONST difficulty:word);
+      FUNCTION    clone(CONST undefList:T_arrayOfLongint):T_sudoku;
+      FUNCTION    getSquare(CONST x,y:byte):byte;
       FUNCTION    given:word;
       DESTRUCTOR  destroy;
       PROCEDURE   solve;
@@ -168,7 +170,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
     begin el[idx]:=el[idx] and excludor; end;
 
   begin
-    setLength(done,length(el));
+    setLength(done,sqr(fieldSize));
     for k:=0 to length(done)-1 do done[k]:=false;
     //---------------------------------------------------//
     //primary randomization                              //
@@ -186,7 +188,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
       //exclude loop:--------------------------------------------------------------------------------------------------------//
       repeat                                                                                                                 //
         progress:=false;                                                                                                     //
-        for k:=0 to length(el)-1 do if not(done[k]) then begin                                                               //
+        for k:=0 to sqr(fieldSize)-1 do if not(done[k]) then begin                                                           //
           if determined(el[k]) then begin                                                                                    //
             //exclude step:----------------------------------------------------------------------------------------------//  //
             //If a field is determined, its number may not occur in the same row, column or block.                       //  //
@@ -212,7 +214,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
       until not(progress);                                                                                                   //
       //----------------------------------------------------------------------------------------------------------:exclude loop
       progress:=false;
-      for k:=0 to length(el)-1 do if not(done[k]) and not(determined(el[k])) then begin
+      for k:=0 to sqr(fieldSize)-1 do if not(done[k]) and not(determined(el[k])) then begin
         //---------------------------------------------------------------------------------------------------------------//
         //include step                                                                                                   //
         //                                                                                                               //
@@ -261,7 +263,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
             el[k]:=C_bit[i0];                                     //
             totalProgress:=true;                                  //
           end else inc(k);                                        //
-        until totalProgress or (k=length(el));                    //
+        until totalProgress or (k=sqr(fieldSize));                //
       end;                                                        //
       //                                                          //
       //randomize step                                            //
@@ -275,7 +277,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
       if el[k]=0 then result:=ss_unsolveable
       else if (result=ss_solved) and not(determined(el[k])) then result:=ss_unknown;
       inc(k);
-    until (k=length(el)) or (result=ss_unsolveable);
+    until (k=sqr(fieldSize)) or (result=ss_unsolveable);
     setLength(done,0);
   end; //fullSolve
 
@@ -283,17 +285,14 @@ CONSTRUCTOR T_sudoku.createUnfilled(size: byte);
   VAR k:word;
   begin
     //correct size
-    if size< 4 then size:= 4;
-    if size>16 then size:=16;
+    if size<C_sudokuStructure[0                          ].size then size:=C_sudokuStructure[0                          ].size;
+    if size>C_sudokuStructure[length(C_sudokuStructure)-1].size then size:=C_sudokuStructure[length(C_sudokuStructure)-1].size;
     //lookup structure index matching size
     structIdx:=0;
-    while (structIdx<7) and (C_sudokuStructure[structIdx].size<size) do inc(structIdx);
-    //if ss_unknown size was entered, select size=9x9 <-> structIdx=3
-    if structIdx>=7 then structIdx:=3;
+    while (structIdx<length(C_sudokuStructure)) and (C_sudokuStructure[structIdx].size<size) do inc(structIdx);
+    if structIdx>=7 then structIdx:=C_defaultStructureIndex;
     //determine actual field size
     fieldSize:=C_sudokuStructure[structIdx].size;
-    //allocate cells array
-    setLength(el,fieldSize*fieldSize);
     //set all cells to ss_unknown value
     for k:=0 to length(el)-1 do el[k]:=C_sudokuStructure[structIdx].any;
   end;
@@ -303,78 +302,59 @@ CONSTRUCTOR T_sudoku.createFull(CONST size: byte);
     repeat createUnfilled(size); until fullSolve(true)=ss_solved;
   end;
 
-CONSTRUCTOR T_sudoku.create(CONST size: byte; symm_x, symm_y, symm_center: boolean;
-  difficulty: word);
-  VAR copy:array of word;
-      k:word;
-      undefTries,outerUndefTries:word;
-      undefList:array of word;
-      lastUndef:longint;
-
-  FUNCTION inUndefList(w:word):boolean;
-    VAR i:longint;
+CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center: boolean; CONST difficulty: word);
+  FUNCTION extendUndefList(CONST undefList:T_arrayOfLongint; CONST i,j:byte):T_arrayOfLongint;
+    FUNCTION mx(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*             (k div fieldSize) ; end;
+    FUNCTION my(CONST k:longint):longint; begin result:=            (k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
+    FUNCTION mc(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
+    VAR k:longint;
     begin
-      i:=0;
-      result:=false;
-      while (i<length(undefList)) and not(result) do begin
-        result:=undefList[i]=w;
-        inc(i);
-      end;
+      result:=j*fieldSize+i;
+      if symm_x      then for k:=0 to length(result)-1 do append(result,mx(result[k]));
+      if symm_y      then for k:=0 to length(result)-1 do append(result,my(result[k]));
+      if symm_center then for k:=0 to length(result)-1 do append(result,mc(result[k]));
+      append(result,undefList);
+      sortUnique(result);
     end;
 
-  PROCEDURE undefine(i,j:byte; sx,sy,sc:boolean);
-    begin
-      if          sx then begin undefine(fieldSize-1-i,            j,false,sy   ,sc   );
-                                undefine(          i,              j,false,sy   ,sc   );
-      end else if sy then begin undefine(          i,fieldSize-1-j,false,false,sc   );
-                                undefine(          i,              j,false,false,sc   );
-      end else if sc then begin undefine(fieldSize-1-i,fieldSize-1-j,false,false,false);
-                                undefine(          i,              j,false,false,false);
-      end else if not(inUndefList(j*fieldSize+i)) then begin
-        setLength(undefList,length(undefList)+1);
-        undefList[length(undefList)-1]:=j*fieldSize+i;
-      end;
-    end;
+  VAR remainingDeadEnds:longint=100;
 
-  PROCEDURE applyUndefList;
-    VAR i:longint;
+  FUNCTION findUndefList(CONST listBefore:T_arrayOfLongint):T_arrayOfLongint;
     begin
-      for i:=0 to length(el)-1 do el[i]:=copy[i];
-      for i:=0 to length(undefList)-1 do el[undefList[i]]:=C_sudokuStructure[structIdx].any;
-    end;
-
-  begin
-    //create ss_solved field
-    createFull(size);
-    //create copy of ss_solved riddle
-    setLength(copy,length(el)); for k:=0 to length(el)-1 do copy[k]:=el[k];
-    outerUndefTries:=0;
-    repeat
-      setLength(undefList,0);
-      undefTries:=0;
+      if (remainingDeadEnds<0) or (length(listBefore)>=difficulty) then exit(listBefore);
       repeat
-        lastUndef:=length(undefList);
-        undefine(random(fieldSize),random(fieldSize),symm_x,symm_y,symm_center);
-        applyUndefList;
-        if (fullSolve(false)<>ss_solved) then begin
-          setLength(undefList,lastUndef);
-          inc(undefTries);
+        result:=extendUndefList(listBefore,random(fieldSize),random(fieldSize));
+        if clone(result).fullSolve(false)=ss_solved
+        then exit(findUndefList(result))
+        else begin
+          dec(remainingDeadEnds);
+          if remainingDeadEnds<0 then exit(listBefore);
         end;
-      until (length(undefList)>=difficulty) or (undefTries>40);
-      inc(outerUndefTries);
-    until (length(undefList)>=difficulty) or (outerUndefTries>40);
-    applyUndefList;
-    setLength(undefList,0);
-    setLength(copy,0);
+      until false;
+    end;
+
+  VAR k:longint;
+  begin
+    createFull(size);
+    for k in findUndefList(C_EMPTY_LONGINT_ARRAY) do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
-FUNCTION T_sudoku.getSquare(x, y: byte): byte;
+FUNCTION T_sudoku.clone(CONST undefList:T_arrayOfLongint):T_sudoku;
+  VAR k:longint;
+  begin
+    result.createUnfilled(fieldSize);
+    for k:=0 to length(el)-1 do result.el[k]:=el[k];
+    for k in undefList do result.el[k]:=C_sudokuStructure[structIdx].any;
+  end;
+
+FUNCTION T_sudoku.getSquare(CONST x, y: byte): byte;
+  VAR k:longint;
   begin
     if (x<fieldSize) and
        (y<fieldSize) then begin
-      x+=y*fieldSize;
+      k:=x+y*fieldSize;
       result:=0;
-      while (result<fieldSize) and (el[x]<>C_bit[result]) do inc(result);
+      while (result<fieldSize) and (el[k]<>C_bit[result]) do inc(result);
       if result>=fieldSize then result:=255
                            else inc(result);
     end else result:=255;
@@ -384,12 +364,12 @@ FUNCTION T_sudoku.given: word;
   VAR i,j:word;
   begin
     result:=0;
-    for i:=0 to length(el)-1 do
+    for i:=0 to sqr(fieldSize)-1 do
     for j:=0 to fieldSize-1 do if (el[i]=C_bit[j]) then inc(result);
   end;
 
 DESTRUCTOR T_sudoku.destroy;
-  begin setLength(el,0); end;
+  begin end;
 
 PROCEDURE T_sudoku.solve;
   begin fullSolve(false); end;
@@ -457,7 +437,8 @@ PROCEDURE T_sudoku.writeTxtForm(CONST writeOut, writelnOut: FT_output);
     writelnOut(' '); //abschlieﬂende Leerzeile
   end;
 
-PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output; CONST enumString: string; CONST small: boolean);
+PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output;
+  CONST enumString: string; CONST small: boolean);
   FUNCTION numString(w:word):string;
     VAR i:byte;
     begin
@@ -530,8 +511,7 @@ FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
                                   (structIdx in [0..6]) and
                                   (C_sudokuStructure[structIdx].size=fieldSize);
     if result then begin
-      setLength(el,sqr(fieldSize));
-      for i:=0 to length(el)-1 do begin
+      for i:=0 to sqr(fieldSize)-1 do begin
         el[i]:=stream.readWord; result:=result and (el[i]<=C_sudokuStructure[structIdx].any);
       end;
     end;
@@ -543,7 +523,7 @@ PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
   begin
     stream.writeByte(fieldSize);
     stream.writeByte(structIdx);
-    for i:=0 to length(el)-1 do stream.writeWord(el[i]);
+    for i:=0 to sqr(fieldSize)-1 do stream.writeWord(el[i]);
   end;
 
 FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
