@@ -9,7 +9,6 @@
       </Flags>
       <MainUnit Value="0"/>
       <Title Value="Sudoku 3"/>
-      <Scaled Value="True"/>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
