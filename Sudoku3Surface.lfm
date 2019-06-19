@@ -5,13 +5,12 @@ object SudokuMainForm: TSudokuMainForm
   Width = 856
   HorzScrollBar.Page = 349
   VertScrollBar.Page = 479
-  BorderStyle = bsNone
   Caption = 'Sudoku'
-  ClientHeight = 780
+  ClientHeight = 785
   ClientWidth = 856
   Constraints.MinHeight = 500
   Constraints.MinWidth = 350
-  DesignTimePPI = 144
+  DesignTimePPI = 120
   Font.CharSet = OEM_CHARSET
   Menu = MainMenu1
   OnCreate = FormCreate
@@ -19,14 +18,15 @@ object SudokuMainForm: TSudokuMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.0.4'
+  LCLVersion = '2.0.2.0'
   Scaled = False
   WindowState = wsMaximized
   object MainImage: TImage
     Left = 0
-    Height = 584
+    Height = 785
     Top = 0
-    Width = 464
+    Width = 856
+    Align = alClient
     OnMouseDown = MainImageMouseDown
   end
   object NumPanel: TPanel

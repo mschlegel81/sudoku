@@ -171,6 +171,8 @@ end;
 
 PROCEDURE TSudokuMainForm.FormResize(Sender: TObject);
   begin
+    mainImage.picture.Bitmap.setSize(mainImage.width,mainImage.height);
+    initButtonPanel(config.riddle.getFieldSize);
     config.riddle.renderRiddle;
   end;
 
@@ -212,8 +214,6 @@ end;
 
 PROCEDURE TSudokuMainForm.FormCreate(Sender: TObject);
   begin
-    mainImage.height:=screen.height;
-    mainImage.width:=screen.width;
     sudoku.mainImage:=mainImage;
     selectX:=0;
     selectY:=0;

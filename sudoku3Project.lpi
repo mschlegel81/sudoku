@@ -9,6 +9,7 @@
       </Flags>
       <MainUnit Value="0"/>
       <Title Value="Sudoku 3"/>
+      <Icon Value="0"/>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
@@ -76,9 +77,10 @@
       <Unit0>
         <Filename Value="sudoku3Project.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="53" Y="8"/>
+        <EditorIndex Value="1"/>
+        <CursorPos Y="17"/>
         <UsageCount Value="44"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="Sudoku3Surface.pas"/>
@@ -86,22 +88,19 @@
         <ComponentName Value="SudokuMainForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="137"/>
-        <CursorPos X="25" Y="174"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="151"/>
+        <CursorPos X="21" Y="166"/>
         <UsageCount Value="44"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="sudoku.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="304"/>
-        <CursorPos X="36" Y="320"/>
+        <CursorPos X="33" Y="343"/>
         <UsageCount Value="20"/>
-        <Bookmarks Count="1">
-          <Item0 X="41" Y="349" ID="1"/>
-        </Bookmarks>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -153,7 +152,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="sudokuHighscores"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="21"/>
         <CursorPos X="29" Y="28"/>
         <UsageCount Value="29"/>
@@ -201,7 +200,7 @@
       </Unit13>
       <Unit14>
         <Filename Value="..\lazarus64\fpc\3.0.4\source\rtl\objpas\sysutils\datih.inc"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="133"/>
         <CursorPos X="10" Y="155"/>
         <UsageCount Value="12"/>
@@ -209,7 +208,7 @@
       </Unit14>
       <Unit15>
         <Filename Value="..\lazarus64\fpc\3.0.4\source\rtl\objpas\sysutils\sysinth.inc"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="17"/>
         <CursorPos X="3" Y="33"/>
         <UsageCount Value="12"/>
@@ -218,7 +217,7 @@
       <Unit16>
         <Filename Value="..\lazarus64\lcl\controls.pp"/>
         <UnitName Value="Controls"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="1671"/>
         <CursorPos X="14" Y="1694"/>
         <UsageCount Value="11"/>
@@ -234,7 +233,7 @@
       <Unit18>
         <Filename Value="..\lazarus64\fpc\3.0.4\source\rtl\objpas\types.pp"/>
         <UnitName Value="Types"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="61"/>
         <CursorPos X="3" Y="83"/>
         <UsageCount Value="11"/>
@@ -244,121 +243,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="42" Column="19" TopLine="20"/>
+        <Caret Line="191" Column="68" TopLine="154"/>
       </Position1>
       <Position2>
         <Filename Value="sudoku.pas"/>
+        <Caret Line="217" Column="38" TopLine="181"/>
       </Position2>
       <Position3>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="330" Column="19" TopLine="311"/>
+        <Caret Line="253" Column="32" TopLine="230"/>
       </Position3>
       <Position4>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="310" Column="15" TopLine="288"/>
+        <Caret Line="279" Column="14" TopLine="244"/>
       </Position4>
       <Position5>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="339" Column="128" TopLine="319"/>
+        <Caret Line="295" Column="27" TopLine="260"/>
       </Position5>
       <Position6>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="355" TopLine="328"/>
+        <Caret Line="297" Column="26" TopLine="260"/>
       </Position6>
       <Position7>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="35" Column="27"/>
+        <Caret Line="323" Column="30" TopLine="286"/>
       </Position7>
       <Position8>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="296" TopLine="275"/>
+        <Caret Line="352" Column="26" TopLine="317"/>
       </Position8>
       <Position9>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="380" Column="9" TopLine="358"/>
+        <Caret Line="354" Column="26" TopLine="317"/>
       </Position9>
       <Position10>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="534" Column="26" TopLine="497"/>
+        <Caret Line="362" Column="32" TopLine="338"/>
       </Position10>
       <Position11>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="529" Column="28" TopLine="512"/>
+        <Caret Line="41" Column="22" TopLine="24"/>
       </Position11>
       <Position12>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="375" Column="17" TopLine="353"/>
+        <Caret Line="330" TopLine="308"/>
       </Position12>
       <Position13>
         <Filename Value="sudoku.pas"/>
+        <Caret Line="37" Column="16" TopLine="14"/>
       </Position13>
       <Position14>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="173" Column="34" TopLine="136"/>
+        <Filename Value="..\lazarus64\fpc\3.0.4\source\rtl\objpas\types.pp"/>
+        <Caret Line="83" Column="3" TopLine="61"/>
       </Position14>
       <Position15>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="191" Column="68" TopLine="154"/>
+        <Caret Line="324" Column="33" TopLine="302"/>
       </Position15>
       <Position16>
         <Filename Value="sudoku.pas"/>
-        <Caret Line="217" Column="38" TopLine="181"/>
+        <Caret Line="325" Column="7" TopLine="302"/>
       </Position16>
       <Position17>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="253" Column="32" TopLine="230"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="147" Column="26" TopLine="137"/>
       </Position17>
       <Position18>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="279" Column="14" TopLine="244"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="99" Column="26" TopLine="89"/>
       </Position18>
       <Position19>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="295" Column="27" TopLine="260"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="174" Column="5" TopLine="151"/>
       </Position19>
       <Position20>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="297" Column="26" TopLine="260"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="99" TopLine="89"/>
       </Position20>
       <Position21>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="323" Column="30" TopLine="286"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="174" TopLine="151"/>
       </Position21>
       <Position22>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="352" Column="26" TopLine="317"/>
+        <Filename Value="sudoku3Project.lpr"/>
+        <Caret Line="17"/>
       </Position22>
       <Position23>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="354" Column="26" TopLine="317"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="174" Column="5" TopLine="151"/>
       </Position23>
       <Position24>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="362" Column="32" TopLine="338"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="101" Column="27" TopLine="78"/>
       </Position24>
       <Position25>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="41" Column="22" TopLine="24"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="97" Column="3" TopLine="78"/>
       </Position25>
       <Position26>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="330" TopLine="308"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="61" Column="15" TopLine="39"/>
       </Position26>
       <Position27>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="37" Column="16" TopLine="14"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="97" Column="61" TopLine="59"/>
       </Position27>
       <Position28>
-        <Filename Value="..\lazarus64\fpc\3.0.4\source\rtl\objpas\types.pp"/>
-        <Caret Line="83" Column="3" TopLine="61"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="101" Column="36" TopLine="63"/>
       </Position28>
       <Position29>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="324" Column="33" TopLine="302"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="174" Column="63" TopLine="136"/>
       </Position29>
       <Position30>
-        <Filename Value="sudoku.pas"/>
-        <Caret Line="325" Column="7" TopLine="302"/>
+        <Filename Value="Sudoku3Surface.pas"/>
+        <Caret Line="217" TopLine="179"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
