@@ -166,7 +166,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
                   (v=C_bit[12]) or (v=C_bit[13]) or (v=C_bit[14]) or (v=C_bit[15]);
     end;
 
-  PROCEDURE exclude(idx:word); inline;
+  PROCEDURE Exclude(idx:word); inline;
     begin el[idx]:=el[idx] and excludor; end;
 
   begin
@@ -196,15 +196,15 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
             i0:=k mod fieldSize;                                                                                         //  //
             j0:=k div fieldSize;                                                                                         //  //
             //exclude value in row:                                                                                      //  //
-            for i1:=0 to fieldSize-1 do if i1<>i0 then exclude(j0*fieldSize+i1);                                         //  //
+            for i1:=0 to fieldSize-1 do if i1<>i0 then Exclude(j0*fieldSize+i1);                                         //  //
             //exclude value in column:                                                                                   //  //
-            for j1:=0 to fieldSize-1 do if j1<>j0 then exclude(j1*fieldSize+i0);                                         //  //
+            for j1:=0 to fieldSize-1 do if j1<>j0 then Exclude(j1*fieldSize+i0);                                         //  //
             //exclude value in block:                                                                                    //  //
             for i1:=(i0 div C_sudokuStructure[structIdx].blockSize[0])   *C_sudokuStructure[structIdx].blockSize[0]   to //  //
                    ((i0 div C_sudokuStructure[structIdx].blockSize[0])+1)*C_sudokuStructure[structIdx].blockSize[0]-1 do //  //
             for j1:=(j0 div C_sudokuStructure[structIdx].blockSize[1])   *C_sudokuStructure[structIdx].blockSize[1]   to //  //
                    ((j0 div C_sudokuStructure[structIdx].blockSize[1])+1)*C_sudokuStructure[structIdx].blockSize[1]-1 do //  //
-            if (i1<>i0) or (j1<>j0) then exclude(j1*fieldSize+i1);                                                       //  //
+            if (i1<>i0) or (j1<>j0) then Exclude(j1*fieldSize+i1);                                                       //  //
             done[k]      :=true;                                                                                         //  //
             progress     :=true;                                                                                         //  //
             totalProgress:=true;                                                                                         //  //
