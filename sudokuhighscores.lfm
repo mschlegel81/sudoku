@@ -1,20 +1,20 @@
 object highscoresForm: ThighscoresForm
   Left = 858
-  Height = 360
+  Height = 521
   Top = 256
-  Width = 480
+  Width = 585
   Caption = 'Bestenliste'
-  ClientHeight = 360
-  ClientWidth = 480
-  DesignTimePPI = 144
+  ClientHeight = 521
+  ClientWidth = 585
+  DesignTimePPI = 120
   OnShow = TabControl1Change
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.0.4'
+  LCLVersion = '2.2.2.0'
   object TabControl1: TTabControl
     Left = 0
-    Height = 41
+    Height = 34
     Top = 0
-    Width = 480
+    Width = 585
     OnChange = TabControl1Change
     TabHeight = 36
     TabIndex = 0
@@ -32,19 +32,19 @@ object highscoresForm: ThighscoresForm
   end
   object HOFGroupBox: TGroupBox
     Left = 0
-    Height = 319
-    Top = 41
-    Width = 480
+    Height = 487
+    Top = 34
+    Width = 585
     Align = alClient
     Caption = 'Bestenliste'
-    ClientHeight = 289
-    ClientWidth = 476
+    ClientHeight = 462
+    ClientWidth = 581
     TabOrder = 1
     object HOFStringGrid: TStringGrid
       Left = 0
-      Height = 264
+      Height = 441
       Top = 0
-      Width = 476
+      Width = 581
       Align = alClient
       GridLineWidth = 0
       RowCount = 21
@@ -131,11 +131,11 @@ object highscoresForm: ThighscoresForm
     end
     object Button6: TButton
       Left = 0
-      Height = 25
-      Top = 264
-      Width = 476
+      Height = 21
+      Top = 441
+      Width = 581
       Align = alBottom
-      BorderSpacing.InnerBorder = 4
+      BorderSpacing.InnerBorder = 3
       Cancel = True
       Caption = 'O.K.'
       ModalResult = 1

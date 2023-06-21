@@ -16,6 +16,7 @@ TYPE
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
@@ -62,6 +63,7 @@ TYPE
       Shift: TShiftState; X, Y: integer);
     PROCEDURE MenuItem2Click(Sender: TObject);
     PROCEDURE MenuItem3Click(Sender: TObject);
+    PROCEDURE MenuItem4Click(Sender: TObject);
     PROCEDURE MenuItem8Click(Sender: TObject);
     PROCEDURE MenuItem9Click(Sender: TObject);
     PROCEDURE MenuItemHOF04Click(Sender: TObject);
@@ -135,6 +137,17 @@ PROCEDURE TSudokuMainForm.MenuItem3Click(Sender: TObject);
   begin
     config.riddle.pauseGame;
     showOptions;
+  end;
+
+PROCEDURE TSudokuMainForm.MenuItem4Click(Sender: TObject);
+  begin
+    if WindowState=wsFullScreen then begin
+      WindowState:=wsMaximized;
+      BorderStyle:=bsSizeable;
+    end else begin
+      WindowState:=wsFullScreen;
+      BorderStyle:=bsNone;
+    end;
   end;
 
 PROCEDURE TSudokuMainForm.MenuItem8Click(Sender: TObject);

@@ -1,7 +1,7 @@
 object SudokuMainForm: TSudokuMainForm
-  Left = 1038
+  Left = 466
   Height = 810
-  Top = 85
+  Top = 106
   Width = 856
   HorzScrollBar.Page = 349
   VertScrollBar.Page = 479
@@ -18,7 +18,7 @@ object SudokuMainForm: TSudokuMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.2.0'
+  LCLVersion = '2.2.2.0'
   Scaled = False
   WindowState = wsMaximized
   object MainImage: TImage
@@ -242,8 +242,8 @@ object SudokuMainForm: TSudokuMainForm
     Visible = False
   end
   object MainMenu1: TMainMenu
-    left = 64
-    top = 576
+    Left = 64
+    Top = 576
     object MenuItem1: TMenuItem
       Caption = 'Datei'
       object MenuItem6: TMenuItem
@@ -324,6 +324,11 @@ object SudokuMainForm: TSudokuMainForm
     object MenuItem2: TMenuItem
       Caption = 'Pause'
       OnClick = MenuItem2Click
+    end
+    object MenuItem4: TMenuItem
+      Caption = 'Vollbild'
+      ShortCut = 122
+      OnClick = MenuItem4Click
     end
   end
 end

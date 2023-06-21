@@ -132,7 +132,9 @@ PROCEDURE writeLatexHeader(writelnOut:FT_output);
 FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
 FUNCTION getMarkerBounds(CONST ix,iy:longint):TRect;
 IMPLEMENTATION
+USES BGRABitmapTypes,BGRABitmap,BGRAGraphics;
 CONST C_bit:array[0..15] of word=(1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768);
+VAR tempImage:TBGRABitmap=nil;
 
 FUNCTION getMarkerBounds(CONST ix,iy:longint):TRect;
   begin
@@ -170,6 +172,7 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
     begin el[idx]:=el[idx] and excludor; end;
 
   begin
+    initialize(done);
     setLength(done,sqr(fieldSize));
     for k:=0 to length(done)-1 do done[k]:=false;
     //---------------------------------------------------//
@@ -317,26 +320,45 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center:
       sortUnique(result);
     end;
 
-  VAR remainingDeadEnds:longint=100;
+  FUNCTION initialListTakingSymmetriesIntoAccount:T_arrayOfLongint;
+    VAR ignored:T_arrayOfLongint;
+        i,j,k:longint;
+    FUNCTION isIgnored(CONST index:longint):boolean;
+      VAR ig:longint;
+      begin result:=false; for ig in ignored do if ig=index then exit(true); end;
 
-  FUNCTION findUndefList(CONST listBefore:T_arrayOfLongint):T_arrayOfLongint;
     begin
-      if (remainingDeadEnds<0) or (length(listBefore)>=difficulty) then exit(listBefore);
-      repeat
-        result:=extendUndefList(listBefore,random(fieldSize),random(fieldSize));
-        if clone(result).fullSolve(false)=ss_solved
-        then exit(findUndefList(result))
-        else begin
-          dec(remainingDeadEnds);
-          if remainingDeadEnds<0 then exit(listBefore);
-        end;
-      until false;
+      initialize(result);  setLength(result ,0);
+      initialize(ignored); setLength(ignored,0);
+      for k:=0 to fieldSize*fieldSize-1 do if not(isIgnored(k)) then begin
+        append(result,k);
+        ignored:=extendUndefList(ignored,k mod fieldSize,k div fieldSize);
+      end;
+      for i:=0 to length(result)-1 do begin
+        repeat j:=random(length(result)) until j<>i;
+        k:=result[i]; result[i]:=result[j]; result[j]:=k;
+      end;
     end;
 
-  VAR k:longint;
+  VAR undefList,
+      extendedUndefList,
+      undefCandidates:T_arrayOfLongint;
+      k:longint;
   begin
     createFull(size);
-    for k in findUndefList(C_EMPTY_LONGINT_ARRAY) do el[k]:=C_sudokuStructure[structIdx].any;
+
+    undefList:=C_EMPTY_LONGINT_ARRAY;
+    undefCandidates:=initialListTakingSymmetriesIntoAccount;
+
+    while (length(undefList)<difficulty) and (length(undefCandidates)>0) do begin
+      k:=undefCandidates       [length(undefCandidates)-1];
+      setLength(undefCandidates,length(undefCandidates)-1);
+
+      extendedUndefList:=extendUndefList(undefList,k mod fieldSize,k div fieldSize);
+      if clone(extendedUndefList).fullSolve(false)=ss_solved then undefList:=extendedUndefList;
+    end;
+
+    for k in undefList do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
 FUNCTION T_sudoku.clone(CONST undefList:T_arrayOfLongint):T_sudoku;
@@ -629,8 +651,7 @@ PROCEDURE T_sudokuRiddle.checkConflicts;
   end;
 
 CONSTRUCTOR T_sudokuRiddle.create;
-  begin
-  end;
+  begin  end;
 
 PROCEDURE T_sudokuRiddle.setState(CONST x, y: byte; value: byte;
   CONST append: boolean);
@@ -673,8 +694,6 @@ FUNCTION T_sudokuRiddle.givenState(CONST x, y: byte): boolean;
   end;
 
 PROCEDURE T_sudokuRiddle.renderRiddle;
-  VAR gridTop,gridBottom:longint;
-
   FUNCTION interpolateColor(y:longint):longint;
     VAR r,g,b:byte;
         int1,int2:word;
@@ -687,99 +706,95 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
          +int2*((config.view.bgColTop    shr  8) and 255)) shr 12;
       b:=(int1*((config.view.bgColBottom shr 16) and 255)
          +int2*((config.view.bgColTop    shr 16) and 255)) shr 12;
-      interpolateColor:=r or g shl 8 or b shl 16;
-    end;
-
-  FUNCTION interpolateColor2(y:longint):longint;
-    VAR r,g,b:byte;
-        int1,int2:word;
-    begin
-      int1:=(4096*y) div (mainImage.height);
-      int2:=4096-int1;
-      r:=(int1*((gridBottom       ) and 255)
-         +int2*((gridTop          ) and 255)) shr 12;
-      g:=(int1*((gridBottom shr  8) and 255)
-         +int2*((gridTop    shr  8) and 255)) shr 12;
-      b:=(int1*((gridBottom shr 16) and 255)
-         +int2*((gridTop    shr 16) and 255)) shr 12;
-      interpolateColor2:=r or g shl 8 or b shl 16;
-    end;
-
-  PROCEDURE vLine(x,y0,y1:longint);
-    VAR y:longint;
-    begin
-      for y:=y0 to y1 do mainImage.Canvas.Pixels[x,y]:=interpolateColor2(y);
+      interpolateColor:=b or g shl 8 or r shl 16;
     end;
 
   CONST sudokuChar:array [0..6] of char=('S','U','D','O','K','U',' ');
 
-  VAR x,y:longint;
+  VAR x,y, color:longint;
       txt:string;
+      px: PCardinal;
+      gridColor:TBGRAPixel;
   begin
-    gridTop:=(((((config.view.bgColTop       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
-             (((((config.view.bgColTop shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
-             (((((config.view.bgColTop shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
-    gridBottom:=(((((config.view.bgColBottom       ) and 255)+((config.view.gridCol       ) and 255)) shr 1)       ) or
-                (((((config.view.bgColBottom shr  8) and 255)+((config.view.gridCol shr  8) and 255)) shr 1) shl  8) or
-                (((((config.view.bgColBottom shr 16) and 255)+((config.view.gridCol shr 16) and 255)) shr 1) shl 16);
+    if tempImage=nil
+    then tempImage:=TBGRABitmap.create(mainImage.width,mainImage.height)
+    else tempImage.setSize            (mainImage.width,mainImage.height);
+    tempImage.AntialiasingDrawMode:=dmLinearBlend;
+    for y:=0 to tempImage.height-1 do begin
+      px:=PCardinal(tempImage.ScanLine[y]);
+      color:=interpolateColor(y);
+      for x:=0 to tempImage.width-1 do begin
+        px^:=color;
+        inc(px);
+      end;
+    end;
+    tempImage.InvalidateBitmap;
 
     quadSize:=10;
     while  (quadSize*fieldSize*1.1<mainImage.width    )
        and (quadSize*fieldSize*1.1<mainImage.height-19) do inc(quadSize);
     y0:=(mainImage.height-1-fieldSize*quadSize) shr 1;
     x0:=(mainImage.width   -fieldSize*quadSize) shr 1;
-    for y:=0 to mainImage.height-1 do begin
-      mainImage.Canvas.Pen.color:=interpolateColor(y);
-      mainImage.Canvas.line(0,y,mainImage.width,y);
-    end;
+
+    gridColor.FromColor(config.view.gridCol,5);
+    tempImage.CanvasBGRA.Pen.BGRAColor:=gridColor;
+    tempImage.CanvasBGRA.AntialiasingMode:=amOn;
 
     for x:=0 to fieldSize do begin
       if x mod C_sudokuStructure[modeIdx].blockSize[0]<>0 then begin
-        vLine(x0+x*quadSize,y0-1,y0+fieldSize*quadSize+1);
+        tempImage.CanvasBGRA.MoveTo(x0+x*quadSize,y0-1);
+        tempImage.CanvasBGRA.LineTo(x0+x*quadSize,y0+fieldSize*quadSize+1);
       end;
       if x mod C_sudokuStructure[modeIdx].blockSize[1]<>0 then begin
-        mainImage.Canvas.Pen.color:=interpolateColor2(y0+x*quadSize);
-        mainImage.Canvas.line(x0-1,y0+x*quadSize,  x0+fieldSize*quadSize+1,y0+x*quadSize  );
+        tempImage.CanvasBGRA.MoveTo(x0-1,y0+x*quadSize);
+        tempImage.CanvasBGRA.LineTo(x0+fieldSize*quadSize+1,y0+x*quadSize  );
       end;
     end;
 
-    mainImage.Canvas.Pen.color:=config.view.gridCol;
+    gridColor.FromColor(config.view.gridCol);
+    tempImage.CanvasBGRA.Pen.BGRAColor:=gridColor;
     for x:=0 to fieldSize do begin
       if x mod C_sudokuStructure[modeIdx].blockSize[0]=0 then begin
-        mainImage.Canvas.line(x0+x*quadSize-1,y0-1,x0+x*quadSize-1,y0+fieldSize*quadSize+1);
-        mainImage.Canvas.line(x0+x*quadSize+1,y0-1,x0+x*quadSize+1,y0+fieldSize*quadSize+1);
+        tempImage.CanvasBGRA.MoveTo(x0+x*quadSize-1,y0-1);
+        tempImage.CanvasBGRA.LineTo(x0+x*quadSize-1,y0+fieldSize*quadSize+1);
+        tempImage.CanvasBGRA.MoveTo(x0+x*quadSize+1,y0-1);
+        tempImage.CanvasBGRA.LineTo(x0+x*quadSize+1,y0+fieldSize*quadSize+1);
       end;
       if x mod C_sudokuStructure[modeIdx].blockSize[1]=0 then begin
-        mainImage.Canvas.line(x0-1,y0+x*quadSize-1,x0+fieldSize*quadSize+1,y0+x*quadSize-1);
-        mainImage.Canvas.line(x0-1,y0+x*quadSize+1,x0+fieldSize*quadSize+1,y0+x*quadSize+1);
+        tempImage.CanvasBGRA.MoveTo(x0-1                   ,y0+x*quadSize-1);
+        tempImage.CanvasBGRA.LineTo(x0+fieldSize*quadSize+1,y0+x*quadSize-1);
+        tempImage.CanvasBGRA.MoveTo(x0-1,y0+x*quadSize+1);
+        tempImage.CanvasBGRA.LineTo(x0+fieldSize*quadSize+1,y0+x*quadSize+1);
       end;
     end;
 
-    mainImage.Canvas.Brush.style:=bsClear;
-    mainImage.Canvas.Font.size:=round(quadSize*0.9);
-    mainImage.Canvas.Font.height:=round(quadSize*0.9);
-    mainImage.Canvas.Font.name  :=config.Font.name;
-    mainImage.Canvas.Font.color:=config.view.givenCol;
-    if config.Font.bold and config.Font.italic then mainImage.Canvas.Font.style:=[fsBold,fsItalic]
-    else if config.Font.bold                   then mainImage.Canvas.Font.style:=[fsBold]
-    else if config.Font.italic                 then mainImage.Canvas.Font.style:=[fsItalic]
-                                               else mainImage.Canvas.Font.style:=[];
+    tempImage.Canvas.Brush.style:=bsClear;
+    tempImage.Canvas.Font.height:=round(quadSize*0.9);
+    tempImage.Canvas.Font.height:=round(quadSize*0.9);
+    tempImage.Canvas.Font.name  :=config.Font.name;
+    tempImage.Canvas.Font.color:=config.view.givenCol;
+    if config.Font.bold and config.Font.italic then tempImage.Canvas.Font.style:=[fsBold,fsItalic]
+    else if config.Font.bold                   then tempImage.Canvas.Font.style:=[fsBold]
+    else if config.Font.italic                 then tempImage.Canvas.Font.style:=[fsItalic]
+                                               else tempImage.Canvas.Font.style:=[];
     if paused then for x:=0 to fieldSize-1 do
     for y:=0 to fieldSize-1 do begin
       txt:=sudokuChar[(x+y*fieldSize) mod 7];
-      mainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-mainImage.Canvas.textWidth(txt) shr 1),
+      tempImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-tempImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end else for x:=0 to fieldSize-1 do
     for y:=0 to fieldSize-1 do if (state[x,y].value<255) then  begin
       if state[x,y].given
-        then mainImage.Canvas.Font.color:=config.view.givenCol
+        then tempImage.Canvas.Font.color:=config.view.givenCol
       else if state[x,y].conflicting and config.difficulty.markErrors
-        then mainImage.Canvas.Font.color:=config.view.confCol
-        else mainImage.Canvas.Font.color:=config.view.neutralCol;
+        then tempImage.Canvas.Font.color:=config.view.confCol
+        else tempImage.Canvas.Font.color:=config.view.neutralCol;
       txt:=intToStr(state[x,y].value);
-      mainImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-mainImage.Canvas.textWidth(txt) shr 1),
+      tempImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-tempImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end;
+    tempImage.draw(mainImage.Canvas,0,0);
+    mainImage.Invalidate;
   end;
 
 FUNCTION T_sudokuRiddle.getSerialVersion: dword;
@@ -819,11 +834,16 @@ PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper)
 
 //-----------------------------------------------------------------------------:T_sudokuRiddle
 //T_config:-----------------------------------------------------------------------------------
+FUNCTION configFileName:string;
+  begin
+    result:=ChangeFileExt(paramStr(0),'.cfg');
+  end;
+
 CONSTRUCTOR T_config.create;
   VAR i,j:byte;
   begin
     riddle.create;
-    if not(loadFromFile('sudoku3.cfg')) then begin
+    if not(loadFromFile(configFileName)) then begin
       with view do begin
         bgColTop   :=0;
         bgColBottom:=2097152;
@@ -865,12 +885,12 @@ CONSTRUCTOR T_config.create;
 
 DESTRUCTOR T_config.destroy;
   begin
-    saveToFile('sudoku3.cfg');
+    saveToFile(configFileName);
   end;
 
 FUNCTION T_config.getSerialVersion: dword;
   begin
-    result:=34562387;
+    result:=34562388;
   end;
 
 FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
@@ -964,5 +984,8 @@ PROCEDURE T_config.addHOFEntry(CONST modeIdx: byte; CONST newEntry: hallOfFameEn
     end;
   end;
 //-----------------------------------------------------------------------------------:T_config
+
+FINALIZATION
+  if tempImage<>nil then FreeAndNil(tempImage);
 
 end.
