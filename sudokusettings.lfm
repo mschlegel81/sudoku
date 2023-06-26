@@ -1,68 +1,67 @@
 object optionsForm: ToptionsForm
   Left = 1087
-  Height = 360
+  Height = 240
   Top = 191
-  Width = 480
+  Width = 320
   Caption = 'Optionen'
-  ClientHeight = 360
-  ClientWidth = 480
-  DesignTimePPI = 144
+  ClientHeight = 240
+  ClientWidth = 320
   Position = poOwnerFormCenter
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.2.2.0'
   object PageControl1: TPageControl
     Left = 0
-    Height = 350
+    Height = 230
     Top = 0
-    Width = 480
-    ActivePage = TabSheet2
+    Width = 320
+    ActivePage = TabSheet1
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Rätsel'
-      ClientHeight = 312
-      ClientWidth = 472
+      ClientHeight = 202
+      ClientWidth = 312
       object DiffGroupBox1: TGroupBox
         Left = 0
-        Height = 312
+        Height = 202
         Top = 0
-        Width = 472
+        Width = 312
         Align = alClient
         AutoSize = True
         Caption = 'Rätsel'
-        ClientHeight = 282
-        ClientWidth = 468
+        ClientHeight = 182
+        ClientWidth = 308
         TabOrder = 0
         object Label7: TLabel
           AnchorSideLeft.Control = DiffGroupBox1
           AnchorSideTop.Control = MarkErrorsCB
           AnchorSideTop.Side = asrBottom
-          Left = 5
-          Height = 25
-          Top = 29
-          Width = 107
-          BorderSpacing.Left = 5
+          Left = 3
+          Height = 15
+          Top = 19
+          Width = 73
+          BorderSpacing.Left = 3
           Caption = 'Schwierigkeit:'
           ParentColor = False
         end
         object MarkErrorsCB: TCheckBox
           Left = 0
-          Height = 29
+          Height = 19
           Top = 0
-          Width = 468
+          Width = 308
           Align = alTop
-          Caption = 'Fehler markieren'
+          Caption = 'Konflikte markieren'
           TabOrder = 0
         end
         object XSymmCB: TCheckBox
           AnchorSideLeft.Control = DiffGroupBox1
           AnchorSideTop.Control = DiffListBox
           AnchorSideTop.Side = asrBottom
-          Left = 5
-          Height = 29
-          Top = 61
-          Width = 130
-          BorderSpacing.Left = 5
+          Left = 3
+          Height = 19
+          Top = 51
+          Width = 88
+          BorderSpacing.Left = 3
           Caption = 'x-Symmetrie'
           TabOrder = 1
         end
@@ -70,11 +69,11 @@ object optionsForm: ToptionsForm
           AnchorSideLeft.Control = DiffGroupBox1
           AnchorSideTop.Control = XSymmCB
           AnchorSideTop.Side = asrBottom
-          Left = 5
-          Height = 29
-          Top = 90
-          Width = 131
-          BorderSpacing.Left = 5
+          Left = 3
+          Height = 19
+          Top = 70
+          Width = 88
+          BorderSpacing.Left = 3
           Caption = 'y-Symmetrie'
           TabOrder = 2
         end
@@ -82,11 +81,11 @@ object optionsForm: ToptionsForm
           AnchorSideLeft.Control = DiffGroupBox1
           AnchorSideTop.Control = ySymmCB
           AnchorSideTop.Side = asrBottom
-          Left = 5
-          Height = 29
-          Top = 119
-          Width = 158
-          BorderSpacing.Left = 5
+          Left = 3
+          Height = 19
+          Top = 89
+          Width = 107
+          BorderSpacing.Left = 3
           Caption = 'Punktsymmetrie'
           TabOrder = 3
         end
@@ -97,10 +96,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = MarkErrorsCB
           AnchorSideRight.Side = asrBottom
-          Left = 112
+          Left = 76
           Height = 32
-          Top = 29
-          Width = 356
+          Top = 19
+          Width = 232
           Align = alCustom
           Anchors = [akTop, akLeft, akRight]
           ExtendedSelect = False
@@ -121,39 +120,39 @@ object optionsForm: ToptionsForm
             '90% vorgegeben'
             '95% vorgegeben'
           )
-          ItemHeight = 25
+          ItemHeight = 15
           TabOrder = 4
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Darstellung'
-      ClientHeight = 312
-      ClientWidth = 472
+      ClientHeight = 202
+      ClientWidth = 312
       object ViewGroupBox: TGroupBox
         Left = 0
-        Height = 312
+        Height = 202
         Top = 0
-        Width = 472
+        Width = 312
         Align = alClient
         AutoSize = True
         Caption = 'Darstellung'
-        ClientHeight = 282
-        ClientWidth = 468
+        ClientHeight = 182
+        ClientWidth = 308
         TabOrder = 0
         object FontLabel: TLabel
           AnchorSideLeft.Control = Button3
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = SetCol3Button
           AnchorSideTop.Side = asrBottom
-          Left = 115
-          Height = 36
-          Top = 129
-          Width = 126
+          Left = 87
+          Height = 23
+          Top = 93
+          Width = 81
           Align = alCustom
-          BorderSpacing.Left = 10
+          BorderSpacing.Left = 7
           Caption = '123456789'
-          Font.Height = -26
+          Font.Height = -17
           ParentColor = False
           ParentFont = False
         end
@@ -163,10 +162,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol1Button
           AnchorSideBottom.Control = SetCol1Button
           AnchorSideBottom.Side = asrBottom
-          Left = 170
-          Height = 43
+          Left = 123
+          Height = 31
           Top = 0
-          Width = 43
+          Width = 29
           Anchors = [akTop, akLeft, akBottom]
         end
         object BG2Shape: TShape
@@ -175,10 +174,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol2Button
           AnchorSideBottom.Control = SetCol2Button
           AnchorSideBottom.Side = asrBottom
-          Left = 170
-          Height = 43
-          Top = 43
-          Width = 43
+          Left = 123
+          Height = 31
+          Top = 31
+          Width = 29
           Anchors = [akTop, akLeft, akBottom]
         end
         object GridShape: TShape
@@ -187,10 +186,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol3Button
           AnchorSideBottom.Control = SetCol3Button
           AnchorSideBottom.Side = asrBottom
-          Left = 170
-          Height = 43
-          Top = 86
-          Width = 43
+          Left = 123
+          Height = 31
+          Top = 62
+          Width = 29
           Anchors = [akTop, akLeft, akBottom]
         end
         object GivenShape: TShape
@@ -199,10 +198,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol4Button
           AnchorSideBottom.Control = SetCol4Button
           AnchorSideBottom.Side = asrBottom
-          Left = 361
-          Height = 43
+          Left = 259
+          Height = 31
           Top = 0
-          Width = 43
+          Width = 29
           Anchors = [akTop, akLeft, akBottom]
         end
         object NeutralShape: TShape
@@ -211,10 +210,10 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol5Button
           AnchorSideBottom.Control = SetCol5Button
           AnchorSideBottom.Side = asrBottom
-          Left = 361
-          Height = 43
-          Top = 43
-          Width = 43
+          Left = 259
+          Height = 31
+          Top = 31
+          Width = 29
           Anchors = [akTop, akLeft, akBottom]
         end
         object ConfShape: TShape
@@ -223,21 +222,21 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Control = SetCol6Button
           AnchorSideBottom.Control = SetCol6Button
           AnchorSideBottom.Side = asrBottom
-          Left = 361
-          Height = 43
-          Top = 86
-          Width = 43
+          Left = 259
+          Height = 29
+          Top = 62
+          Width = 29
         end
         object Button3: TButton
           AnchorSideLeft.Control = ViewGroupBox
           AnchorSideTop.Control = SetCol3Button
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 43
-          Top = 129
-          Width = 105
+          Height = 31
+          Top = 93
+          Width = 80
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Schriftart'
           OnClick = Button3Click
           TabOrder = 0
@@ -246,11 +245,11 @@ object optionsForm: ToptionsForm
           AnchorSideLeft.Control = ViewGroupBox
           AnchorSideTop.Control = ViewGroupBox
           Left = 0
-          Height = 43
+          Height = 31
           Top = 0
-          Width = 170
+          Width = 123
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Hintegrund oben'
           OnClick = SetCol1ButtonClick
           TabOrder = 1
@@ -262,12 +261,12 @@ object optionsForm: ToptionsForm
           AnchorSideRight.Control = SetCol1Button
           AnchorSideRight.Side = asrBottom
           Left = 0
-          Height = 43
-          Top = 43
-          Width = 170
+          Height = 31
+          Top = 31
+          Width = 123
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Hintergrund unten'
           OnClick = SetCol2ButtonClick
           TabOrder = 2
@@ -279,12 +278,12 @@ object optionsForm: ToptionsForm
           AnchorSideRight.Control = SetCol2Button
           AnchorSideRight.Side = asrBottom
           Left = 0
-          Height = 43
-          Top = 86
-          Width = 170
+          Height = 31
+          Top = 62
+          Width = 123
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Gitterfarbe'
           OnClick = SetCol3ButtonClick
           TabOrder = 3
@@ -293,13 +292,13 @@ object optionsForm: ToptionsForm
           AnchorSideLeft.Control = BG1Shape
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = ViewGroupBox
-          Left = 218
-          Height = 43
+          Left = 155
+          Height = 31
           Top = 0
-          Width = 143
+          Width = 104
           AutoSize = True
-          BorderSpacing.Left = 5
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.Left = 3
+          BorderSpacing.InnerBorder = 3
           Caption = 'Text, Vorgabe'
           OnClick = SetCol4ButtonClick
           TabOrder = 4
@@ -310,13 +309,13 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = SetCol4Button
           AnchorSideRight.Side = asrBottom
-          Left = 218
-          Height = 43
-          Top = 43
-          Width = 143
+          Left = 155
+          Height = 31
+          Top = 31
+          Width = 104
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Text, neutral'
           OnClick = SetCol5ButtonClick
           TabOrder = 5
@@ -327,13 +326,13 @@ object optionsForm: ToptionsForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = SetCol5Button
           AnchorSideRight.Side = asrBottom
-          Left = 218
-          Height = 43
-          Top = 86
-          Width = 143
+          Left = 155
+          Height = 31
+          Top = 62
+          Width = 104
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
-          BorderSpacing.InnerBorder = 4
+          BorderSpacing.InnerBorder = 3
           Caption = 'Text, falsch'
           OnClick = SetCol6ButtonClick
           TabOrder = 6
@@ -344,8 +343,8 @@ object optionsForm: ToptionsForm
   object Button1: TButton
     Left = 0
     Height = 10
-    Top = 350
-    Width = 480
+    Top = 230
+    Width = 320
     Align = alBottom
     AutoSize = True
     Cancel = True
@@ -355,8 +354,8 @@ object optionsForm: ToptionsForm
   object FontDialog1: TFontDialog
     MinFontSize = 0
     MaxFontSize = 0
-    left = 215
-    top = 256
+    Left = 143
+    Top = 171
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -382,7 +381,7 @@ object optionsForm: ToptionsForm
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 106
-    top = 248
+    Left = 71
+    Top = 165
   end
 end

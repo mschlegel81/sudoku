@@ -312,6 +312,7 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center:
     FUNCTION mc(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
     VAR k:longint;
     begin
+      initialize(result);
       result:=j*fieldSize+i;
       if symm_x      then for k:=0 to length(result)-1 do append(result,mx(result[k]));
       if symm_y      then for k:=0 to length(result)-1 do append(result,my(result[k]));
@@ -340,25 +341,36 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center:
       end;
     end;
 
-  VAR undefList,
+  VAR bestUndefList,
+      undefList,
       extendedUndefList,
       undefCandidates:T_arrayOfLongint;
       k:longint;
+      runsWithoutImprovement:longint=0;
   begin
     createFull(size);
+    bestUndefList:=C_EMPTY_LONGINT_ARRAY;
+    repeat
+      undefList:=C_EMPTY_LONGINT_ARRAY;
+      undefCandidates:=initialListTakingSymmetriesIntoAccount;
+      while (length(undefList)<difficulty) and (length(undefCandidates)>0) do begin
+        k:=undefCandidates       [length(undefCandidates)-1];
+        setLength(undefCandidates,length(undefCandidates)-1);
 
-    undefList:=C_EMPTY_LONGINT_ARRAY;
-    undefCandidates:=initialListTakingSymmetriesIntoAccount;
-
-    while (length(undefList)<difficulty) and (length(undefCandidates)>0) do begin
-      k:=undefCandidates       [length(undefCandidates)-1];
-      setLength(undefCandidates,length(undefCandidates)-1);
-
-      extendedUndefList:=extendUndefList(undefList,k mod fieldSize,k div fieldSize);
-      if clone(extendedUndefList).fullSolve(false)=ss_solved then undefList:=extendedUndefList;
-    end;
-
-    for k in undefList do el[k]:=C_sudokuStructure[structIdx].any;
+        extendedUndefList:=extendUndefList(undefList,k mod fieldSize,k div fieldSize);
+        if clone(extendedUndefList).fullSolve(false)=ss_solved
+        then begin
+          setLength(undefList,0);
+          undefList:=extendedUndefList;
+        end
+        else setLength(extendedUndefList,0);
+      end;
+      if length(undefList)>length(bestUndefList) then begin
+        bestUndefList:=undefList;
+        runsWithoutImprovement:=0;
+      end else inc(runsWithoutImprovement);
+    until (length(bestUndefList)>=difficulty) or (runsWithoutImprovement>5);
+    for k in bestUndefList do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
 FUNCTION T_sudoku.clone(CONST undefList:T_arrayOfLongint):T_sudoku;
@@ -423,40 +435,69 @@ PROCEDURE T_sudoku.writeTxtForm(CONST writeOut, writelnOut: FT_output);
       end;
     end;
 
-  CONST C_filler:array[0..6,0..1] of string=
-       (('#===#===#===#===#'                                                ,'#---+---#---+---#'                                                ),  // 4
-        ('#===#===#===#===#===#===#'                                        ,'#---+---#---+---#---+---#'                                        ),  // 6
-        ('#===#===#===#===#===#===#===#===#'                                ,'#---+---#---+---#---+---#---+---#'                                ),  // 8
-        ('#===#===#===#===#===#===#===#===#===#'                            ,'#---+---+---#---+---+---#---+---+---#'                            ),  // 9
-        ('#===#===#===#===#===#===#===#===#===#===#===#===#'                ,'#---+---+---#---+---+---#---+---+---#---+---+---#'                ),  //12
-        ('#===#===#===#===#===#===#===#===#===#===#===#===#===#===#===#'    ,'#---+---+---#---+---+---#---+---+---#---+---+---#---+---+---#'    ),  //15
-        ('#===#===#===#===#===#===#===#===#===#===#===#===#===#===#===#===#','#---+---+---+---#---+---+---+---#---+---+---+---#---+---+---+---#')); //16
-        C_columnSep:array[0..6,0..16] of char=
-        (('#','|','#','|','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '),   // 4
-         ('#','|','#','|','#','|','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '),   // 6
-         ('#','|','#','|','#','|','#','|','#',' ',' ',' ',' ',' ',' ',' ',' '),   // 8
-         ('#','|','|','#','|','|','#','|','|','#',' ',' ',' ',' ',' ',' ',' '),   // 9
-         ('#','|','|','#','|','|','#','|','|','#','|','|','#',' ',' ',' ',' '),   //12
-         ('#','|','|','#','|','|','#','|','|','#','|','|','#','|','|','#',' '),   //15
-         ('#','|','|','|','#','|','|','|','#','|','|','|','#','|','|','|','#'));  //16
+  CONST C_grid:array[0..6] of record
+          header,
+          fillLight,
+          fillDouble,
+          footer:string;
+          separators:array[0..16] of string;
+        end=
+        ((header    : '╔═══╤═══╦═══╤═══╗';
+          fillLight : '╟───┼───╫───┼───╢';
+          fillDouble: '╠═══╪═══╬═══╪═══╣';
+          footer    : '╚═══╧═══╩═══╧═══╝';
+          separators:('║','│','║','│','║','','','','','','','','','','','','')),
+         (header    : '╔═══╤═══╦═══╤═══╦═══╤═══╗';
+          fillLight : '╟───┼───╫───┼───╫───┼───╢';
+          fillDouble: '╠═══╪═══╬═══╪═══╬═══╪═══╣';
+          footer    : '╚═══╧═══╩═══╧═══╩═══╧═══╝';
+          separators:('║','│','║','│','║','│','║','','','','','','','','','','')),
+         (header    : '╔═══╤═══╦═══╤═══╦═══╤═══╦═══╤═══╗';
+          fillLight : '╟───┼───╫───┼───╫───┼───╫───┼───╢';
+          fillDouble: '╠═══╪═══╬═══╪═══╬═══╪═══╬═══╪═══╣';
+          footer    : '╚═══╧═══╩═══╧═══╩═══╧═══╩═══╧═══╝';
+          separators:('║','│','║','│','║','│','║','│','║','','','','','','','','')),
+         (header    : '╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗';
+          fillLight : '╟───┼───┼───╫───┼───┼───╫───┼───┼───╢';
+          fillDouble: '╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣';
+          footer    : '╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝';
+          separators:('║','│','│','║','│','│','║','│','│','║','','','','','','','')),
+         (header    : '╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗';
+          fillLight : '╟───┼───┼───╫───┼───┼───╫───┼───┼───╫───┼───┼───╢';
+          fillDouble: '╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣';
+          footer    : '╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝';
+          separators:('║','│','│','║','│','│','║','│','│','║','│','│','║','','','','')),
+         (header    : '╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗';
+          fillLight : '╟───┼───┼───╫───┼───┼───╫───┼───┼───╫───┼───┼───╫───┼───┼───╢';
+          fillDouble: '╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣';
+          footer    : '╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝';
+          separators:('║','│','│','║','│','│','║','│','│','║','│','│','║','│','│','║','')),
+         (header    : '╔═══╤═══╤═══╤═══╦═══╤═══╤═══╤═══╦═══╤═══╤═══╤═══╦═══╤═══╤═══╤═══╗';
+          fillLight : '╟───┼───┼───┼───╫───┼───┼───┼───╫───┼───┼───┼───╫───┼───┼───┼───╢';
+          fillDouble: '╠═══╪═══╪═══╪═══╬═══╪═══╪═══╪═══╬═══╪═══╪═══╪═══╬═══╪═══╪═══╪═══╣';
+          footer    : '╚═══╧═══╧═══╧═══╩═══╧═══╧═══╧═══╩═══╧═══╧═══╧═══╩═══╧═══╧═══╧═══╝';
+          separators:('║','│','│','│','║','│','│','│','║','│','│','│','║','│','│','│','║')));
 
   VAR i,j:byte;
       k  :word;
   begin
-    writelnOut(C_filler[structIdx,0]);        //Kopfzeile
+    writelnOut(C_grid[structIdx].header);
     k:=0;
-    for j:=0 to fieldSize-1 do begin          //f�r jede Zeile...
-      for i:=0 to fieldSize-1 do begin          //f�r jede Zelle...
-        writeOut(C_columnSep[structIdx,i]);       //Spaltentrenner
-        writeOut(numString(el[k]));               //Zellenwert
+    for j:=0 to fieldSize-1 do begin                //für jede Zeile...
+      for i:=0 to fieldSize-1 do begin              //für jede Zelle...
+        writeOut(C_grid[structIdx].separators[i]);  //Spaltentrenner
+        writeOut(numString(el[k]));                 //Zellenwert
         inc(k);
       end;
-      writelnOut(C_columnSep[structIdx,fieldSize]);              //abschlie�ender Spaltentrenner
+      writelnOut(C_grid[structIdx].separators[fieldSize]);              //abschließender Spaltentrenner
+      if j=fieldSize-1
+      then writelnOut(C_grid[structIdx].footer)
+      else
       if (j+1) mod (C_sudokuStructure[structIdx].blockSize[1])=0 //Trennzeile
-        then writelnOut(C_filler[structIdx,0])
-        else writelnOut(C_filler[structIdx,1]);
+        then writelnOut(C_grid[structIdx].fillDouble)
+        else writelnOut(C_grid[structIdx].fillLight);
     end;
-    writelnOut(' '); //abschlie�ende Leerzeile
+    writelnOut(' '); //abschließende Leerzeile
   end;
 
 PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output;
@@ -502,9 +543,9 @@ PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output;
     if enumString<>'' then writelnOut('\begin{tabular}{c}');
     writelnOut(C_header[structIdx]); //Tabellenheader
     k:=0;
-    for j:=0 to fieldSize-1 do begin          //f�r jede Zeile...
+    for j:=0 to fieldSize-1 do begin          //für jede Zeile...
       writeOut('  ');
-      for i:=0 to fieldSize-1 do begin          //f�r jede Zelle...
+      for i:=0 to fieldSize-1 do begin          //für jede Zelle...
         if i>0 then writeOut('&');              //Spaltentrenner
         writeOut(numString(el[k]));             //Zellenwert
         inc(k);
@@ -525,7 +566,7 @@ FUNCTION T_sudoku.getSerialVersion: dword;
   end;
 
 FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
-  //liest die Inhalte des Objektes aus einer bereits ge�ffneten Datei und gibt true zur�ck gdw. kein Fehler auftrat
+  //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   VAR i:longint;
   begin
     fieldSize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
@@ -540,7 +581,7 @@ FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
   end;
 
 PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
-  //schreibt die Inhalte des Objektes in eine bereits ge�ffnete Datei
+  //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
   VAR i:longint;
   begin
     stream.writeByte(fieldSize);
