@@ -62,6 +62,7 @@ TYPE
     private
       fieldSize:byte;
       modeIdx  :byte;
+      givenCount:longint;
       state:array[0..15,0..15] of record
                                     given,conflicting:boolean;
                                     value:byte;
@@ -106,7 +107,7 @@ TYPE
                  markErrors,xSymm,ySymm,ptSymm:boolean;
                  diff:byte;
                end;
-    hallOfFame:array [0..6,0..19] of hallOfFameEntry;
+    hallOfFame:array [0..6,0..31] of hallOfFameEntry;
     riddle    :T_sudokuRiddle;
     gameIsDone:boolean;
     CONSTRUCTOR create;
@@ -369,7 +370,7 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center:
         bestUndefList:=undefList;
         runsWithoutImprovement:=0;
       end else inc(runsWithoutImprovement);
-    until (length(bestUndefList)>=difficulty) or (runsWithoutImprovement>5);
+    until (length(bestUndefList)>=difficulty) or (runsWithoutImprovement>1.2*fieldSize);
     for k in bestUndefList do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
@@ -591,23 +592,8 @@ PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
 
 FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
   begin
-    if e1.markErrors then begin
-      if e2.markErrors then begin
-        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
-                (e2.time+6000)/(1+sqr(size)-e2.given);
-      end else begin
-        result:=(2*e1.time+6000)/(1+sqr(size)-e1.given)<
-                (  e2.time+6000)/(1+sqr(size)-e2.given);
-      end;
-    end else begin
-      if e2.markErrors then begin
-        result:=(  e1.time+6000)/(1+sqr(size)-e1.given)<
-                (2*e2.time+6000)/(1+sqr(size)-e2.given);
-      end else begin
-        result:=(e1.time+6000)/(1+sqr(size)-e1.given)<
-                (e2.time+6000)/(1+sqr(size)-e2.given);
-      end;
-    end;
+    result:=(ord(e1.markErrors)*2+e1.given)/24/60+e1.time<
+            (ord(e2.markErrors)*2+e2.given)/24/60+e2.time;
   end;
 
 //T_sudokuRiddle:-----------------------------------------------------------------------------
@@ -660,10 +646,12 @@ PROCEDURE T_sudokuRiddle.initGame(size: byte);
                     config.difficulty.ySymm,
                     config.difficulty.ptSymm,
                    ((75-5*config.difficulty.diff)*sqr(size)) div 100);
+    givenCount:=0;
     for i:=0 to size-1 do
     for j:=0 to size-1 do begin
       state[i,j].value      :=aid.getSquare(i,j);
       state[i,j].given      :=(state[i,j].value<>255);
+      if state[i,j].given then inc(givenCount);
       state[i,j].conflicting:=false;
     end;
   end;
@@ -760,6 +748,7 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     if tempImage=nil
     then tempImage:=TBGRABitmap.create(mainImage.width,mainImage.height)
     else tempImage.setSize            (mainImage.width,mainImage.height);
+
     tempImage.AntialiasingDrawMode:=dmLinearBlend;
     for y:=0 to tempImage.height-1 do begin
       px:=PCardinal(tempImage.ScanLine[y]);
@@ -811,7 +800,6 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
 
     tempImage.Canvas.Brush.style:=bsClear;
     tempImage.Canvas.Font.height:=round(quadSize*0.9);
-    tempImage.Canvas.Font.height:=round(quadSize*0.9);
     tempImage.Canvas.Font.name  :=config.Font.name;
     tempImage.Canvas.Font.color:=config.view.givenCol;
     if config.Font.bold and config.Font.italic then tempImage.Canvas.Font.style:=[fsBold,fsItalic]
@@ -834,6 +822,10 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
       tempImage.Canvas.textOut(x0+x*quadSize+(quadSize shr 1-tempImage.Canvas.textWidth(txt) shr 1),
                             y0+y*quadSize,txt);
     end;
+    tempImage.Canvas.Font.height:=round(quadSize*0.3);
+    tempImage.Canvas.Font.color:=config.view.givenCol;
+    tempImage.Canvas.textOut(0,mainImage.height-round(1.5*tempImage.Canvas.textHeight('Vorgegeben')),'Vorgegeben: '+intToStr(givenCount));
+
     tempImage.draw(mainImage.Canvas,0,0);
     mainImage.Invalidate;
   end;
@@ -851,9 +843,11 @@ FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper)
                                   (modeIdx  in [0..6]) and
                                   (C_sudokuStructure[modeIdx].size=fieldSize);
     startTime:=now-stream.readDouble;
+    givenCount:=0;
     for i:=0 to fieldSize-1 do
     for j:=0 to fieldSize-1 do with state[i,j] do begin
       given:=stream.readBoolean;
+      if given then inc(givenCount);
       value:=stream.readByte;
     end;
     checkConflicts;
@@ -906,7 +900,7 @@ CONSTRUCTOR T_config.create;
         diff  :=5;
       end;
       for i:=0 to 6 do begin
-        for j:=0 to 19 do with hallOfFame[i,j] do begin
+        for j:=0 to 31 do with hallOfFame[i,j] do begin
           name:='';
           time:=C_firstTime+j;
           given:=sqr(C_sudokuStructure[i].size);
@@ -931,12 +925,13 @@ DESTRUCTOR T_config.destroy;
 
 FUNCTION T_config.getSerialVersion: dword;
   begin
-    result:=34562388;
+    result:=34562389;
   end;
 
 FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
   VAR i,j:byte;
   begin
+    if not(inherited) then exit(false);
     with view do begin
       bgColTop   :=stream.readLongint; result:=(bgColTop>=0) and (bgColTop<16777216);
       bgColBottom:=stream.readLongint; result:=result and (bgColBottom>=0) and (bgColBottom<16777216);
@@ -957,7 +952,7 @@ FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
       ptSymm    :=stream.readBoolean;
       diff      :=stream.readByte;
     end;
-    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
+    for i:=0 to 6 do for j:=0 to 31 do with hallOfFame[i,j] do begin
       name:=stream.readAnsiString;
       time:=stream.readDouble;  result:=result and (time>0);
       given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
@@ -971,6 +966,7 @@ FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
 PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
   VAR i,j:byte;
   begin
+    inherited;
     with view do begin
       stream.writeLongint(bgColTop   );
       stream.writeLongint(bgColBottom);
@@ -991,7 +987,7 @@ PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
       stream.writeBoolean(ptSymm    );
       stream.writeByte   (diff      );
     end;
-    for i:=0 to 6 do for j:=0 to 19 do with hallOfFame[i,j] do begin
+    for i:=0 to 6 do for j:=0 to 31 do with hallOfFame[i,j] do begin
       stream.writeAnsiString (name);
       stream.writeDouble (time);
       stream.writeWord   (given);
