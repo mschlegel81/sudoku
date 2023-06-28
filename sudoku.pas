@@ -723,50 +723,29 @@ FUNCTION T_sudokuRiddle.givenState(CONST x, y: byte): boolean;
   end;
 
 PROCEDURE T_sudokuRiddle.renderRiddle;
-  FUNCTION interpolateColor(y:longint):longint;
-    VAR r,g,b:byte;
-        int1,int2:word;
-    begin
-      int1:=(4096*y) div (mainImage.height);
-      int2:=4096-int1;
-      r:=(int1*((config.view.bgColBottom       ) and 255)
-         +int2*((config.view.bgColTop          ) and 255)) shr 12;
-      g:=(int1*((config.view.bgColBottom shr  8) and 255)
-         +int2*((config.view.bgColTop    shr  8) and 255)) shr 12;
-      b:=(int1*((config.view.bgColBottom shr 16) and 255)
-         +int2*((config.view.bgColTop    shr 16) and 255)) shr 12;
-      interpolateColor:=b or g shl 8 or r shl 16;
-    end;
-
   CONST sudokuChar:array [0..6] of char=('S','U','D','O','K','U',' ');
 
-  VAR x,y, color:longint;
+  VAR x,y:longint;
       txt:string;
-      px: PCardinal;
+      topColor,bottomColor,
       gridColor:TBGRAPixel;
+
   begin
     if tempImage=nil
     then tempImage:=TBGRABitmap.create(mainImage.width,mainImage.height)
     else tempImage.setSize            (mainImage.width,mainImage.height);
 
     tempImage.AntialiasingDrawMode:=dmLinearBlend;
-    for y:=0 to tempImage.height-1 do begin
-      px:=PCardinal(tempImage.ScanLine[y]);
-      color:=interpolateColor(y);
-      for x:=0 to tempImage.width-1 do begin
-        px^:=color;
-        inc(px);
-      end;
-    end;
-    tempImage.InvalidateBitmap;
-
+    topColor   .FromColor(config.view.bgColTop);
+    bottomColor.FromColor(config.view.bgColBottom);
+    tempImage.CanvasBGRA.GradientFill(rect(0,0,tempImage.width,tempImage.height),topColor,bottomColor,gdVertical);
     quadSize:=10;
     while  (quadSize*fieldSize*1.1<mainImage.width    )
        and (quadSize*fieldSize*1.1<mainImage.height-19) do inc(quadSize);
     y0:=(mainImage.height-1-fieldSize*quadSize) shr 1;
     x0:=(mainImage.width   -fieldSize*quadSize) shr 1;
 
-    gridColor.FromColor(config.view.gridCol,5);
+    gridColor.FromColor(config.view.gridCol,128);
     tempImage.CanvasBGRA.Pen.BGRAColor:=gridColor;
     tempImage.CanvasBGRA.AntialiasingMode:=amOn;
 
