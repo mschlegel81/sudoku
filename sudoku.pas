@@ -30,6 +30,9 @@ TYPE
   T_sudokuState=(ss_solved,ss_unknown,ss_unsolveable);
 
   FT_output=PROCEDURE(txt:string);
+
+  { T_sudoku }
+
   T_sudoku=object(T_serializable)
     private
       el:array [0..255] of word;
@@ -49,6 +52,7 @@ TYPE
       FUNCTION getSerialVersion:dword; virtual;
       FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
       PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
+      PROCEDURE scramble;
   end;
 
   hallOfFameEntry=record
@@ -306,7 +310,8 @@ CONSTRUCTOR T_sudoku.createFull(CONST size: byte);
     repeat createUnfilled(size); until fullSolve(true)=ss_solved;
   end;
 
-CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center: boolean; CONST difficulty: word);
+CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y,
+  symm_center: boolean; CONST difficulty: word);
   FUNCTION extendUndefList(CONST undefList:T_arrayOfLongint; CONST i,j:byte):T_arrayOfLongint;
     FUNCTION mx(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*             (k div fieldSize) ; end;
     FUNCTION my(CONST k:longint):longint; begin result:=            (k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
@@ -374,7 +379,7 @@ CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y, symm_center:
     for k in bestUndefList do el[k]:=C_sudokuStructure[structIdx].any;
   end;
 
-FUNCTION T_sudoku.clone(CONST undefList:T_arrayOfLongint):T_sudoku;
+FUNCTION T_sudoku.clone(CONST undefList: T_arrayOfLongint): T_sudoku;
   VAR k:longint;
   begin
     result.createUnfilled(fieldSize);
@@ -566,7 +571,8 @@ FUNCTION T_sudoku.getSerialVersion: dword;
     result:=1;
   end;
 
-FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
+FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
+  ): boolean;
   //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
   VAR i:longint;
   begin
@@ -588,6 +594,55 @@ PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
     stream.writeByte(fieldSize);
     stream.writeByte(structIdx);
     for i:=0 to sqr(fieldSize)-1 do stream.writeWord(el[i]);
+  end;
+
+PROCEDURE T_sudoku.scramble;
+  TYPE row16=array[0..15] of byte;
+  VAR simpleForm:array[0..15] of row16;
+  PROCEDURE randomSubstitute;
+    VAR sub:array[0..15] of byte;
+        i,j:longint;
+        tmp:byte;
+    begin
+      for i:=0 to fieldSize-1 do sub[i]:=i;
+      for i:=0 to fieldSize-1 do begin
+        repeat j:=random(fieldSize) until j<>i;
+        tmp:=sub[i]; sub[i]:=sub[j]; sub[j]:=tmp;
+      end;
+      for i:=0 to fieldSize-1 do
+      for j:=0 to fieldSize-1 do begin
+        tmp:=simpleForm[i,j];
+        if (tmp>=0) and (tmp<fieldSize) then simpleForm[i,j]:=sub[tmp];
+      end;
+    end;
+
+  PROCEDURE scrambleRows;
+    begin
+      //TODO: Implement me
+    end;
+
+  PROCEDURE scrambleColumns;
+    begin
+      //TODO: Implement me;
+    end;
+
+  VAR i,j:longint;
+  begin
+    //Randomly transpose (if possible)
+    if (C_sudokuStructure[structIdx].blockSize[0]=C_sudokuStructure[structIdx].blockSize[1]) and (random>0.5)
+    then for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(j,i)-1
+    else for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(i,j)-1;
+
+    randomSubstitute;
+    scrambleRows;
+    scrambleColumns;
+
+    //Write back
+    for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do begin
+      if (simpleForm[i,j]>=0) and (simpleForm[i,j]<fieldSize)
+      then el[i+fieldSize*j]:=C_bit[simpleForm[i,j]]
+      else el[i+fieldSize*j]:=C_sudokuStructure[structIdx].any;
+    end;
   end;
 
 FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
