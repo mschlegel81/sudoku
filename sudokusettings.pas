@@ -64,9 +64,9 @@ PROCEDURE showOptions;
     if optionsForm=nil then optionsForm:=ToptionsForm.create(nil);
     with optionsForm do begin
       MarkErrorsCB.checked  :=config.difficulty.markErrors;
-      XSymmCB     .checked  :=config.difficulty.xSymm;
-      ySymmCB     .checked  :=config.difficulty.ySymm;
-      pSymmCB     .checked  :=config.difficulty.ptSymm;
+      XSymmCB     .checked  :=sym_x      in config.difficulty.symmetries;
+      ySymmCB     .checked  :=sym_y      in config.difficulty.symmetries;
+      pSymmCB     .checked  :=sym_center in config.difficulty.symmetries;
       DiffListBox .ItemIndex:=config.difficulty.diff;
 
       FontLabel.Font.name    :=config.Font.name;
@@ -83,9 +83,10 @@ PROCEDURE showOptions;
     optionsForm.ShowModal;
     with optionsForm do begin
       config.difficulty.markErrors:=MarkErrorsCB.checked  ;
-      config.difficulty.xSymm     :=XSymmCB     .checked  ;
-      config.difficulty.ySymm     :=ySymmCB     .checked  ;
-      config.difficulty.ptSymm    :=pSymmCB     .checked  ;
+      config.difficulty.symmetries:=[];
+      if XSymmCB.checked then include(config.difficulty.symmetries,sym_x     );
+      if ySymmCB.checked then include(config.difficulty.symmetries,sym_y     );
+      if pSymmCB.checked then include(config.difficulty.symmetries,sym_center);
       config.difficulty.diff      :=DiffListBox .ItemIndex;
     end;
   end;

@@ -31,6 +31,7 @@ PROCEDURE showHallOfFame(modeIdx: byte);
     config.riddle.pauseGame;
     if highscoresForm=nil then highscoresForm:=ThighscoresForm.create(nil);
     highscoresForm.TabControl1.TabIndex:=modeIdx;
+    highscoresForm.HOFStringGrid.AutoSizeColumns;
     highscoresForm.ShowModal;
   end;
 

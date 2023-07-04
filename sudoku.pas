@@ -1,6 +1,6 @@
 UNIT sudoku;
 INTERFACE
-USES serializationUtil,sysutils,ExtCtrls,Graphics,types,myGenerics;
+USES serializationUtil,sysutils,ExtCtrls,Graphics,types;
 CONST
 
   C_firstTime=maxLongint-7019;
@@ -27,32 +27,45 @@ CONST
   C_LaTeX_fileFooter:string='\end{center}\end{document}';
 
 TYPE
+  T_symmetry=(sym_x,sym_y,sym_center);
+  T_symmetries=set of T_symmetry;
   T_sudokuState=(ss_solved,ss_unknown,ss_unsolveable);
+
+  { T_setOfBytes }
+
+  T_setOfBytes=object
+    fill:longint;
+    value:array[0..255] of byte;
+    PROCEDURE add(CONST v:byte);
+    PROCEDURE addAll(CONST b:T_setOfBytes);
+    FUNCTION contains(CONST v:byte):boolean;
+    FUNCTION minimum:byte;
+  end;
 
   FT_output=PROCEDURE(txt:string);
 
   { T_sudoku }
 
-  T_sudoku=object(T_serializable)
+  T_sudoku=object
     private
       el:array [0..255] of word;
+      sym:T_symmetries;
       fieldSize,structIdx:byte;
       FUNCTION fullSolve(CONST fillRandom:boolean):T_sudokuState;
     public
       CONSTRUCTOR createUnfilled(size:byte);
       CONSTRUCTOR createFull    (CONST size:byte);
-      CONSTRUCTOR create(CONST size:byte; CONST symm_x,symm_y,symm_center:boolean; CONST difficulty:word);
-      FUNCTION    clone(CONST undefList:T_arrayOfLongint):T_sudoku;
+      CONSTRUCTOR create(CONST size:byte; CONST symmetries:T_symmetries; CONST difficulty:word);
+      FUNCTION    clone(CONST undefList:T_setOfBytes):T_sudoku;
       FUNCTION    getSquare(CONST x,y:byte):byte;
       FUNCTION    given:word;
       DESTRUCTOR  destroy;
       PROCEDURE   solve;
       PROCEDURE   writeTxtForm  (CONST writeOut,writelnOut:FT_output);
       PROCEDURE   writeLaTeXForm(CONST writeOut,writelnOut:FT_output; CONST enumString:string; CONST small:boolean);
-      FUNCTION getSerialVersion:dword; virtual;
-      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean; virtual;
-      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
-      PROCEDURE scramble;
+      PROCEDURE scramble(CONST allowCellPermutation:boolean);
+      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean;
+      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper);
   end;
 
   hallOfFameEntry=record
@@ -94,6 +107,28 @@ TYPE
       PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper); virtual;
   end;
 
+  P_storedRiddles=^T_storedRiddles;
+  T_storedRiddles=object
+    private
+      riddle:array[0..6] of record fill:longint; s:array [0..289] of T_sudoku; end;//~1MiB worth of riddles
+      storedCs:TRTLCriticalSection;
+      destructionPending:boolean;
+      calculationRunning:boolean;
+      PROCEDURE makeARiddle;
+    public
+
+      CONSTRUCTOR create;
+      DESTRUCTOR destroy;
+      PROCEDURE ensureBackgroundThread;
+
+      FUNCTION getRiddle(CONST structIdx:byte; CONST symmetries:T_symmetries; CONST valuesGiven:byte):T_sudoku;
+      FUNCTION validDifficulties(CONST structIdx:byte; CONST symmetries:T_symmetries):T_setOfBytes;
+      PROCEDURE writeSummary;
+
+      FUNCTION loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean;
+      PROCEDURE saveToStream(VAR stream:T_bufferedOutputStreamWrapper);
+  end;
+
   T_config=object(T_serializable)
     view:record
            bgColTop,
@@ -108,10 +143,12 @@ TYPE
            bold,italic:boolean;
          end;
     difficulty:record
-                 markErrors,xSymm,ySymm,ptSymm:boolean;
+                 markErrors:boolean;
+                 symmetries:T_symmetries;
                  diff:byte;
                end;
     hallOfFame:array [0..6,0..31] of hallOfFameEntry;
+    storedRiddles:T_storedRiddles;
     riddle    :T_sudokuRiddle;
     gameIsDone:boolean;
     CONSTRUCTOR create;
@@ -158,6 +195,246 @@ FUNCTION formattedTime(CONST hofEntry:hallOfFameEntry):string;
 PROCEDURE writeLatexHeader(writelnOut:FT_output);
   VAR i:byte;
   begin for i:=0 to 5 do writelnOut(C_Latex_fileHeader[i]); end;
+
+{ T_storedRiddles }
+
+PROCEDURE T_storedRiddles.makeARiddle;
+  VAR struct:byte;
+      symmetries:T_symmetries=[];
+      sudoku:T_sudoku;
+      minGiven:word;
+      difficulty:word=256;
+      i,g:longint;
+  begin
+    struct:=random(length(C_sudokuStructure));
+    case byte(random(5)) of
+        1: symmetries:=[sym_x];
+        2: symmetries:=[sym_y];
+        3: symmetries:=[sym_center];
+        4: symmetries:=[sym_x,sym_y,sym_center];
+      else symmetries:=[];
+    end;
+
+    minGiven:=sqr(C_sudokuStructure[struct].size);
+    for i:=0 to riddle[struct].fill-1 do if riddle[struct].s[i].sym=symmetries then begin
+      g:=riddle[struct].s[i].given;
+      if g<minGiven then minGiven:=g;
+    end;
+
+    if minGiven=sqr(C_sudokuStructure[struct].size)
+    then difficulty:=1
+    else difficulty:=sqr(C_sudokuStructure[struct].size)-minGiven+1;
+    sudoku.create(C_sudokuStructure[struct].size,symmetries,difficulty);
+
+    enterCriticalSection(storedCs);
+    if riddle[struct].fill<length(riddle[struct].s) then begin
+      riddle[struct].s[riddle[struct].fill]:=sudoku;
+      i:= riddle[struct].fill;
+      inc(riddle[struct].fill);
+    end else begin
+      i:=0;
+      while (i<length(riddle[struct].s)) and
+            ((riddle[struct].s[i].sym<>symmetries) or (riddle[struct].s[i].sym=symmetries) and (riddle[struct].s[i].given<=sudoku.given)) do inc(i);
+      if i<length(riddle[struct].s)
+      then riddle[struct].s[i]:=sudoku
+      else i:=-1;
+    end;
+    if i<>-1 then begin
+      while (i>0) and (riddle[struct].s[i].given>riddle[struct].s[i-1].given) do begin
+        sudoku:=riddle[struct].s[i];
+        riddle[struct].s[i]:=riddle[struct].s[i-1];
+        riddle[struct].s[i-1]:=sudoku;
+        dec(i);
+      end;
+      while (i<riddle[struct].fill-1) and (riddle[struct].s[i].given<riddle[struct].s[i+1].given) do begin
+        sudoku:=riddle[struct].s[i];
+        riddle[struct].s[i]:=riddle[struct].s[i+1];
+        riddle[struct].s[i+1]:=sudoku;
+        inc(i);
+      end;
+    end;
+    leaveCriticalSection(storedCs);
+  end;
+
+CONSTRUCTOR T_storedRiddles.create;
+  VAR i:longint;
+  begin
+    initCriticalSection(storedCs);
+    destructionPending:=false;
+    calculationRunning:=false;
+    for i:=0 to 6 do riddle[i].fill:=0;
+  end;
+
+DESTRUCTOR T_storedRiddles.destroy;
+  begin
+    destructionPending:=true;
+    while calculationRunning do sleep(1);
+    doneCriticalSection(storedCs);
+  end;
+
+FUNCTION makeRiddlesThread(p:pointer):ptrint;
+  VAR lastOutput:double=0;
+  begin
+    lastOutput:=now;
+    with P_storedRiddles(p)^ do begin
+//      writeSummary;
+      while not(destructionPending) do begin
+        makeARiddle;
+        if now>lastOutput+1/(24*60) then begin
+          lastOutput:=now;
+//          writeSummary;
+        end;
+      end;
+      calculationRunning:=false;
+    end;
+    result:=0;
+  end;
+
+PROCEDURE T_storedRiddles.ensureBackgroundThread;
+  begin
+    enterCriticalSection(storedCs);
+    if not(calculationRunning) and not(destructionPending) then begin
+      calculationRunning:=true;
+      beginThread(@makeRiddlesThread,@self);
+    end;
+    leaveCriticalSection(storedCs);
+  end;
+
+FUNCTION T_storedRiddles.getRiddle(CONST structIdx: byte; CONST symmetries: T_symmetries; CONST valuesGiven: byte): T_sudoku;
+  VAR candidates:array[0..291] of T_sudoku;
+      candidateCount:longint=0;
+      bestMatchingGiven:word=65535;
+      given:word;
+      i:longint;
+      j:longint=0;
+  begin
+    candidates[0].create(C_sudokuStructure[structIdx].size,symmetries,sqr(C_sudokuStructure[structIdx].size)-valuesGiven);
+    candidateCount:=1;
+    bestMatchingGiven:=candidates[0].given;
+    enterCriticalSection(storedCs);
+    //Only take the riddles into account that are at least as symmetric as required
+    for i:=0 to riddle[structIdx].fill-1 do if riddle[structIdx].s[i].sym*symmetries=symmetries then begin
+      given:=riddle[structIdx].s[i].given;
+      if abs(valuesGiven-given)<=abs(valuesGiven-bestMatchingGiven) then begin
+        bestMatchingGiven:=given;
+        candidates[candidateCount]:=riddle[structIdx].s[i];
+        inc(candidateCount);
+      end;
+    end;
+    leaveCriticalSection(storedCs);
+    //Filter again in order to restrict to the "most nearly right" number of given values
+    for i:=0 to candidateCount-1 do if abs(valuesGiven-candidates[i].given)<=abs(valuesGiven-bestMatchingGiven)
+       then begin
+         candidates[j]:=candidates[i];
+         inc(j);
+       end;
+    candidateCount:=j;
+    //Result is any of the filtered riddles
+    if candidateCount=0
+    then result.create(C_sudokuStructure[structIdx].size,symmetries,sqr(C_sudokuStructure[structIdx].size)-valuesGiven)
+    else result:=candidates[random(candidateCount)];
+    result.scramble(symmetries=[]);
+  end;
+
+FUNCTION T_storedRiddles.validDifficulties(CONST structIdx:byte; CONST symmetries:T_symmetries):T_setOfBytes;
+  VAR i:longint;
+  begin
+    enterCriticalSection(storedCs);
+    result.fill:=0;
+    for i:=0 to riddle[structIdx].fill-1 do if (riddle[structIdx].s[i].sym*symmetries=symmetries) then result.add(riddle[structIdx].s[i].given);
+    leaveCriticalSection(storedCs);
+  end;
+
+PROCEDURE T_storedRiddles.writeSummary;
+  CONST SYM_TMP:array[0..4] of record
+          explanation:string;
+          sym:T_symmetries;
+        end=((explanation:'SYM'; sym:[sym_x,sym_y,sym_center]),
+             (explanation:'Sx '; sym:[sym_x]),
+             (explanation:'Sy '; sym:[sym_y]),
+             (explanation:'Sc '; sym:[sym_center]),
+             (explanation:'---'; sym:[]));
+  VAR i,j,k:longint;
+      counts:array[0..256] of longint;
+
+  begin
+    for i:=0 to 6 do begin
+      writeln(C_sudokuStructure[i].size,'x',C_sudokuStructure[i].size,'-Riddles: ',riddle[i].fill);
+      for j:=0 to 4 do begin
+        for k:=0 to 256 do counts[k]:=0;
+        for k:=0 to riddle[i].fill-1 do begin
+          if riddle[i].s[k].sym=SYM_TMP[j].sym
+          then inc(counts[riddle[i].s[k].given]);
+        end;
+        write(SYM_TMP[j].explanation,': ');
+        for k:=0 to length(counts)-1 do if counts[k]>0 then write(k,'(',counts[k],') ');
+        writeln;
+      end;
+    end;
+  end;
+
+FUNCTION T_storedRiddles.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
+  VAR i,j:longint;
+  begin
+    enterCriticalSection(storedCs);
+    try
+      result:=true;
+      for i:=0 to 6 do begin
+        riddle[i].fill:=stream.readLongint;
+        if (riddle[i].fill<0) or (riddle[i].fill>length(riddle[i].s)) then exit(false);
+        for j:=0 to riddle[i].fill-1 do result:=result and riddle[i].s[j].loadFromStream(stream);
+      end;
+      if not(result) then for i:=0 to 6 do riddle[i].fill:=0;
+    finally
+      leaveCriticalSection(storedCs);
+    end;
+  end;
+
+PROCEDURE T_storedRiddles.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
+  VAR i,j:longint;
+  begin
+    enterCriticalSection(storedCs);
+    try
+      for i:=0 to 6 do begin
+        stream.writeLongint(riddle[i].fill);
+        for j:=0 to riddle[i].fill-1 do riddle[i].s[j].saveToStream(stream);
+      end;
+    finally
+      leaveCriticalSection(storedCs);
+    end;
+  end;
+
+{ T_setOfBytes }
+
+PROCEDURE T_setOfBytes.add(CONST v: byte);
+  VAR i:longint=0;
+  begin
+    while (i<fill) and (value[i]<>v) do inc(i);
+    if i>=fill then begin
+      value[i]:=v;
+      inc(fill);
+    end;
+  end;
+
+PROCEDURE T_setOfBytes.addAll(CONST b: T_setOfBytes);
+  VAR i:longint;
+  begin
+    for i:=0 to b.fill-1 do add(b.value[i]);
+  end;
+
+FUNCTION T_setOfBytes.contains(CONST v: byte): boolean;
+  VAR i:longint;
+  begin
+    for i:=0 to fill-1 do if value[i]=v then exit(true);
+    result:=false;
+  end;
+
+FUNCTION T_setOfBytes.minimum:byte;
+  VAR i:longint;
+  begin
+    result:=255;
+    for i:=0 to fill-1 do if value[i]<result then result:=value[i];
+  end;
 
 FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
   VAR i0,j0,i1,j1:byte;
@@ -303,88 +580,84 @@ CONSTRUCTOR T_sudoku.createUnfilled(size: byte);
     fieldSize:=C_sudokuStructure[structIdx].size;
     //set all cells to ss_unknown value
     for k:=0 to length(el)-1 do el[k]:=C_sudokuStructure[structIdx].any;
+    sym:=[sym_x,sym_y,sym_center];
   end;
 
 CONSTRUCTOR T_sudoku.createFull(CONST size: byte);
   begin
     repeat createUnfilled(size); until fullSolve(true)=ss_solved;
+    sym:=[sym_x,sym_y,sym_center];
   end;
 
-CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symm_x, symm_y,
-  symm_center: boolean; CONST difficulty: word);
-  FUNCTION extendUndefList(CONST undefList:T_arrayOfLongint; CONST i,j:byte):T_arrayOfLongint;
+PROCEDURE writeOut  (txt:string); begin write  (txt); end;
+PROCEDURE writelnOut(txt:string); begin writeln(txt); end;
+
+CONSTRUCTOR T_sudoku.create(CONST size: byte; CONST symmetries:T_symmetries; CONST difficulty: word);
+  FUNCTION extendUndefList(CONST undefList:T_setOfBytes; CONST i:byte):T_setOfBytes;
     FUNCTION mx(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*             (k div fieldSize) ; end;
     FUNCTION my(CONST k:longint):longint; begin result:=            (k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
     FUNCTION mc(CONST k:longint):longint; begin result:=fieldSize-1-(k mod fieldSize)+fieldSize*(fieldSize-1-(k div fieldSize)); end;
     VAR k:longint;
     begin
       initialize(result);
-      result:=j*fieldSize+i;
-      if symm_x      then for k:=0 to length(result)-1 do append(result,mx(result[k]));
-      if symm_y      then for k:=0 to length(result)-1 do append(result,my(result[k]));
-      if symm_center then for k:=0 to length(result)-1 do append(result,mc(result[k]));
-      append(result,undefList);
-      sortUnique(result);
+      result.fill:=1;
+      result.value[0]:=i;
+      if sym_x      in symmetries then for k:=0 to result.fill-1 do result.add(mx(result.value[k]));
+      if sym_y      in symmetries then for k:=0 to result.fill-1 do result.add(my(result.value[k]));
+      if sym_center in symmetries then for k:=0 to result.fill-1 do result.add(mc(result.value[k]));
+      result.addAll(undefList);
     end;
 
-  FUNCTION initialListTakingSymmetriesIntoAccount:T_arrayOfLongint;
-    VAR ignored:T_arrayOfLongint;
-        i,j,k:longint;
-    FUNCTION isIgnored(CONST index:longint):boolean;
-      VAR ig:longint;
-      begin result:=false; for ig in ignored do if ig=index then exit(true); end;
-
+  FUNCTION initialListTakingSymmetriesIntoAccount:T_setOfBytes;
+    VAR ignored:T_setOfBytes;
+        i,j,k:byte;
     begin
-      initialize(result);  setLength(result ,0);
-      initialize(ignored); setLength(ignored,0);
-      for k:=0 to fieldSize*fieldSize-1 do if not(isIgnored(k)) then begin
-        append(result,k);
-        ignored:=extendUndefList(ignored,k mod fieldSize,k div fieldSize);
+      initialize(result);  result.fill:=0;
+      initialize(ignored); ignored.fill:=0;
+      for k:=0 to fieldSize*fieldSize-1 do if not(ignored.contains(k)) then begin
+        result.add(k);
+        ignored:=extendUndefList(ignored,k);
       end;
-      for i:=0 to length(result)-1 do begin
-        repeat j:=random(length(result)) until j<>i;
-        k:=result[i]; result[i]:=result[j]; result[j]:=k;
+      for i:=0 to result.fill-1 do begin
+        repeat j:=random(result.fill) until j<>i;
+        k:=result.value[i]; result.value[i]:=result.value[j]; result.value[j]:=k;
       end;
     end;
 
   VAR bestUndefList,
       undefList,
       extendedUndefList,
-      undefCandidates:T_arrayOfLongint;
+      undefCandidates:T_setOfBytes;
       k:longint;
       runsWithoutImprovement:longint=0;
   begin
     createFull(size);
-    bestUndefList:=C_EMPTY_LONGINT_ARRAY;
+    bestUndefList.fill:=0;
     repeat
-      undefList:=C_EMPTY_LONGINT_ARRAY;
+      undefList.fill:=0;
       undefCandidates:=initialListTakingSymmetriesIntoAccount;
-      while (length(undefList)<difficulty) and (length(undefCandidates)>0) do begin
-        k:=undefCandidates       [length(undefCandidates)-1];
-        setLength(undefCandidates,length(undefCandidates)-1);
-
-        extendedUndefList:=extendUndefList(undefList,k mod fieldSize,k div fieldSize);
+      while (undefList.fill<difficulty) and (undefCandidates.fill>0) do begin
+        k:=undefCandidates.value[undefCandidates.fill-1];
+        dec(undefCandidates.fill);
+        extendedUndefList:=extendUndefList(undefList,k);
         if clone(extendedUndefList).fullSolve(false)=ss_solved
-        then begin
-          setLength(undefList,0);
-          undefList:=extendedUndefList;
-        end
-        else setLength(extendedUndefList,0);
+        then undefList:=extendedUndefList;
       end;
-      if length(undefList)>length(bestUndefList) then begin
+      if undefList.fill>bestUndefList.fill then begin
         bestUndefList:=undefList;
         runsWithoutImprovement:=0;
       end else inc(runsWithoutImprovement);
-    until (length(bestUndefList)>=difficulty) or (runsWithoutImprovement>1.2*fieldSize);
-    for k in bestUndefList do el[k]:=C_sudokuStructure[structIdx].any;
+    until (bestUndefList.fill>=difficulty) or (runsWithoutImprovement>1.2*fieldSize);
+    for k:=0 to bestUndefList.fill-1 do el[bestUndefList.value[k]]:=C_sudokuStructure[structIdx].any;
+    sym:=symmetries;
   end;
 
-FUNCTION T_sudoku.clone(CONST undefList: T_arrayOfLongint): T_sudoku;
+FUNCTION T_sudoku.clone(CONST undefList: T_setOfBytes): T_sudoku;
   VAR k:longint;
   begin
     result.createUnfilled(fieldSize);
     for k:=0 to length(el)-1 do result.el[k]:=el[k];
-    for k in undefList do result.el[k]:=C_sudokuStructure[structIdx].any;
+    for k:=0 to undefList.fill-1 do result.el[undefList.value[k]]:=C_sudokuStructure[structIdx].any;
   end;
 
 FUNCTION T_sudoku.getSquare(CONST x, y: byte): byte;
@@ -566,45 +839,16 @@ PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output;
     if small then writelnOut('}');
   end;
 
-FUNCTION T_sudoku.getSerialVersion: dword;
-  begin
-    result:=1;
-  end;
-
-FUNCTION T_sudoku.loadFromStream(VAR stream: T_bufferedInputStreamWrapper
-  ): boolean;
-  //liest die Inhalte des Objektes aus einer bereits geöffneten Datei und gibt true zurück gdw. kein Fehler auftrat
-  VAR i:longint;
-  begin
-    fieldSize:=stream.readByte; result:=fieldSize in [4,6,8,9,12,15,16];
-    structIdx:=stream.readByte; result:=result and
-                                  (structIdx in [0..6]) and
-                                  (C_sudokuStructure[structIdx].size=fieldSize);
-    if result then begin
-      for i:=0 to sqr(fieldSize)-1 do begin
-        el[i]:=stream.readWord; result:=result and (el[i]<=C_sudokuStructure[structIdx].any);
-      end;
-    end;
-  end;
-
-PROCEDURE T_sudoku.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
-  //schreibt die Inhalte des Objektes in eine bereits geöffnete Datei
-  VAR i:longint;
-  begin
-    stream.writeByte(fieldSize);
-    stream.writeByte(structIdx);
-    for i:=0 to sqr(fieldSize)-1 do stream.writeWord(el[i]);
-  end;
-
-PROCEDURE T_sudoku.scramble;
-  TYPE row16=array[0..15] of byte;
-  VAR simpleForm:array[0..15] of row16;
+PROCEDURE T_sudoku.scramble(CONST allowCellPermutation:boolean);
+  TYPE T_shortList=array[0..15] of byte;
+  CONST C_orderedShortList:T_shortList=(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+  VAR simpleForm:array[0..15,0..15] of byte;
   PROCEDURE randomSubstitute;
-    VAR sub:array[0..15] of byte;
+    VAR sub:T_shortList;
         i,j:longint;
         tmp:byte;
     begin
-      for i:=0 to fieldSize-1 do sub[i]:=i;
+      sub:=C_orderedShortList;
       for i:=0 to fieldSize-1 do begin
         repeat j:=random(fieldSize) until j<>i;
         tmp:=sub[i]; sub[i]:=sub[j]; sub[j]:=tmp;
@@ -612,40 +856,101 @@ PROCEDURE T_sudoku.scramble;
       for i:=0 to fieldSize-1 do
       for j:=0 to fieldSize-1 do begin
         tmp:=simpleForm[i,j];
-        if (tmp>=0) and (tmp<fieldSize) then simpleForm[i,j]:=sub[tmp];
+        if (tmp<fieldSize) then simpleForm[i,j]:=sub[tmp];
       end;
     end;
 
-  PROCEDURE scrambleRows;
+  FUNCTION permutation(CONST blockSize:byte):T_shortList;
+    VAR i,j,bi,bj,blockCount:longint;
+        tmp:byte;
     begin
-      //TODO: Implement me
+      result:=C_orderedShortList;
+      //Scramble within blocks:
+      for i:=0 to fieldSize-1 do begin
+        repeat j:=(i div blockSize)*blockSize+random(blockSize) until j<>i;
+        tmp:=result[i]; result[i]:=result[j]; result[j]:=tmp;
+      end;
+      //Scramble blocks:
+      blockCount:=fieldSize div blockSize;
+      for bi:=0 to blockCount-1 do begin
+        repeat bj:=random(blockCount) until bj<>bi;
+        for i:=0 to blockSize-1 do begin
+          tmp:=result[bi*blockSize+i];
+          result[bi*blockSize+i]:=result[bj*blockSize+i];
+          result[bj*blockSize+i]:=tmp;
+        end;
+      end;
     end;
 
-  PROCEDURE scrambleColumns;
-    begin
-      //TODO: Implement me;
-    end;
-
-  VAR i,j:longint;
+  VAR i,j,i_,j_:longint;
+      permI,permJ:T_shortList;
   begin
     //Randomly transpose (if possible)
-    if (C_sudokuStructure[structIdx].blockSize[0]=C_sudokuStructure[structIdx].blockSize[1]) and (random>0.5)
+    if (C_sudokuStructure[structIdx].blockSize[0]=C_sudokuStructure[structIdx].blockSize[1]) and (random>0.5) and (allowCellPermutation)
     then for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(j,i)-1
     else for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(i,j)-1;
 
     randomSubstitute;
-    scrambleRows;
-    scrambleColumns;
-
+    if allowCellPermutation
+    then begin
+      permI:=permutation(C_sudokuStructure[structIdx].blockSize[0]);
+      permJ:=permutation(C_sudokuStructure[structIdx].blockSize[1]);
+    end else begin
+      permI:=C_orderedShortList;
+      permJ:=C_orderedShortList;
+    end;
     //Write back
     for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do begin
-      if (simpleForm[i,j]>=0) and (simpleForm[i,j]<fieldSize)
-      then el[i+fieldSize*j]:=C_bit[simpleForm[i,j]]
-      else el[i+fieldSize*j]:=C_sudokuStructure[structIdx].any;
+      i_:=permI[i];
+      j_:=permJ[j];
+      if (simpleForm[i,j]<fieldSize)
+      then el[i_+fieldSize*j_]:=C_bit[simpleForm[i,j]]
+      else el[i_+fieldSize*j_]:=C_sudokuStructure[structIdx].any;
     end;
   end;
 
-FUNCTION isBetterThan(size:byte; e1,e2:hallOfFameEntry):boolean;
+FUNCTION T_sudoku.loadFromStream(VAR stream:T_bufferedInputStreamWrapper):boolean;
+  VAR i:longint;
+      v:byte;
+  begin
+    result:=true;
+    structIdx:=stream.readByte;
+    if (structIdx>=length(C_sudokuStructure)) then exit(false);
+    fieldSize:=C_sudokuStructure[structIdx].size;
+    v:=stream.readByte;
+    if v in [0..7] then begin
+      sym:=[];
+      if (v and 1)=1 then include(sym,sym_x);
+      if (v and 2)=2 then include(sym,sym_y);
+      if (v and 4)=4 then include(sym,sym_center);
+    end else exit(false);
+    for i:=0 to fieldSize*fieldSize-1 do begin
+      v:=stream.readByte;
+      if (v<fieldSize) then el[i]:=C_bit[v] else
+      if v=255 then el[i]:=C_sudokuStructure[structIdx].any
+      else exit(false);
+    end;
+  end;
+
+PROCEDURE T_sudoku.saveToStream(VAR stream:T_bufferedOutputStreamWrapper);
+  VAR i:longint;
+      v:byte;
+  begin
+    stream.writeByte(structIdx);
+    v:=0;
+    if sym_x      in sym then inc(v);
+    if sym_y      in sym then inc(v,2);
+    if sym_center in sym then inc(v,4);
+    stream.writeByte(v);
+    for i:=0 to fieldSize*fieldSize-1 do begin
+      v:=0;
+      while (v<C_sudokuStructure[structIdx].size) and (el[i]<>C_bit[v]) do inc(v);
+      if v>=C_sudokuStructure[structIdx].size then v:=255;
+      stream.writeByte(v);
+    end;
+  end;
+
+FUNCTION isBetterThan(e1,e2:hallOfFameEntry):boolean;
   begin
     result:=(ord(e1.markErrors)*2+e1.given)/24/60+e1.time<
             (ord(e2.markErrors)*2+e2.given)/24/60+e2.time;
@@ -691,16 +996,18 @@ FUNCTION T_sudokuRiddle.makeHOFEntry: hallOfFameEntry;
 PROCEDURE T_sudokuRiddle.initGame(size: byte);
   VAR aid:T_sudoku;
       i,j:byte;
+      structIndex:longint=-1;
+      valuesGiven:word;
   begin
+    for i:=0 to length(C_sudokuStructure)-1 do if size=C_sudokuStructure[i].size then structIndex:=i;
     paused:=false;
     fieldSize:=size;
     modeIdx:=0;
     startTime:=now;
     while C_sudokuStructure[modeIdx].size<>size do inc(modeIdx);
-    aid.create(size,config.difficulty.xSymm,
-                    config.difficulty.ySymm,
-                    config.difficulty.ptSymm,
-                   ((75-5*config.difficulty.diff)*sqr(size)) div 100);
+    valuesGiven:=config.storedRiddles.validDifficulties(structIndex,config.difficulty.symmetries).minimum;
+    valuesGiven:=valuesGiven+round((sqr(size)-valuesGiven)*sqr(config.difficulty.diff*0.1));
+    aid:=config.storedRiddles.getRiddle(structIndex,config.difficulty.symmetries,valuesGiven);
     givenCount:=0;
     for i:=0 to size-1 do
     for j:=0 to size-1 do begin
@@ -884,7 +1191,8 @@ FUNCTION T_sudokuRiddle.loadFromStream(VAR stream: T_bufferedInputStreamWrapper)
       if given then inc(givenCount);
       value:=stream.readByte;
     end;
-    checkConflicts;
+    if result then checkConflicts
+              else initGame(4);
   end;
 
 PROCEDURE T_sudokuRiddle.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
@@ -912,6 +1220,7 @@ CONSTRUCTOR T_config.create;
   VAR i,j:byte;
   begin
     riddle.create;
+    storedRiddles.create;
     if not(loadFromFile(configFileName)) then begin
       with view do begin
         bgColTop   :=0;
@@ -928,9 +1237,7 @@ CONSTRUCTOR T_config.create;
       end;
       with difficulty do begin
         markErrors:=true;
-        xSymm :=true;
-        ySymm :=true;
-        ptSymm:=true;
+        symmetries:=[sym_center,sym_x,sym_y];
         diff  :=5;
       end;
       for i:=0 to 6 do begin
@@ -950,16 +1257,19 @@ CONSTRUCTOR T_config.create;
       riddle.initGame(9);
       gameIsDone:=false;
     end;
+    storedRiddles.ensureBackgroundThread;
   end;
 
 DESTRUCTOR T_config.destroy;
   begin
+    storedRiddles.destructionPending:=true;
     saveToFile(configFileName);
+    storedRiddles.destroy;
   end;
 
 FUNCTION T_config.getSerialVersion: dword;
   begin
-    result:=34562389;
+    result:=34562390;
   end;
 
 FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): boolean;
@@ -981,9 +1291,13 @@ FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
     end;
     with difficulty do begin
       markErrors:=stream.readBoolean;
-      xSymm     :=stream.readBoolean;
-      ySymm     :=stream.readBoolean;
-      ptSymm    :=stream.readBoolean;
+      i:=stream.readByte;
+      if i in [0..7] then begin
+        symmetries:=[];
+        if (i and 1)=1 then include(symmetries,sym_x);
+        if (i and 2)=2 then include(symmetries,sym_y);
+        if (i and 4)=4 then include(symmetries,sym_center);
+      end else exit(false);
       diff      :=stream.readByte;
     end;
     for i:=0 to 6 do for j:=0 to 31 do with hallOfFame[i,j] do begin
@@ -992,8 +1306,8 @@ FUNCTION T_config.loadFromStream(VAR stream: T_bufferedInputStreamWrapper): bool
       given:=stream.readWord;   result:=result and (given>0) and (given<=sqr(C_sudokuStructure[i].size));
       markErrors:=stream.readBoolean;
     end;
-    riddle.initGame(4);
     result:=result and riddle.loadFromStream(stream);
+    result:=result and storedRiddles.loadFromStream(stream);
     gameIsDone:=stream.readBoolean;
   end;
 
@@ -1016,10 +1330,12 @@ PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
     end;
     with difficulty do begin
       stream.writeBoolean(markErrors);
-      stream.writeBoolean(xSymm     );
-      stream.writeBoolean(ySymm     );
-      stream.writeBoolean(ptSymm    );
-      stream.writeByte   (diff      );
+      i:=0;
+      if sym_x      in symmetries then inc(i);
+      if sym_y      in symmetries then inc(i,2);
+      if sym_center in symmetries then inc(i,4);
+      stream.writeByte(i);
+      stream.writeByte (diff      );
     end;
     for i:=0 to 6 do for j:=0 to 31 do with hallOfFame[i,j] do begin
       stream.writeAnsiString (name);
@@ -1028,14 +1344,14 @@ PROCEDURE T_config.saveToStream(VAR stream: T_bufferedOutputStreamWrapper);
       stream.writeBoolean(markErrors);
     end;
     riddle.saveToStream(stream);
+    storedRiddles.saveToStream(stream);
     stream.writeBoolean(gameIsDone);
   end;
 
 FUNCTION T_config.isGoodEnough(CONST modeIdx: byte; CONST newEntry: hallOfFameEntry
   ): boolean;
   begin
-    result:=isBetterThan(C_sudokuStructure[modeIdx].size,
-                         newEntry,
+    result:=isBetterThan(newEntry,
                          hallOfFame[modeIdx,19]);
   end;
 
@@ -1045,7 +1361,7 @@ PROCEDURE T_config.addHOFEntry(CONST modeIdx: byte; CONST newEntry: hallOfFameEn
   begin
     i:=19;
     hallOfFame[modeIdx,19]:=newEntry;
-    while (i>0) and isBetterThan(C_sudokuStructure[modeIdx].size,
+    while (i>0) and isBetterThan(
                       hallOfFame[modeIdx,i],
                       hallOfFame[modeIdx,i-1]) do begin
       tmp:=hallOfFame[modeIdx,i];

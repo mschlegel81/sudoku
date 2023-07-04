@@ -87,11 +87,11 @@ PROCEDURE writelnOut(txt:string);
 PROCEDURE TexportForm.Button8Click(Sender: TObject);
   VAR s:T_sudoku;
       x:word;
-      txtOut,sx,sy,sc:boolean;
-      riddleSize:byte;
-      diffic:word;
+      txtOut:boolean;
+      riddleSize,structIndex:byte;
+      valuesGiven:word;
       numberOfRiddles:word;
-
+      symmetries:T_symmetries;
   FUNCTION enumString(x:word):string;
     begin
       if ExportSolutions_CB.checked then begin
@@ -108,6 +108,7 @@ PROCEDURE TexportForm.Button8Click(Sender: TObject);
                 else SaveDialog1.fileName:=ChangeFileExt(SaveDialog1.fileName,'.tex');
       assignFile(outFile,SaveDialog1.fileName);
       rewrite(outFile);
+      structIndex:=ExportSizeListBox.ItemIndex;
       case byte(ExportSizeListBox.ItemIndex) of
         0: riddleSize:= 4;
         1: riddleSize:= 6;
@@ -117,10 +118,10 @@ PROCEDURE TexportForm.Button8Click(Sender: TObject);
         5: riddleSize:=15;
         6: riddleSize:=16;
       end;
-      diffic:=((75-5*ExportDiff_LB.ItemIndex)*sqr(riddleSize)) div 100;
+
       numberOfRiddles:=strToInt(ExportNumberEdit.text);
       setLength(solutions,2);
-      if txtOut then solutions[0]:='LOESUNGEN:'
+      if txtOut then solutions[0]:='LÖSUNGEN:'
                 else solutions[0]:='\newpage \begin{Large} L\"osungen \end{Large}';
       solutions[1]:='';
       solutionOut:=false;
@@ -128,10 +129,13 @@ PROCEDURE TexportForm.Button8Click(Sender: TObject);
       ExportProgressBar.max:=numberOfRiddles;
       for x:=1 to numberOfRiddles do begin
         ExportProgressBar.position:=x;
-        if ExportSX_RB3.checked then sx:=(random(3)=0) else sx:=ExportSX_RB1.checked;
-        if ExportSY_RB3.checked then sy:=(random(3)=0) else sy:=ExportSY_RB1.checked;
-        if ExportSP_RB3.checked then sc:=(random(3)=0) else sc:=ExportSP_RB1.checked;
-        s.create(riddleSize,sx,sy,sc,diffic);
+        symmetries:=[];
+        if ExportSX_RB3.checked and (random(3)=0) or ExportSX_RB1.checked then include(symmetries,sym_x);
+        if ExportSY_RB3.checked and (random(3)=0) or ExportSY_RB1.checked then include(symmetries,sym_y);
+        if ExportSP_RB3.checked and (random(3)=0) or ExportSP_RB1.checked then include(symmetries,sym_center);
+        valuesGiven:=config.storedRiddles.validDifficulties(structIndex,config.difficulty.symmetries).minimum;
+        valuesGiven:=valuesGiven+round((sqr(riddleSize)-valuesGiven)*sqr(ExportDiff_LB.ItemIndex*0.1));
+        s:=config.storedRiddles.getRiddle(structIndex,symmetries,valuesGiven);
         solutionOut:=false;
         if txtOut then s.writeTxtForm  (@writeOut,@writelnOut)
                   else s.writeLaTeXForm(@writeOut,@writelnOut,enumString(x),false);

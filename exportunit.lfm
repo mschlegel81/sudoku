@@ -1,22 +1,21 @@
 object exportForm: TexportForm
   Left = 412
-  Height = 537
+  Height = 417
   Top = 115
-  Width = 480
-  Caption = 'exportForm'
-  ClientHeight = 537
-  ClientWidth = 480
-  DesignTimePPI = 144
-  LCLVersion = '1.8.4.0'
+  Width = 320
+  Caption = 'Export'
+  ClientHeight = 417
+  ClientWidth = 320
+  LCLVersion = '2.2.2.0'
   object ExportGroupBox: TGroupBox
     Left = 0
-    Height = 537
+    Height = 417
     Top = 0
-    Width = 480
+    Width = 320
     Align = alClient
     Caption = 'Datei erstellen'
-    ClientHeight = 507
-    ClientWidth = 476
+    ClientHeight = 397
+    ClientWidth = 316
     TabOrder = 0
     object GroupBox1: TGroupBox
       AnchorSideLeft.Control = GroupBox2
@@ -24,21 +23,21 @@ object exportForm: TexportForm
       AnchorSideTop.Side = asrBottom
       AnchorSideBottom.Control = ExportProgressBar
       Left = 0
-      Height = 134
-      Top = 353
-      Width = 114
+      Height = 68
+      Top = 316
+      Width = 82
       Align = alCustom
       Anchors = [akTop, akLeft, akBottom]
       AutoSize = True
       Caption = 'Dateiformat'
-      ClientHeight = 104
-      ClientWidth = 110
+      ClientHeight = 48
+      ClientWidth = 78
       TabOrder = 1
       object ExportFT1_RB: TRadioButton
         Left = 0
-        Height = 29
+        Height = 19
         Top = 0
-        Width = 110
+        Width = 78
         Align = alTop
         Caption = 'Text'
         Checked = True
@@ -47,9 +46,9 @@ object exportForm: TexportForm
       end
       object ExportFT2_RB: TRadioButton
         Left = 0
-        Height = 29
-        Top = 29
-        Width = 110
+        Height = 19
+        Top = 19
+        Width = 78
         Align = alTop
         Caption = 'LaTex'
         TabOrder = 1
@@ -57,49 +56,50 @@ object exportForm: TexportForm
     end
     object GroupBox2: TGroupBox
       Left = 0
-      Height = 353
+      Height = 316
       Top = 0
-      Width = 476
+      Width = 316
       Align = alTop
+      AutoSize = True
       Caption = 'Rätsel'
-      ClientHeight = 323
-      ClientWidth = 472
+      ClientHeight = 296
+      ClientWidth = 312
       TabOrder = 0
       object Label1: TLabel
         AnchorSideLeft.Control = GroupBox2
         AnchorSideTop.Control = ExportDiff_LB
         AnchorSideRight.Control = ExportDiff_LB
-        Left = 5
-        Height = 25
-        Top = 65
-        Width = 107
+        Left = 3
+        Height = 15
+        Top = 84
+        Width = 72
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Left = 5
+        BorderSpacing.Left = 3
         Caption = 'Schwierigkeit:'
         ParentColor = False
       end
       object Label2: TLabel
         AnchorSideLeft.Control = GroupBox2
         AnchorSideTop.Control = GroupBox2
-        Left = 5
-        Height = 25
+        Left = 3
+        Height = 15
         Top = 0
-        Width = 57
+        Width = 39
         Align = alCustom
-        BorderSpacing.Left = 5
+        BorderSpacing.Left = 3
         Caption = 'Anzahl:'
         ParentColor = False
       end
       object Label3: TLabel
         AnchorSideLeft.Control = GroupBox2
         AnchorSideTop.Control = ExportSizeListBox
-        Left = 5
-        Height = 25
-        Top = 33
-        Width = 52
+        Left = 3
+        Height = 15
+        Top = 23
+        Width = 35
         Align = alCustom
-        BorderSpacing.Left = 5
+        BorderSpacing.Left = 3
         Caption = 'Größe:'
         ParentColor = False
       end
@@ -108,29 +108,24 @@ object exportForm: TexportForm
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
-        Left = 112
-        Height = 32
-        Top = 65
-        Width = 360
+        Left = 75
+        Height = 76
+        Top = 84
+        Width = 237
         Anchors = [akTop, akLeft, akRight]
         Items.Strings = (
-          '25% vorgegeben (4x4,6x6)'
-          '30% vorgegeben (bis 9x9)'
-          '35% vorgegeben (bis 12x12)'
-          '40% vorgegeben (bis 12x12)'
-          '45% vorgegeben '
-          '50% vorgegeben'
-          '55% vorgegeben'
-          '60% vorgegeben'
-          '65% vorgegeben'
-          '70% vorgegeben'
-          '75% vorgegeben'
-          '80% vorgegeben'
-          '85% vorgegeben'
-          '90% vorgegeben'
-          '95% vorgegeben'
+          'Max.'
+          '9'
+          '8'
+          '7'
+          '6'
+          '5'
+          '4'
+          '3'
+          '2'
+          '1'
         )
-        ItemHeight = 25
+        ItemHeight = 15
         TabOrder = 2
       end
       object ExportNumberEdit: TEdit
@@ -138,10 +133,10 @@ object exportForm: TexportForm
         AnchorSideTop.Control = Label2
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
-        Left = 112
-        Height = 33
+        Left = 75
+        Height = 23
         Top = 0
-        Width = 360
+        Width = 237
         Anchors = [akTop, akLeft, akRight]
         OnEditingDone = ExportNumberEditEditingDone
         TabOrder = 0
@@ -154,39 +149,39 @@ object exportForm: TexportForm
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
         Left = 0
-        Height = 59
-        Top = 97
-        Width = 472
+        Height = 39
+        Top = 160
+        Width = 312
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
         AutoSize = True
         Caption = 'x-Symmetrie'
-        ClientHeight = 29
-        ClientWidth = 468
+        ClientHeight = 19
+        ClientWidth = 308
         TabOrder = 3
         object ExportSX_RB1: TRadioButton
           Left = 0
-          Height = 29
+          Height = 19
           Top = 0
-          Width = 43
+          Width = 29
           Align = alLeft
           Caption = 'ja'
           TabOrder = 0
         end
         object ExportSX_RB2: TRadioButton
-          Left = 43
-          Height = 29
+          Left = 29
+          Height = 19
           Top = 0
-          Width = 63
+          Width = 43
           Align = alLeft
           Caption = 'nein'
           TabOrder = 1
         end
         object ExportSX_RB3: TRadioButton
-          Left = 106
-          Height = 29
+          Left = 72
+          Height = 19
           Top = 0
-          Width = 362
+          Width = 236
           Align = alClient
           Caption = 'zufällig'
           Checked = True
@@ -201,39 +196,39 @@ object exportForm: TexportForm
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
         Left = 0
-        Height = 59
-        Top = 156
-        Width = 472
+        Height = 39
+        Top = 199
+        Width = 312
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
         AutoSize = True
         Caption = 'y-Symmetrie'
-        ClientHeight = 29
-        ClientWidth = 468
+        ClientHeight = 19
+        ClientWidth = 308
         TabOrder = 4
         object ExportSY_RB1: TRadioButton
           Left = 0
-          Height = 29
+          Height = 19
           Top = 0
-          Width = 43
+          Width = 29
           Align = alLeft
           Caption = 'ja'
           TabOrder = 0
         end
         object ExportSY_RB2: TRadioButton
-          Left = 43
-          Height = 29
+          Left = 29
+          Height = 19
           Top = 0
-          Width = 63
+          Width = 43
           Align = alLeft
           Caption = 'nein'
           TabOrder = 1
         end
         object ExportSY_RB3: TRadioButton
-          Left = 106
-          Height = 29
+          Left = 72
+          Height = 19
           Top = 0
-          Width = 362
+          Width = 236
           Align = alClient
           Caption = 'zufällig'
           Checked = True
@@ -248,39 +243,39 @@ object exportForm: TexportForm
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
         Left = 0
-        Height = 59
-        Top = 215
-        Width = 472
+        Height = 39
+        Top = 238
+        Width = 312
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
         AutoSize = True
         Caption = 'Punktsymmetrie'
-        ClientHeight = 29
-        ClientWidth = 468
+        ClientHeight = 19
+        ClientWidth = 308
         TabOrder = 5
         object ExportSP_RB1: TRadioButton
           Left = 0
-          Height = 29
+          Height = 19
           Top = 0
-          Width = 43
+          Width = 29
           Align = alLeft
           Caption = 'ja'
           TabOrder = 0
         end
         object ExportSP_RB2: TRadioButton
-          Left = 43
-          Height = 29
+          Left = 29
+          Height = 19
           Top = 0
-          Width = 63
+          Width = 43
           Align = alLeft
           Caption = 'nein'
           TabOrder = 1
         end
         object ExportSP_RB3: TRadioButton
-          Left = 106
-          Height = 29
+          Left = 72
+          Height = 19
           Top = 0
-          Width = 362
+          Width = 236
           Align = alClient
           Caption = 'zufällig'
           Checked = True
@@ -294,10 +289,10 @@ object exportForm: TexportForm
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
-        Left = 112
-        Height = 32
-        Top = 33
-        Width = 360
+        Left = 75
+        Height = 61
+        Top = 23
+        Width = 237
         Anchors = [akTop, akLeft, akRight]
         Items.Strings = (
           '4x4'
@@ -308,7 +303,7 @@ object exportForm: TexportForm
           '15x15'
           '16x16'
         )
-        ItemHeight = 25
+        ItemHeight = 15
         TabOrder = 1
       end
       object ExportSolutions_CB: TCheckBox
@@ -318,9 +313,9 @@ object exportForm: TexportForm
         AnchorSideRight.Control = GroupBox2
         AnchorSideRight.Side = asrBottom
         Left = 0
-        Height = 29
-        Top = 274
-        Width = 472
+        Height = 19
+        Top = 277
+        Width = 312
         Anchors = [akTop, akLeft, akRight]
         Caption = 'Lösungen Speichern'
         TabOrder = 6
@@ -332,12 +327,12 @@ object exportForm: TexportForm
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = ExportGroupBox
       AnchorSideRight.Side = asrBottom
-      Left = 114
-      Height = 25
-      Top = 378
-      Width = 362
+      Left = 82
+      Height = 17
+      Top = 333
+      Width = 234
       Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.InnerBorder = 4
+      BorderSpacing.InnerBorder = 3
       Caption = 'Datei erstellen'
       ModalResult = 1
       OnClick = Button8Click
@@ -349,12 +344,12 @@ object exportForm: TexportForm
       AnchorSideTop.Control = GroupBox1
       AnchorSideRight.Control = ExportGroupBox
       AnchorSideRight.Side = asrBottom
-      Left = 114
-      Height = 25
-      Top = 353
-      Width = 362
+      Left = 82
+      Height = 17
+      Top = 316
+      Width = 234
       Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.InnerBorder = 4
+      BorderSpacing.InnerBorder = 3
       Cancel = True
       Caption = 'Schließen'
       ModalResult = 2
@@ -362,15 +357,15 @@ object exportForm: TexportForm
     end
     object ExportProgressBar: TProgressBar
       Left = 0
-      Height = 20
-      Top = 487
-      Width = 476
+      Height = 13
+      Top = 384
+      Width = 316
       Align = alBottom
       TabOrder = 4
     end
   end
   object SaveDialog1: TSaveDialog
-    left = 209
-    top = 244
+    Left = 139
+    Top = 163
   end
 end
