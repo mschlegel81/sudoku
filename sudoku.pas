@@ -7,16 +7,16 @@ CONST
   C_defaultStructureIndex=3;
   C_sudokuStructure:array [0..6] of record
                                       size     :byte;
-                                      blockSize:array[0..1] of byte;
+                                      BlockSize:array[0..1] of byte;
                                       any      :word;
                                     end=
-  ((size: 4; blockSize:(2,2); any:   15),
-   (size: 6; blockSize:(2,3); any:   63),
-   (size: 8; blockSize:(2,4); any:  255),
-   (size: 9; blockSize:(3,3); any:  511),
-   (size:12; blockSize:(3,4); any: 4095),
-   (size:15; blockSize:(3,5); any:32767),
-   (size:16; blockSize:(4,4); any:65535));
+  ((size: 4; BlockSize:(2,2); any:   15),
+   (size: 6; BlockSize:(2,3); any:   63),
+   (size: 8; BlockSize:(2,4); any:  255),
+   (size: 9; BlockSize:(3,3); any:  511),
+   (size:12; BlockSize:(3,4); any: 4095),
+   (size:15; BlockSize:(3,5); any:32767),
+   (size:16; BlockSize:(4,4); any:65535));
 
   C_Latex_fileHeader:array[0..5] of string=('\documentclass[12pt,a4paper]{report} \usepackage{graphics}' ,
                                             '\oddsidemargin 0in \evensidemargin 0in \topmargin 0in \textheight 23cm \textwidth 16cm',
@@ -273,18 +273,11 @@ DESTRUCTOR T_storedRiddles.destroy;
   end;
 
 FUNCTION makeRiddlesThread(p:pointer):ptrint;
-  VAR lastOutput:double=0;
+  VAR closeThreadAfter:double;
   begin
-    lastOutput:=now;
+    closeThreadAfter:=now+3/(24*60); //=3 Minutes
     with P_storedRiddles(p)^ do begin
-//      writeSummary;
-      while not(destructionPending) do begin
-        makeARiddle;
-        if now>lastOutput+1/(24*60) then begin
-          lastOutput:=now;
-//          writeSummary;
-        end;
-      end;
+      while not(destructionPending) and (now<closeThreadAfter) do makeARiddle;
       calculationRunning:=false;
     end;
     result:=0;
@@ -485,10 +478,10 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
             //exclude value in column:                                                                                   //  //
             for j1:=0 to fieldSize-1 do if j1<>j0 then Exclude(j1*fieldSize+i0);                                         //  //
             //exclude value in block:                                                                                    //  //
-            for i1:=(i0 div C_sudokuStructure[structIdx].blockSize[0])   *C_sudokuStructure[structIdx].blockSize[0]   to //  //
-                   ((i0 div C_sudokuStructure[structIdx].blockSize[0])+1)*C_sudokuStructure[structIdx].blockSize[0]-1 do //  //
-            for j1:=(j0 div C_sudokuStructure[structIdx].blockSize[1])   *C_sudokuStructure[structIdx].blockSize[1]   to //  //
-                   ((j0 div C_sudokuStructure[structIdx].blockSize[1])+1)*C_sudokuStructure[structIdx].blockSize[1]-1 do //  //
+            for i1:=(i0 div C_sudokuStructure[structIdx].BlockSize[0])   *C_sudokuStructure[structIdx].BlockSize[0]   to //  //
+                   ((i0 div C_sudokuStructure[structIdx].BlockSize[0])+1)*C_sudokuStructure[structIdx].BlockSize[0]-1 do //  //
+            for j1:=(j0 div C_sudokuStructure[structIdx].BlockSize[1])   *C_sudokuStructure[structIdx].BlockSize[1]   to //  //
+                   ((j0 div C_sudokuStructure[structIdx].BlockSize[1])+1)*C_sudokuStructure[structIdx].BlockSize[1]-1 do //  //
             if (i1<>i0) or (j1<>j0) then Exclude(j1*fieldSize+i1);                                                       //  //
             done[k]      :=true;                                                                                         //  //
             progress     :=true;                                                                                         //  //
@@ -521,10 +514,10 @@ FUNCTION T_sudoku.fullSolve(CONST fillRandom: boolean): T_sudokuState;
             totalProgress:=true;                                                                                         //
           end else begin                                                                                                 //
             //exclude value in block:                                                                                    //
-            for i1:=(i0 div C_sudokuStructure[structIdx].blockSize[0])   *C_sudokuStructure[structIdx].blockSize[0]   to //
-                   ((i0 div C_sudokuStructure[structIdx].blockSize[0])+1)*C_sudokuStructure[structIdx].blockSize[0]-1 do //
-            for j1:=(j0 div C_sudokuStructure[structIdx].blockSize[1])   *C_sudokuStructure[structIdx].blockSize[1]   to //
-                   ((j0 div C_sudokuStructure[structIdx].blockSize[1])+1)*C_sudokuStructure[structIdx].blockSize[1]-1 do //
+            for i1:=(i0 div C_sudokuStructure[structIdx].BlockSize[0])   *C_sudokuStructure[structIdx].BlockSize[0]   to //
+                   ((i0 div C_sudokuStructure[structIdx].BlockSize[0])+1)*C_sudokuStructure[structIdx].BlockSize[0]-1 do //
+            for j1:=(j0 div C_sudokuStructure[structIdx].BlockSize[1])   *C_sudokuStructure[structIdx].BlockSize[1]   to //
+                   ((j0 div C_sudokuStructure[structIdx].BlockSize[1])+1)*C_sudokuStructure[structIdx].BlockSize[1]-1 do //
             if (i1<>i0) or (j1<>j0) then excludor:=excludor or el[j1*fieldSize+i1];                                      //
             if determined(excludor) then begin                                                                           //
               el[k]        :=excludor;                                                                                   //
@@ -772,7 +765,7 @@ PROCEDURE T_sudoku.writeTxtForm(CONST writeOut, writelnOut: FT_output);
       if j=fieldSize-1
       then writelnOut(C_grid[structIdx].footer)
       else
-      if (j+1) mod (C_sudokuStructure[structIdx].blockSize[1])=0 //Trennzeile
+      if (j+1) mod (C_sudokuStructure[structIdx].BlockSize[1])=0 //Trennzeile
         then writelnOut(C_grid[structIdx].fillDouble)
         else writelnOut(C_grid[structIdx].fillLight);
     end;
@@ -829,7 +822,7 @@ PROCEDURE T_sudoku.writeLaTeXForm(CONST writeOut, writelnOut: FT_output;
         writeOut(numString(el[k]));             //Zellenwert
         inc(k);
       end;
-      if (j+1) mod (C_sudokuStructure[structIdx].blockSize[1])=0 //Trennzeile
+      if (j+1) mod (C_sudokuStructure[structIdx].BlockSize[1])=0 //Trennzeile
         then writelnOut('\\ \hline \hline')
         else writelnOut('\\ \hline');
     end;
@@ -860,24 +853,24 @@ PROCEDURE T_sudoku.scramble(CONST allowCellPermutation:boolean);
       end;
     end;
 
-  FUNCTION permutation(CONST blockSize:byte):T_shortList;
+  FUNCTION permutation(CONST BlockSize:byte):T_shortList;
     VAR i,j,bi,bj,blockCount:longint;
         tmp:byte;
     begin
       result:=C_orderedShortList;
       //Scramble within blocks:
       for i:=0 to fieldSize-1 do begin
-        repeat j:=(i div blockSize)*blockSize+random(blockSize) until j<>i;
+        repeat j:=(i div BlockSize)*BlockSize+random(BlockSize) until j<>i;
         tmp:=result[i]; result[i]:=result[j]; result[j]:=tmp;
       end;
       //Scramble blocks:
-      blockCount:=fieldSize div blockSize;
+      blockCount:=fieldSize div BlockSize;
       for bi:=0 to blockCount-1 do begin
         repeat bj:=random(blockCount) until bj<>bi;
-        for i:=0 to blockSize-1 do begin
-          tmp:=result[bi*blockSize+i];
-          result[bi*blockSize+i]:=result[bj*blockSize+i];
-          result[bj*blockSize+i]:=tmp;
+        for i:=0 to BlockSize-1 do begin
+          tmp:=result[bi*BlockSize+i];
+          result[bi*BlockSize+i]:=result[bj*BlockSize+i];
+          result[bj*BlockSize+i]:=tmp;
         end;
       end;
     end;
@@ -886,15 +879,15 @@ PROCEDURE T_sudoku.scramble(CONST allowCellPermutation:boolean);
       permI,permJ:T_shortList;
   begin
     //Randomly transpose (if possible)
-    if (C_sudokuStructure[structIdx].blockSize[0]=C_sudokuStructure[structIdx].blockSize[1]) and (random>0.5) and (allowCellPermutation)
+    if (C_sudokuStructure[structIdx].BlockSize[0]=C_sudokuStructure[structIdx].BlockSize[1]) and (random>0.5) and (allowCellPermutation)
     then for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(j,i)-1
     else for i:=0 to fieldSize-1 do for j:=0 to fieldSize-1 do simpleForm[i,j]:=getSquare(i,j)-1;
 
     randomSubstitute;
     if allowCellPermutation
     then begin
-      permI:=permutation(C_sudokuStructure[structIdx].blockSize[0]);
-      permJ:=permutation(C_sudokuStructure[structIdx].blockSize[1]);
+      permI:=permutation(C_sudokuStructure[structIdx].BlockSize[0]);
+      permJ:=permutation(C_sudokuStructure[structIdx].BlockSize[1]);
     end else begin
       permI:=C_orderedShortList;
       permJ:=C_orderedShortList;
@@ -1031,10 +1024,10 @@ PROCEDURE T_sudokuRiddle.checkConflicts;
       and ((x1<>x2) or (y1<>y2)) then begin
       if (x1=x2) or //same column
          (y1=y2) or //same row
-         (x1 div C_sudokuStructure[modeIdx].blockSize[0]=             // \
-          x2 div C_sudokuStructure[modeIdx].blockSize[0]) and         //  \
-         (y1 div C_sudokuStructure[modeIdx].blockSize[1]=             //  /same block
-          y2 div C_sudokuStructure[modeIdx].blockSize[1]) then begin  // /
+         (x1 div C_sudokuStructure[modeIdx].BlockSize[0]=             // \
+          x2 div C_sudokuStructure[modeIdx].BlockSize[0]) and         //  \
+         (y1 div C_sudokuStructure[modeIdx].BlockSize[1]=             //  /same block
+          y2 div C_sudokuStructure[modeIdx].BlockSize[1]) then begin  // /
         state[x1,y1].conflicting:=true;
         state[x2,y2].conflicting:=true;
       end;
@@ -1112,11 +1105,11 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     tempImage.CanvasBGRA.AntialiasingMode:=amOn;
 
     for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blockSize[0]<>0 then begin
+      if x mod C_sudokuStructure[modeIdx].BlockSize[0]<>0 then begin
         tempImage.CanvasBGRA.MoveTo(x0+x*quadSize,y0-1);
         tempImage.CanvasBGRA.LineTo(x0+x*quadSize,y0+fieldSize*quadSize+1);
       end;
-      if x mod C_sudokuStructure[modeIdx].blockSize[1]<>0 then begin
+      if x mod C_sudokuStructure[modeIdx].BlockSize[1]<>0 then begin
         tempImage.CanvasBGRA.MoveTo(x0-1,y0+x*quadSize);
         tempImage.CanvasBGRA.LineTo(x0+fieldSize*quadSize+1,y0+x*quadSize  );
       end;
@@ -1125,13 +1118,13 @@ PROCEDURE T_sudokuRiddle.renderRiddle;
     gridColor.FromColor(config.view.gridCol);
     tempImage.CanvasBGRA.Pen.BGRAColor:=gridColor;
     for x:=0 to fieldSize do begin
-      if x mod C_sudokuStructure[modeIdx].blockSize[0]=0 then begin
+      if x mod C_sudokuStructure[modeIdx].BlockSize[0]=0 then begin
         tempImage.CanvasBGRA.MoveTo(x0+x*quadSize-1,y0-1);
         tempImage.CanvasBGRA.LineTo(x0+x*quadSize-1,y0+fieldSize*quadSize+1);
         tempImage.CanvasBGRA.MoveTo(x0+x*quadSize+1,y0-1);
         tempImage.CanvasBGRA.LineTo(x0+x*quadSize+1,y0+fieldSize*quadSize+1);
       end;
-      if x mod C_sudokuStructure[modeIdx].blockSize[1]=0 then begin
+      if x mod C_sudokuStructure[modeIdx].BlockSize[1]=0 then begin
         tempImage.CanvasBGRA.MoveTo(x0-1                   ,y0+x*quadSize-1);
         tempImage.CanvasBGRA.LineTo(x0+fieldSize*quadSize+1,y0+x*quadSize-1);
         tempImage.CanvasBGRA.MoveTo(x0-1,y0+x*quadSize+1);
