@@ -114,7 +114,7 @@ TYPE
       storedCs:TRTLCriticalSection;
       destructionPending:boolean;
       calculationRunning:boolean;
-      PROCEDURE makeARiddle;
+      FUNCTION makeARiddle:boolean;
     public
 
       CONSTRUCTOR create;
@@ -198,7 +198,7 @@ PROCEDURE writeLatexHeader(writelnOut:FT_output);
 
 { T_storedRiddles }
 
-PROCEDURE T_storedRiddles.makeARiddle;
+FUNCTION T_storedRiddles.makeARiddle:boolean;
   VAR struct:byte;
       symmetries:T_symmetries=[];
       sudoku:T_sudoku;
@@ -252,7 +252,8 @@ PROCEDURE T_storedRiddles.makeARiddle;
         riddle[struct].s[i+1]:=sudoku;
         inc(i);
       end;
-    end;
+      result:=true;
+    end else result:=false;
     leaveCriticalSection(storedCs);
   end;
 
@@ -274,10 +275,13 @@ DESTRUCTOR T_storedRiddles.destroy;
 
 FUNCTION makeRiddlesThread(p:pointer):ptrint;
   VAR closeThreadAfter:double;
+      failsBeforeQuit:longint=32;
   begin
     closeThreadAfter:=now+3/(24*60); //=3 Minutes
     with P_storedRiddles(p)^ do begin
-      while not(destructionPending) and (now<closeThreadAfter) do makeARiddle;
+      while not(destructionPending) and (now<closeThreadAfter) and (failsBeforeQuit>0) do
+        if not makeARiddle
+        then dec(failsBeforeQuit);
       calculationRunning:=false;
     end;
     result:=0;
